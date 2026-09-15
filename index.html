@@ -23,13 +23,13 @@
     margin:0;
     font-family:'Inter',sans-serif;
     background: #e7e8ea;
-    padding: 24px 12px 40px;
+    padding: 24px 24px 40px;
     display:flex;
     justify-content:center;
   }
   .frame{
     width:100%;
-    max-width:760px;
+    max-width:1600px;
     background: var(--frame);
     border-radius: 14px;
     padding: 14px;
@@ -537,6 +537,81 @@
     overflow-y: auto;
   }
   .ref-content h2{ font-size: 15px; margin: 14px 0 6px; color: var(--marker-red); }
+  .clock-tooltip{
+    position: fixed;
+    display:none;
+    background: #1c1e22;
+    color: #fff;
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 500;
+  }
+  .clock-hit{ cursor: pointer; }
+  .clock-hit circle{ transition: fill 0.1s ease; }
+  .clock-hit:hover circle{ fill: rgba(31,95,176,0.12); }
+  .rv{
+    position:relative;
+    display:inline-block;
+    cursor:help;
+    border-bottom: 1px dotted var(--marker-blue);
+  }
+  .rv::after{
+    content: attr(data-en);
+    position:absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 6px;
+    background: #1c1e22;
+    color: #fff;
+    font-family:'Inter',sans-serif;
+    font-size: 12px;
+    font-weight:500;
+    padding: 5px 9px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+    z-index: 300;
+  }
+  .rv:hover::after{ opacity: 1; }
+
+  .num-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
+    gap: 4px 14px;
+    margin-bottom: 16px;
+  }
+  .num-col{
+    display:flex;
+    flex-direction:column;
+    gap: 3px;
+  }
+  .num-item{
+    font-family:'Inter',sans-serif;
+    font-size: 13px;
+    cursor:pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    display:flex;
+    justify-content:space-between;
+    gap:6px;
+  }
+  .num-item:hover{ background:#e8f0fc; color: var(--marker-blue); }
+  .num-item .n{ opacity:0.55; font-family:'Inter',sans-serif; }
+  .num-special{
+    display:flex;
+    gap: 18px;
+    flex-wrap:wrap;
+    margin-top: 6px;
+  }
+  body.dark .num-item:hover{ background:#2e3f52; }
   .ref-content table{ width:100%; border-collapse:collapse; margin-bottom:10px; }
   .ref-content td, .ref-content th{ padding:4px 6px; border-bottom:1px solid #ddd; font-size:13px; text-align:left; }
   body.dark .ref-modal-inner{ background:#33363c; }
@@ -559,8 +634,11 @@
       <button class="ref-tab" data-ref="formulas">Tense formulas</button>
       <button class="ref-tab" data-ref="articles">Articles</button>
       <button class="ref-tab" data-ref="connectors">Connectors</button>
+      <button class="ref-tab" data-ref="numbers">Numbers</button>
+      <button class="ref-tab" data-ref="time">Time</button>
     </div>
     <div id="refContent" class="ref-content"></div>
+    <div id="clockTooltip" class="clock-tooltip"></div>
   </div>
 </div>
 
@@ -635,11 +713,11 @@
       <select id="unitPicker"></select>
       <button class="action btn-check" id="unitCheckBtn">check answers</button>
       <button class="action btn-erase" id="unitEraseBtn">clear</button>
-      <button class="action btn-erase" id="unitToggleBtn">hide questions</button>
+      <button class="action btn-erase" id="unitToggleBtn">show questions</button>
     </div>
 
     <div id="unitSummary" class="test-summary"></div>
-    <div id="unitExercises"></div>
+    <div id="unitExercises" style="display:none;"></div>
 
     <hr class="divider">
 
@@ -657,11 +735,11 @@
     </div>
     <div class="row">
       <button class="action btn-erase" id="showTranscriptBtn">show / hide transcript</button>
-      <button class="action btn-erase" id="listenToggleBtn">hide questions</button>
+      <button class="action btn-erase" id="listenToggleBtn">show questions</button>
     </div>
     <div id="convoTranscript" class="test-summary" style="display:none;"></div>
 
-    <div id="listenQuestions"></div>
+    <div id="listenQuestions" style="display:none;"></div>
     <div class="row">
       <button class="action btn-check" id="listenCheckBtn">check answers</button>
       <button class="action btn-erase" id="listenClearBtn">clear</button>
@@ -2133,18 +2211,51 @@ document.getElementById('stopConvoBtn').addEventListener('click', ()=>{
 try{ renderListening(); }catch(e){ console.error('Listening practice init error:', e); }
 
 // ---- reference book ----
+const refVerbTrans = {
+  "parler":"to speak","manger":"to eat","commencer":"to begin","préférer":"to prefer","payer":"to pay",
+  "essayer":"to try","acheter":"to buy","appeler":"to call","aimer":"to like/love","habiter":"to live (somewhere)",
+  "regarder":"to watch","écouter":"to listen","chercher":"to look for","trouver":"to find","donner":"to give",
+  "demander":"to ask","expliquer":"to explain","jouer":"to play","travailler":"to work","penser":"to think",
+  "finir":"to finish","choisir":"to choose","réussir":"to succeed","remplir":"to fill","réfléchir":"to reflect/think",
+  "grandir":"to grow up","vieillir":"to grow old","maigrir":"to lose weight","grossir":"to gain weight","rougir":"to blush",
+  "agir":"to act","punir":"to punish","guérir":"to heal","obéir":"to obey","désobéir":"to disobey",
+  "applaudir":"to applaud","avertir":"to warn","établir":"to establish","nourrir":"to feed","bâtir":"to build",
+  "attendre":"to wait","répondre":"to answer","vendre":"to sell","perdre":"to lose","descendre":"to go down",
+  "entendre":"to hear","rendre":"to give back","défendre":"to defend","dépendre":"to depend","mordre":"to bite",
+  "tondre":"to mow","confondre":"to confuse","correspondre":"to correspond","fondre":"to melt","pendre":"to hang",
+  "prétendre":"to claim","suspendre":"to suspend","tordre":"to twist","interrompre":"to interrupt","rompre":"to break off",
+  "se lever":"to get up","se coucher":"to go to bed","se réveiller":"to wake up","s'habiller":"to get dressed",
+  "s'amuser":"to have fun","se laver":"to wash up","se doucher":"to shower","se maquiller":"to put on makeup",
+  "se raser":"to shave","se brosser les dents":"to brush one's teeth","se peigner":"to comb one's hair",
+  "se reposer":"to rest","se promener":"to take a walk","se dépêcher":"to hurry","se souvenir":"to remember",
+  "s'appeler":"to be called","se sentir":"to feel","s'ennuyer":"to be bored","se marier":"to get married",
+  "s'inquiéter":"to worry",
+  "aller":"to go","avoir":"to have","être":"to be","faire":"to do/make","prendre":"to take","vouloir":"to want",
+  "pouvoir":"to be able to","devoir":"to have to","savoir":"to know (facts)","voir":"to see","dire":"to say",
+  "venir":"to come","mettre":"to put","sortir":"to go out","partir":"to leave","dormir":"to sleep",
+  "connaître":"to know (people)","écrire":"to write","lire":"to read","boire":"to drink","courir":"to run","ouvrir":"to open"
+};
+
+function verbList(str){
+  return str.split(', ').map(v=>{
+    const t = refVerbTrans[v];
+    return t ? `<span class="rv" data-en="${t}">${v}</span>` : v;
+  }).join(', ');
+}
+
 const refData = {
   verbs: `
     <h2>Regular -ER verbs</h2>
-    <p>parler, manger, commencer, préférer, payer, essayer, acheter, appeler, aimer, habiter, regarder, écouter, chercher, trouver, donner, demander, expliquer, jouer, travailler, penser</p>
+    <p>` + verbList("parler, manger, commencer, préférer, payer, essayer, acheter, appeler, aimer, habiter, regarder, écouter, chercher, trouver, donner, demander, expliquer, jouer, travailler, penser") + `</p>
     <h2>Regular -IR verbs</h2>
-    <p>finir, choisir, réussir, remplir, réfléchir, grandir, vieillir, maigrir, grossir, rougir, agir, punir, guérir, obéir, désobéir, applaudir, avertir, établir, nourrir, bâtir</p>
+    <p>` + verbList("finir, choisir, réussir, remplir, réfléchir, grandir, vieillir, maigrir, grossir, rougir, agir, punir, guérir, obéir, désobéir, applaudir, avertir, établir, nourrir, bâtir") + `</p>
     <h2>Regular -RE verbs</h2>
-    <p>attendre, répondre, vendre, perdre, descendre, entendre, rendre, défendre, dépendre, mordre, tondre, confondre, correspondre, fondre, pendre, prétendre, suspendre, tordre, interrompre, rompre</p>
+    <p>` + verbList("attendre, répondre, vendre, perdre, descendre, entendre, rendre, défendre, dépendre, mordre, tondre, confondre, correspondre, fondre, pendre, prétendre, suspendre, tordre, interrompre, rompre") + `</p>
     <h2>Reflexive (pronominal) verbs</h2>
-    <p>se lever, se coucher, se réveiller, s'habiller, s'amuser, se laver, se doucher, se maquiller, se raser, se brosser les dents, se peigner, se reposer, se promener, se dépêcher, se souvenir, s'appeler, se sentir, s'ennuyer, se marier, s'inquiéter</p>
+    <p>` + verbList("se lever, se coucher, se réveiller, s'habiller, s'amuser, se laver, se doucher, se maquiller, se raser, se brosser les dents, se peigner, se reposer, se promener, se dépêcher, se souvenir, s'appeler, se sentir, s'ennuyer, se marier, s'inquiéter") + `</p>
     <h2>Irregular verbs</h2>
-    <p>aller, avoir, être, faire, prendre, vouloir, pouvoir, devoir, savoir, voir, dire, venir, mettre, sortir, partir, dormir, connaître, écrire, lire, boire, courir, ouvrir</p>
+    <p>` + verbList("aller, avoir, être, faire, prendre, vouloir, pouvoir, devoir, savoir, voir, dire, venir, mettre, sortir, partir, dormir, connaître, écrire, lire, boire, courir, ouvrir") + `</p>
+    <p style="font-size:12px; opacity:0.6; margin-top:10px;">Hover over any verb to see its English translation.</p>
   `,
   formulas: `
     <h2>Passé composé</h2>
@@ -2185,15 +2296,157 @@ const refData = {
     <p>mais (but), cependant/pourtant (however), par contre (on the other hand)</p>
     <h2>Addition</h2>
     <p>et (and), aussi (also), de plus (moreover)</p>
+  `,
+  time: `
+    <h2>Asking the time / Demander l'heure</h2>
+    <p>Quelle heure est-il ? — What time is it? &nbsp;·&nbsp; Vous avez l'heure ? — Do you have the time? (casual)</p>
+    <h2>The basic pattern / La structure de base</h2>
+    <p>Il est + [number] + heure(s) — "It is ... o'clock." Use <em>heure</em> (singular) only for 1h: il est une heure. From 2h onward, use <em>heures</em>: il est deux heures.</p>
+    <h2>Minutes past the hour / Les minutes après l'heure</h2>
+    <p>Il est trois heures dix — it's 3:10 &nbsp;·&nbsp; Il est trois heures et quart — it's 3:15, quarter past three &nbsp;·&nbsp; Il est trois heures et demie — it's 3:30, half past three</p>
+    <h2>Minutes before the next hour / Les minutes avant l'heure</h2>
+    <p>Il est trois heures moins vingt — it's 2:40, twenty to three &nbsp;·&nbsp; Il est trois heures moins le quart — it's 2:45, quarter to three</p>
+    <h2>Noon &amp; midnight / Midi et minuit</h2>
+    <p>Il est midi — it's noon (12:00 pm) &nbsp;·&nbsp; Il est minuit — it's midnight (12:00 am) — these don't take "heure(s)."</p>
+    <h2>Morning / afternoon / evening / Matin, après-midi, soir</h2>
+    <p>du matin — in the morning (a.m.) &nbsp;·&nbsp; de l'après-midi — in the afternoon &nbsp;·&nbsp; du soir — in the evening (p.m.)<br>
+    Example: il est neuf heures du soir — it's 9:00 p.m.</p>
+    <h2>24-hour (official) time / L'heure officielle</h2>
+    <p>Used for schedules, TV, transport — no "et quart / moins le quart," just say the minutes directly.<br>
+    15h30 → il est quinze heures trente — it's 3:30 p.m. &nbsp;·&nbsp; 20h45 → il est vingt heures quarante-cinq — it's 8:45 p.m.</p>
   `
 };
 
 const refModal = document.getElementById('refModal');
 const refContent = document.getElementById('refContent');
 
+const numberWords = [
+  "un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix",
+  "onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf","vingt",
+  "vingt et un","vingt-deux","vingt-trois","vingt-quatre","vingt-cinq","vingt-six","vingt-sept","vingt-huit","vingt-neuf","trente",
+  "trente et un","trente-deux","trente-trois","trente-quatre","trente-cinq","trente-six","trente-sept","trente-huit","trente-neuf","quarante",
+  "quarante et un","quarante-deux","quarante-trois","quarante-quatre","quarante-cinq","quarante-six","quarante-sept","quarante-huit","quarante-neuf","cinquante",
+  "cinquante et un","cinquante-deux","cinquante-trois","cinquante-quatre","cinquante-cinq","cinquante-six","cinquante-sept","cinquante-huit","cinquante-neuf","soixante",
+  "soixante et un","soixante-deux","soixante-trois","soixante-quatre","soixante-cinq","soixante-six","soixante-sept","soixante-huit","soixante-neuf","soixante-dix",
+  "soixante et onze","soixante-douze","soixante-treize","soixante-quatorze","soixante-quinze","soixante-seize","soixante-dix-sept","soixante-dix-huit","soixante-dix-neuf","quatre-vingts",
+  "quatre-vingt-un","quatre-vingt-deux","quatre-vingt-trois","quatre-vingt-quatre","quatre-vingt-cinq","quatre-vingt-six","quatre-vingt-sept","quatre-vingt-huit","quatre-vingt-neuf","quatre-vingt-dix",
+  "quatre-vingt-onze","quatre-vingt-douze","quatre-vingt-treize","quatre-vingt-quatorze","quatre-vingt-quinze","quatre-vingt-seize","quatre-vingt-dix-sept","quatre-vingt-dix-huit","quatre-vingt-dix-neuf","cent"
+];
+const numberSpecial = [ [1000,"mille"], [2026,"deux mille vingt-six"] ];
+
+function pronounceFr(text){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'fr-FR';
+  if(typeof selectedVoice !== 'undefined' && selectedVoice) utter.voice = selectedVoice;
+  utter.rate = 0.9;
+  speechSynthesis.speak(utter);
+}
+
+function buildClockSVG(){
+  const cx = 150, cy = 150;
+  const rFace = 140, rTick1 = 128, rTick2 = 140, rOuterLabel = 113, rInnerLabel = 92;
+  let ticks = '', innerLabels = '', outerLabels = '';
+  for(let i = 1; i <= 12; i++){
+    const posIndex = i % 12;
+    const angleDeg = posIndex * 30 - 90;
+    const angleRad = angleDeg * Math.PI / 180;
+    const x1 = cx + rTick1 * Math.cos(angleRad), y1 = cy + rTick1 * Math.sin(angleRad);
+    const x2 = cx + rTick2 * Math.cos(angleRad), y2 = cy + rTick2 * Math.sin(angleRad);
+    ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#8a8f98" stroke-width="2"/>`;
+
+    const frWordIn = numberWords[i-1];
+    const frPhraseIn = (i===1) ? "il est une heure" : `il est ${frWordIn} heures`;
+    const enPhraseIn = (i===1) ? "it's one o'clock" : `it's ${i} o'clock`;
+    const xi = cx + rInnerLabel * Math.cos(angleRad), yi = cy + rInnerLabel * Math.sin(angleRad);
+    innerLabels += `<g class="clock-hit" data-tip="${frPhraseIn} — ${enPhraseIn}">
+        <circle cx="${xi.toFixed(1)}" cy="${yi.toFixed(1)}" r="13" fill="transparent"/>
+        <text x="${xi.toFixed(1)}" y="${(yi+5).toFixed(1)}" text-anchor="middle" font-size="17" font-weight="700" fill="#1f5fb0" font-family="Inter,sans-serif" style="pointer-events:none;">${i}</text>
+      </g>`;
+
+    const outerVal = (i === 12) ? 24 : i + 12;
+    const frWordOut = numberWords[outerVal-1];
+    const frPhraseOut = (outerVal===24) ? "il est vingt-quatre heures (minuit)" : `il est ${frWordOut} heures`;
+    const enHour12 = (outerVal===24) ? 12 : outerVal - 12;
+    const enPhraseOut = (outerVal===24) ? "it's 12 a.m. (midnight)" : `it's ${enHour12} p.m.`;
+    const xo = cx + rOuterLabel * Math.cos(angleRad), yo = cy + rOuterLabel * Math.sin(angleRad);
+    outerLabels += `<g class="clock-hit" data-tip="${frPhraseOut} — ${enPhraseOut}">
+        <circle cx="${xo.toFixed(1)}" cy="${yo.toFixed(1)}" r="11" fill="transparent"/>
+        <text x="${xo.toFixed(1)}" y="${(yo+4).toFixed(1)}" text-anchor="middle" font-size="12.5" font-weight="600" fill="#c0392b" font-family="Inter,sans-serif" style="pointer-events:none;">${outerVal}</text>
+      </g>`;
+  }
+  // hands illustrating 3:15 / trois heures et quart / three fifteen
+  const hourAngle = ((3 + 15/60) * 30 - 90) * Math.PI / 180;
+  const minAngle = (15 * 6 - 90) * Math.PI / 180;
+  const hx = cx + 55 * Math.cos(hourAngle), hy = cy + 55 * Math.sin(hourAngle);
+  const mx = cx + 82 * Math.cos(minAngle), my = cy + 82 * Math.sin(minAngle);
+
+  return `
+    <svg viewBox="0 0 300 300" style="width:100%; max-width:320px; display:block; margin:0 auto;">
+      <circle cx="${cx}" cy="${cy}" r="${rFace}" fill="#fdfdfc" stroke="#8a8f98" stroke-width="2.5"/>
+      <circle cx="${cx}" cy="${cy}" r="${rOuterLabel+13}" fill="none" stroke="#e3e5e8" stroke-width="1"/>
+      ${ticks}
+      ${outerLabels}
+      ${innerLabels}
+      <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#1c1e22" stroke-width="4" stroke-linecap="round"/>
+      <line x1="${cx}" y1="${cy}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#1c1e22" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="4.5" fill="#1c1e22"/>
+    </svg>
+    <p style="text-align:center; font-size:12.5px; margin-top:8px;">
+      <span style="color:#1f5fb0; font-weight:600;">Inside = 12-hour (12h)</span> &nbsp;·&nbsp;
+      <span style="color:#c0392b; font-weight:600;">Outside = 24-hour (24h)</span>
+    </p>
+    <p style="text-align:center; font-size:11.5px; opacity:0.6;">Hover any number to see the time said in French and English.</p>
+    <p style="text-align:center; font-size:12.5px; opacity:0.75;">
+      Hands show 3:15 — <strong>trois heures et quart</strong> (French) / <strong>three fifteen</strong> (English)
+    </p>`;
+}
+
+function buildNumbersHTML(){
+  let cols = '';
+  for(let start = 1; start <= 91; start += 10){
+    let items = '';
+    for(let n = start; n <= start + 9 && n <= 100; n++){
+      items += `<div class="num-item" data-fr="${numberWords[n-1]}"><span class="n">${n}</span><span>${numberWords[n-1]}</span></div>`;
+    }
+    cols += `<div class="num-col">${items}</div>`;
+  }
+  let special = numberSpecial.map(([n,w])=>
+    `<div class="num-item" data-fr="${w}" style="display:inline-flex;"><span class="n">${n}</span><span>${w}</span></div>`
+  ).join('');
+  return `<h2>Numbers 1–100</h2><div class="num-grid">${cols}</div>
+    <h2>Bonus numbers</h2><div class="num-special">${special}</div>
+    <p style="font-size:12px; opacity:0.6; margin-top:10px;">Click any number to hear it pronounced.</p>`;
+}
+
 function showRef(tab){
-  refContent.innerHTML = refData[tab];
+  if(tab === 'numbers'){ refContent.innerHTML = buildNumbersHTML(); }
+  else if(tab === 'time'){ refContent.innerHTML = buildClockSVG() + refData.time; }
+  else { refContent.innerHTML = refData[tab]; }
   document.querySelectorAll('.ref-tab').forEach(t=> t.classList.toggle('active', t.dataset.ref === tab));
+  if(tab === 'numbers'){
+    refContent.querySelectorAll('.num-item').forEach(item=>{
+      item.addEventListener('click', ()=> pronounceFr(item.dataset.fr));
+    });
+  }
+  if(tab === 'time'){
+    const tip = document.getElementById('clockTooltip');
+    refContent.querySelectorAll('.clock-hit').forEach(el=>{
+      const show = (evt)=>{
+        tip.textContent = el.dataset.tip;
+        tip.style.display = 'block';
+        const x = evt.clientX, y = evt.clientY;
+        tip.style.left = x + 'px';
+        tip.style.top = (y - 34) + 'px';
+        tip.style.transform = 'translateX(-50%)';
+      };
+      el.addEventListener('mouseenter', show);
+      el.addEventListener('mousemove', show);
+      el.addEventListener('mouseleave', ()=>{ tip.style.display = 'none'; });
+      el.addEventListener('click', (evt)=>{ show(evt); setTimeout(()=>{ tip.style.display='none'; }, 1800); });
+    });
+  }
 }
 
 document.getElementById('refBookBtn').addEventListener('click', ()=>{
