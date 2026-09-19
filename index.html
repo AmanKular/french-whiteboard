@@ -1507,7 +1507,7 @@ if(feedbackBtn){
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: "openai/gpt-oss-120b",
           max_tokens: 1300,
           messages: [
             { role: "user", content:
@@ -3040,7 +3040,7 @@ document.getElementById('submitAnswerB').addEventListener('click', async ()=>{
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "openai/gpt-oss-120b",
         max_tokens: 300,
         messages: [
           { role: "user", content: sysNote + "\n\nConversation so far (as the learner's messages, respond to the latest one in character):\n" +
@@ -3079,7 +3079,7 @@ async function getSpeakingResults(transcriptText){
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "openai/gpt-oss-120b",
         max_tokens: 900,
         messages: [
           { role: "user", content:
