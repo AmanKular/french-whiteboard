@@ -10,7 +10,3144 @@
     --board: #fbfbfa;
     --frame: #9aa0a8;
     --frame-dark: #6b7178;
+    --ink: #1c1f26;<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ardoise — Conjugaison &amp; Vocabulaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board: #fbfbfa;
+    --frame: #9aa0a8;
+    --frame-dark: #6b7178;
     --ink: #1c1f26;
+    --marker-blue: #1f5fb0;
+    --marker-red: #c0392b;
+    --marker-green: #1c7a4d;
+    --marker-purple: #6a3fa0;
+    --tray: #d8dadd;
+    --ghost: #b7bcc4;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background: #e7e8ea;
+    padding: 24px 24px 40px;
+    display:flex;
+    justify-content:center;
+  }
+  .frame{
+    width:100%;
+    max-width:1600px;
+    background: var(--frame);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 10px 0 var(--frame-dark), 0 14px 24px rgba(0,0,0,0.25);
+  }
+  .board{
+    background: var(--board);
+    border-radius: 6px;
+    padding: 20px 18px 18px;
+    background-image: none;
+    background-size: 100% 42px;
+  }
+  h1{
+    font-family:'Kalam',cursive;
+    font-size: 24px;
+    margin:0 0 2px;
+    color: var(--marker-blue);
+    transform: rotate(-0.4deg);
+  }
+  .subtitle{
+    font-family:'Kalam',cursive;
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--ink);
+    opacity:0.65;
+  }
+  .row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom: 12px;
+  }
+  select{
+    font-family:'Kalam',cursive;
+    font-size:16px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 2px solid var(--marker-blue);
+    color: var(--marker-blue);
+    background: white;
+  }
+  .chip{
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:600;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1.5px solid #c3c6cc;
+    background: white;
+    color: var(--ink);
+    cursor:pointer;
+    opacity:0.55;
+  }
+  .chip.active{
+    opacity:1;
+    border-color: var(--marker-green);
+    color: var(--marker-green);
+    background: #eef8f1;
+  }
+  .table-wrap{ overflow-x:auto; }
+  table{
+    width:100%;
+    min-width: 480px;
+    border-collapse: collapse;
+    font-family:'Kalam',cursive;
+  }
+  th, td{
+    border-bottom: 1.5px dashed #c3c6cc;
+    padding: 9px 6px;
+    text-align:left;
+    white-space:nowrap;
+  }
+  th{
+    font-size: 14px;
+    color: var(--marker-red);
+    font-weight:700;
+    border-bottom: 2.5px solid var(--marker-red);
+  }
+  td.pronoun{
+    font-size: 15px;
+    color: var(--ink);
+    font-weight:700;
+    width: 62px;
+  }
+  .cell input{
+    width: 100%;
+    min-width: 110px;
+    font-family:'Kalam',cursive;
+    font-size: 16px;
+    border: none;
+    background: transparent;
+    outline:none;
+    color: var(--marker-green);
+    padding: 4px 2px;
+  }
+  .cell input::placeholder{ color: var(--ghost); font-style:italic; }
+  .answer{
+    display:none;
+    font-size: 12.5px;
+    color: var(--marker-blue);
+    opacity: 0.85;
+    margin-top:-2px;
+  }
+  .answer-en{
+    font-family:'Inter',sans-serif;
+    font-size: 11px;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+  .board.reveal .answer{ display:block; }
+  .board.reveal .cell input{ opacity: 0.35; }
+  .controls{ display:flex; gap:10px; margin-top: 14px; flex-wrap:wrap; }
+  button.action{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size: 13px;
+    padding: 9px 14px;
+    border-radius: 7px;
+    border: none;
+    cursor:pointer;
+    transition: transform 0.1s ease;
+  }
+  .btn-check{ background: var(--marker-blue); color:white; }
+  .btn-erase{ background: var(--marker-red); color: white; border: none; }
+
+  @keyframes btnBounce{
+    0%   { transform: scale(1); }
+    35%  { transform: scale(0.88); }
+    65%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  .bounce{ animation: btnBounce 0.32s ease; }
+
+  .divider{
+    border: none;
+    border-top: 2px solid #d3d6db;
+    margin: 22px 0 16px;
+  }
+
+  .vocab-tabs{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom: 14px; }
+  .vtab{
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:600;
+    padding: 6px 11px;
+    border-radius: 7px;
+    border: 1.5px solid #c3c6cc;
+    background: #eef0f2;
+    color: var(--ink);
+    cursor:pointer;
+    opacity:0.55;
+    position:relative;
+  }
+  .vtab::after{
+    content: attr(data-en);
+    position:absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 6px;
+    background: #1c1e22;
+    color: #fff;
+    font-family:'Inter',sans-serif;
+    font-size: 12px;
+    font-weight:500;
+    padding: 5px 9px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+    z-index: 20;
+  }
+  .vtab:hover::after{ opacity: 1; }
+  .vtab.active{
+    opacity:1;
+    border-color: var(--marker-purple);
+    color: var(--marker-purple);
+    background: #f2eefa;
+  }
+  .vocab-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px,1fr));
+    gap: 10px;
+  }
+  .vcard{
+    border: 1.5px dashed #c3c6cc;
+    border-radius: 6px;
+    padding: 10px 8px;
+    cursor:pointer;
+    text-align:center;
+    font-family:'Kalam',cursive;
+    min-height: 58px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    background:#eef0f2;
+  }
+  .vcard .fr{ font-size: 15px; color: var(--ink); font-weight:700; }
+  .vcard .en{ font-size: 12px; color: var(--marker-purple); display:none; margin-top:2px; }
+  .vcard.flipped .en{ display:block; }
+
+  .tray{ height: 10px; background: var(--tray); margin-top: 12px; border-radius: 0 0 4px 4px; }
+
+  .prompt-box{
+    font-family:'Kalam',cursive;
+    font-size: 16px;
+    color: var(--ink);
+    background: #f4f9f6;
+    border: 1.5px dashed var(--marker-green);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .writing-area{
+    width: 100%;
+    min-height: 140px;
+    font-family:'Kalam',cursive;
+    font-size: 16px;
+    color: var(--ink);
+    background: white;
+    border: 1.5px solid #c3c6cc;
+    border-radius: 6px;
+    padding: 12px;
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+    box-sizing: border-box;
+  }
+  .writing-area:focus{ border-color: var(--marker-green); }
+  .word-count{
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+  .feedback-box{
+    display:none;
+    margin-top: 12px;
+    font-family:'Inter',sans-serif;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: #f2f7fb;
+    border-left: 3px solid var(--marker-blue);
+    border-radius: 4px;
+    padding: 12px 14px;
+    white-space: pre-wrap;
+  }
+  body.dark .writing-area{ background:#3d4047; color:var(--ink); }
+  body.dark .prompt-box{ background:#33402f; }
+  body.dark .feedback-box{ background:#2f3945; }
+
+  .test-summary{
+    font-family:'Kalam',cursive;
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    background: #fdf3f2;
+    border: 1.5px dashed var(--marker-red);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .exercise-row{
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+  }
+  .exercise-row.correct{ border-left-color: var(--marker-green); background: #f4faf6; }
+  .exercise-row.incorrect{ border-left-color: var(--marker-red); background: #fdf5f4; }
+  .exercise-row .ex-prompt{
+    font-family:'Kalam',cursive;
+    font-size: 16px;
+    color: var(--ink);
+  }
+  .exercise-row input{
+    font-family:'Kalam',cursive;
+    font-size: 16px;
+    color: var(--marker-green);
+    border: none;
+    border-bottom: 1.5px dashed #c3c6cc;
+    background: transparent;
+    outline: none;
+    min-width: 140px;
+    padding: 2px 4px;
+  }
+  .ex-feedback{
+    margin-top: 4px;
+    display:flex;
+    flex-direction:column;
+    gap: 2px;
+  }
+  .fb-mark{
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:700;
+  }
+  .fb-correct{ color: var(--marker-green); }
+  .fb-incorrect{ color: var(--marker-red); }
+  .fb-answer{
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:700;
+    color: var(--marker-red);
+  }
+  .fb-why{
+    font-family:'Inter',sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0.75;
+  }
+  body.dark .exercise-row.correct{ background:#2e3f31; }
+  body.dark .exercise-row.incorrect{ background:#40312f; }
+  body.dark .test-summary{ background:#3d322f; }
+
+  .listen-question{
+    margin-bottom: 16px;
+    padding: 10px;
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+  }
+  .listen-question.correct{ border-left-color: var(--marker-green); background: #f4faf6; }
+  .listen-question.incorrect{ border-left-color: var(--marker-red); background: #fdf5f4; }
+  .lq-prompt{
+    font-family:'Kalam',cursive;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .lq-options{
+    display:flex;
+    flex-direction:column;
+    gap: 6px;
+  }
+  .lq-option{
+    font-family:'Inter',sans-serif;
+    font-size: 13.5px;
+    text-align:left;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1.5px solid #c3c6cc;
+    background: #eef0f2;
+    color: var(--ink);
+    cursor:pointer;
+  }
+  .lq-option.selected{ border-color: var(--marker-blue); background:#e8f0fc; }
+  .lq-option.correct-answer{ border-color: var(--marker-green); background:#e3f6e9; font-weight:600; }
+  .lq-option.wrong-answer{ border-color: var(--marker-red); background:#fbe6e4; }
+  .lq-feedback{
+    margin-top: 6px;
+    font-family:'Inter',sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    opacity: 0.8;
+  }
+  body.dark .lq-option{ background:#3d4047; border-color:#5a5e66; }
+  body.dark .lq-option.selected{ background:#2e3f52; }
+  body.dark .lq-option.correct-answer{ background:#2e3f31; }
+  body.dark .lq-option.wrong-answer{ background:#40312f; }
+  body.dark .listen-question.correct{ background:#2e3f31; }
+  body.dark .listen-question.incorrect{ background:#40312f; }
+
+  @media (max-width: 480px){
+    body{ padding: 14px 6px 30px; }
+    .frame{ padding: 8px; border-radius: 10px; }
+    .board{ padding: 14px 10px 12px; }
+    h1{ font-size: 20px; }
+    .subtitle{ font-size: 12px; }
+    select{ font-size: 14px; padding: 6px 8px; }
+    .mode-label{ font-size: 11px; }
+    .chip, .vtab{ font-size: 11.5px; padding: 5px 9px; }
+    table{ min-width: 420px; }
+    th, td{ padding: 7px 4px; font-size: 13px; }
+    .cell input{ font-size: 14px; min-width: 90px; }
+    .vocab-grid{ grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); }
+    .vcard{ min-height: 50px; padding: 8px 6px; }
+    .vcard .fr{ font-size: 13.5px; }
+    .writing-area{ font-size: 15px; min-height: 110px; }
+    .row{ gap: 8px; }
+    button.action{ font-size: 12px; padding: 8px 11px; }
+    .exercise-row .ex-prompt{ font-size: 14.5px; }
+  }
+
+  body.dark{
+    --board: #33363c;
+    --frame: #5a5e66;
+    --frame-dark: #44474e;
+    --ink: #eceeef;
+    --marker-blue: #7fb4ff;
+    --marker-red: #ff9c92;
+    --marker-green: #8fdda8;
+    --marker-purple: #cfa9ff;
+    --tray: #494c53;
+    --ghost: #8a8e96;
+  }
+  body.dark select, body.dark .chip, body.dark .vtab, body.dark .vcard{
+    background: #3d4047;
+    color: var(--ink);
+  }
+  body.dark th, body.dark td{ border-bottom-color:#52555c; }
+
+  .mode-toggle-wrap{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+  .mode-label{
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:600;
+    color: var(--ink);
+  }
+  .switch{
+    width: 42px;
+    height: 22px;
+    border-radius: 999px;
+    border: none;
+    background: #c3c6cc;
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+  }
+  .switch .switch-knob{
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    transition: left 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .switch.on{ background: var(--marker-green); }
+  .switch.on .switch-knob{ left: 23px; }
+  body.dark .switch{ background:#5a5e66; }
+  body.dark .switch.on{ background: var(--marker-green); }  .ref-book-btn{
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  .ref-modal{
+    display:none;
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .ref-modal.open{ display:block; }
+  .ref-modal-inner{
+    background: #fbfbfa;
+    max-width: 720px;
+    margin: 0 auto;
+    border-radius: 10px;
+    padding: 20px;
+    font-family:'Inter',sans-serif;
+  }
+  .ref-modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom: 14px;
+  }
+  .ref-tabs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom: 14px;
+  }
+  .ref-tab{
+    font-family:'Inter',sans-serif;
+    font-size: 13px;
+    font-weight:600;
+    padding: 7px 12px;
+    border-radius: 7px;
+    border: 1.5px solid #c3c6cc;
+    background: #eef0f2;
+    color: var(--ink);
+    cursor:pointer;
+    opacity:0.6;
+  }
+  .ref-tab.active{ opacity:1; border-color: var(--marker-blue); background:#e8f0fc; }
+  .ref-content{
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+  .ref-content h2{ font-size: 15px; margin: 14px 0 6px; color: var(--marker-red); }
+  .clock-tooltip{
+    position: fixed;
+    display:none;
+    background: #1c1e22;
+    color: #fff;
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 500;
+  }
+  .clock-hit{ cursor: pointer; }
+
+  .chat-log{
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 10px 0;
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+  }
+  .chat-bubble{
+    max-width: 85%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-family:'Inter',sans-serif;
+    font-size: 13.5px;
+    line-height:1.5;
+  }
+  .chat-bubble.examiner{
+    align-self:flex-start;
+    background: #eef0f2;
+    color: var(--ink);
+    border-bottom-left-radius: 2px;
+  }
+  .chat-bubble.you{
+    align-self:flex-end;
+    background: var(--marker-blue);
+    color: white;
+    border-bottom-right-radius: 2px;
+  }
+  .chat-bubble .who{
+    display:block;
+    font-size: 10.5px;
+    opacity:0.7;
+    margin-bottom: 2px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+  }
+  .chat-input{
+    flex:1;
+    min-width: 140px;
+    font-family:'Inter',sans-serif;
+    font-size: 14px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    border: 1.5px solid #c3c6cc;
+    background: white;
+    color: var(--ink);
+  }
+  body.dark .chat-bubble.examiner{ background:#3d4047; }
+  body.dark .chat-input{ background:#3d4047; border-color:#5a5e66; color:var(--ink); }
+
+  .score-bar-row{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin: 4px 0;
+    font-size: 12.5px;
+  }
+  .score-bar-label{ width: 150px; flex-shrink:0; font-family:'Inter',sans-serif; }
+  .score-bar-track{
+    flex:1;
+    height: 8px;
+    background: #e3e5e8;
+    border-radius: 4px;
+    overflow:hidden;
+  }
+  .score-bar-fill{
+    height: 100%;
+    background: var(--marker-green);
+    border-radius: 4px;
+  }
+  .score-bar-val{ width: 34px; text-align:right; font-family:'Inter',sans-serif; opacity:0.7; }
+  .score-total{
+    font-family:'Inter',sans-serif;
+    font-size: 15px;
+    font-weight:700;
+    margin-bottom: 8px;
+  }
+  body.dark .score-bar-track{ background:#4a4d53; }
+  .clock-hit circle{ transition: fill 0.1s ease; }
+  .clock-hit:hover circle{ fill: rgba(31,95,176,0.12); }
+  .rv{
+    position:relative;
+    display:inline-block;
+    cursor:help;
+    border-bottom: 1px dotted var(--marker-blue);
+  }
+  .rv::after{
+    content: attr(data-en);
+    position:absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 6px;
+    background: #1c1e22;
+    color: #fff;
+    font-family:'Inter',sans-serif;
+    font-size: 12px;
+    font-weight:500;
+    padding: 5px 9px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+    z-index: 300;
+  }
+  .rv:hover::after{ opacity: 1; }
+
+  .num-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
+    gap: 4px 14px;
+    margin-bottom: 16px;
+  }
+  .num-col{
+    display:flex;
+    flex-direction:column;
+    gap: 3px;
+  }
+  .num-item{
+    font-family:'Inter',sans-serif;
+    font-size: 13px;
+    cursor:pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    display:flex;
+    justify-content:space-between;
+    gap:6px;
+  }
+  .num-item:hover{ background:#e8f0fc; color: var(--marker-blue); }
+  .num-item .n{ opacity:0.55; font-family:'Inter',sans-serif; }
+  .num-special{
+    display:flex;
+    gap: 18px;
+    flex-wrap:wrap;
+    margin-top: 6px;
+  }
+  body.dark .num-item:hover{ background:#2e3f52; }
+  .ref-content table{ width:100%; border-collapse:collapse; margin-bottom:10px; }
+  .ref-content td, .ref-content th{ padding:4px 6px; border-bottom:1px solid #ddd; font-size:13px; text-align:left; }
+  body.dark .ref-modal-inner{ background:#33363c; }
+  body.dark .ref-tab{ background:#3d4047; border-color:#5a5e66; }
+  body.dark .ref-content td, body.dark .ref-content th{ border-bottom-color:#52555c; }
+  body.dark .ref-book-btn{ background:#3d4047; }
+</style>
+</head>
+<body>
+<button id="refBookBtn" class="ref-book-btn" title="Grammar & vocab reference">📖</button>
+
+<div id="refModal" class="ref-modal">
+  <div class="ref-modal-inner">
+    <div class="ref-modal-header">
+      <h1 style="margin:0;">Reference Book</h1>
+      <button id="refCloseBtn" class="action btn-erase">close ✕</button>
+    </div>
+    <div class="ref-tabs">
+      <button class="ref-tab active" data-ref="verbs">Verbs</button>
+      <button class="ref-tab" data-ref="formulas">Tense formulas</button>
+      <button class="ref-tab" data-ref="articles">Articles</button>
+      <button class="ref-tab" data-ref="connectors">Connectors</button>
+      <button class="ref-tab" data-ref="numbers">Numbers</button>
+      <button class="ref-tab" data-ref="time">Time</button>
+    </div>
+    <div id="refContent" class="ref-content"></div>
+    <div id="clockTooltip" class="clock-tooltip"></div>
+  </div>
+</div>
+
+<div class="frame">
+  <div class="board" id="board">
+    <div class="row" style="justify-content:space-between;">
+      <div>
+        <h1>Conjugaison &amp; vocabulaire</h1>
+        <p class="subtitle" style="margin-bottom:0;">choisis un verbe et les temps, conjugue, puis vérifie</p>
+      </div>
+      <div class="mode-toggle-wrap">
+        <span class="mode-label" id="modeLabel">Dark mode</span>
+        <button class="switch" id="modeToggle" role="switch" aria-checked="false">
+          <span class="switch-knob"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <select id="verbPicker"></select>
+      <div class="chip active" data-tense="present">présent</div>
+      <div class="chip active" data-tense="pc">passé composé</div>
+      <div class="chip active" data-tense="imp">imparfait</div>
+      <div class="chip active" data-tense="futur">futur simple</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr id="headRow"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="controls">
+      <button class="action btn-check" id="checkBtn">check</button>
+      <button class="action btn-erase" id="eraseBtn">clear the board</button>
+    </div>
+
+    <hr class="divider">
+
+    <h1 style="color:var(--marker-purple);">Mur de vocabulaire</h1>
+    <p class="subtitle">clique sur une carte pour voir la traduction</p>
+    <div class="vocab-tabs" id="vocabTabs"></div>
+    <div class="vocab-grid" id="vocabGrid"></div>
+
+    <hr class="divider">
+
+    <h1 style="color:var(--marker-green);">Writing Practice</h1>
+    <p class="subtitle">write a few sentences, then get your text checked</p>
+
+    <div class="row">
+      <button class="action btn-check" id="newPromptBtn" style="background:var(--marker-green);">new topic</button>
+    </div>
+    <div id="promptBox" class="prompt-box"></div>
+
+    <textarea id="writingArea" class="writing-area" placeholder="Write your text here…"></textarea>
+    <div class="row" style="justify-content:space-between;">
+      <span id="wordCount" class="word-count">0 words</span>
+      <div style="display:flex; gap:10px;">
+        <button class="action btn-erase" id="clearWritingBtn">clear</button>
+        <button class="action btn-check" id="feedbackBtn">check &amp; score my writing</button>
+      </div>
+    </div>
+    <div id="feedbackBox" class="feedback-box"></div>
+
+    <hr class="divider">
+
+    <h1 style="color:var(--marker-red);">A2 Course Review</h1>
+    <p class="subtitle">pick a unit from your syllabus, review the grammar point, then fill in the blanks</p>
+
+    <div class="row">
+      <select id="unitPicker"></select>
+      <button class="action btn-check" id="unitCheckBtn">check answers</button>
+      <button class="action btn-erase" id="unitEraseBtn">clear</button>
+      <button class="action btn-erase" id="unitToggleBtn">show questions</button>
+    </div>
+
+    <div id="unitSummary" class="test-summary"></div>
+    <div id="unitExercises" style="display:none;"></div>
+
+    <hr class="divider">
+
+    <h1 style="color:var(--marker-purple);">Listening Practice</h1>
+    <p class="subtitle">pick a conversation, hit play, and listen closely — the answers are questions about what you heard</p>
+
+    <div class="row">
+      <select id="convoPicker"></select>
+      <button class="action btn-check" id="playConvoBtn" style="background:var(--marker-purple);">▶ play conversation</button>
+      <button class="action btn-erase" id="stopConvoBtn">■ stop</button>
+    </div>
+    <div class="row">
+      <select id="voicePicker" style="max-width:220px; display:none;"></select>
+      <span id="speechStatus" class="subtitle" style="margin:0;"></span>
+    </div>
+    <div class="row">
+      <button class="action btn-erase" id="showTranscriptBtn">show / hide transcript</button>
+      <button class="action btn-erase" id="listenToggleBtn">show questions</button>
+    </div>
+    <div id="convoTranscript" class="test-summary" style="display:none;"></div>
+
+    <div id="listenQuestions" style="display:none;"></div>
+    <div class="row">
+      <button class="action btn-check" id="listenCheckBtn">check answers</button>
+      <button class="action btn-erase" id="listenClearBtn">clear</button>
+    </div>
+
+    <hr class="divider">
+
+    <h1 style="color:var(--marker-purple);">Speaking Practice</h1>
+    <p class="subtitle">practice speaking like a real oral exam — pick a mode below</p>
+
+    <div class="row">
+      <button class="action btn-check" id="modeABtn">examiner asks you</button>
+      <button class="action btn-erase" id="modeBBtn">you ask the examiner</button>
+    </div>
+
+    <!-- MODE A: examiner asks you -->
+    <div id="speakModeA" style="display:none;">
+      <div class="row">
+        <select id="speakTopicPicker"></select>
+        <button class="action btn-check" id="startModeABtn">start (10 questions)</button>
+      </div>
+      <div id="speakProgressA" class="subtitle"></div>
+      <div id="speakQuestionBox" class="prompt-box" style="display:none;"></div>
+      <div id="speakTranscriptA" class="chat-log"></div>
+      <div id="speakInputRowA" class="row" style="display:none;">
+        <button class="action btn-check" id="micBtnA">🎤 speak</button>
+        <input type="text" id="speakTextA" class="chat-input" placeholder="…or type your answer here">
+        <button class="action btn-check" id="submitAnswerA">submit</button>
+      </div>
+      <div class="row">
+        <button class="action btn-erase" id="endModeABtn" style="display:none;">end &amp; get results</button>
+      </div>
+    </div>
+
+    <!-- MODE B: you ask the examiner -->
+    <div id="speakModeB" style="display:none;">
+      <div class="row">
+        <select id="speakScenarioPicker"></select>
+        <button class="action btn-check" id="startModeBBtn">start conversation</button>
+      </div>
+      <div id="speakScenarioIntro" class="subtitle"></div>
+      <div id="speakTranscriptB" class="chat-log"></div>
+      <div id="speakInputRowB" class="row" style="display:none;">
+        <button class="action btn-check" id="micBtnB">🎤 speak</button>
+        <input type="text" id="speakTextB" class="chat-input" placeholder="…or type what you want to say">
+        <button class="action btn-check" id="submitAnswerB">send</button>
+      </div>
+      <div class="row">
+        <button class="action btn-erase" id="endModeBBtn" style="display:none;">end &amp; get results</button>
+      </div>
+    </div>
+
+    <div id="speakResults" class="feedback-box" style="display:none; margin-top:16px;"></div>
+
+  </div>
+  <div class="tray"></div>
+</div>
+
+<script>
+const tenseLabels = {present:"présent", pc:"passé composé", imp:"imparfait", futur:"futur simple"};
+
+const verbs = {
+  "parler": {
+    present: ["je parle","tu parles","il/elle parle","nous parlons","vous parlez","ils/elles parlent"],
+    pc: ["j'ai parlé","tu as parlé","il/elle a parlé","nous avons parlé","vous avez parlé","ils/elles ont parlé"],
+    imp: ["je parlais","tu parlais","il/elle parlait","nous parlions","vous parliez","ils/elles parlaient"],
+    futur: ["je parlerai","tu parleras","il/elle parlera","nous parlerons","vous parlerez","ils/elles parleront"]
+  },
+  "finir": {
+    present: ["je finis","tu finis","il/elle finit","nous finissons","vous finissez","ils/elles finissent"],
+    pc: ["j'ai fini","tu as fini","il/elle a fini","nous avons fini","vous avez fini","ils/elles ont fini"],
+    imp: ["je finissais","tu finissais","il/elle finissait","nous finissions","vous finissiez","ils/elles finissaient"],
+    futur: ["je finirai","tu finiras","il/elle finira","nous finirons","vous finirez","ils/elles finiront"]
+  },
+  "aller": {
+    present: ["je vais","tu vas","il/elle va","nous allons","vous allez","ils/elles vont"],
+    pc: ["je suis allé(e)","tu es allé(e)","il/elle est allé(e)","nous sommes allé(e)s","vous êtes allé(e)(s)","ils/elles sont allé(e)s"],
+    imp: ["j'allais","tu allais","il/elle allait","nous allions","vous alliez","ils/elles allaient"],
+    futur: ["j'irai","tu iras","il/elle ira","nous irons","vous irez","ils/elles iront"]
+  },
+  "avoir": {
+    present: ["j'ai","tu as","il/elle a","nous avons","vous avez","ils/elles ont"],
+    pc: ["j'ai eu","tu as eu","il/elle a eu","nous avons eu","vous avez eu","ils/elles ont eu"],
+    imp: ["j'avais","tu avais","il/elle avait","nous avions","vous aviez","ils/elles avaient"],
+    futur: ["j'aurai","tu auras","il/elle aura","nous aurons","vous aurez","ils/elles auront"]
+  },
+  "être": {
+    present: ["je suis","tu es","il/elle est","nous sommes","vous êtes","ils/elles sont"],
+    pc: ["j'ai été","tu as été","il/elle a été","nous avons été","vous avez été","ils/elles ont été"],
+    imp: ["j'étais","tu étais","il/elle était","nous étions","vous étiez","ils/elles étaient"],
+    futur: ["je serai","tu seras","il/elle sera","nous serons","vous serez","ils/elles seront"]
+  },
+  "faire": {
+    present: ["je fais","tu fais","il/elle fait","nous faisons","vous faites","ils/elles font"],
+    pc: ["j'ai fait","tu as fait","il/elle a fait","nous avons fait","vous avez fait","ils/elles ont fait"],
+    imp: ["je faisais","tu faisais","il/elle faisait","nous faisions","vous faisiez","ils/elles faisaient"],
+    futur: ["je ferai","tu feras","il/elle fera","nous ferons","vous ferez","ils/elles feront"]
+  },
+  "prendre": {
+    present: ["je prends","tu prends","il/elle prend","nous prenons","vous prenez","ils/elles prennent"],
+    pc: ["j'ai pris","tu as pris","il/elle a pris","nous avons pris","vous avez pris","ils/elles ont pris"],
+    imp: ["je prenais","tu prenais","il/elle prenait","nous prenions","vous preniez","ils/elles prenaient"],
+    futur: ["je prendrai","tu prendras","il/elle prendra","nous prendrons","vous prendrez","ils/elles prendront"]
+  },
+  "vouloir": {
+    present: ["je veux","tu veux","il/elle veut","nous voulons","vous voulez","ils/elles veulent"],
+    pc: ["j'ai voulu","tu as voulu","il/elle a voulu","nous avons voulu","vous avez voulu","ils/elles ont voulu"],
+    imp: ["je voulais","tu voulais","il/elle voulait","nous voulions","vous vouliez","ils/elles voulaient"],
+    futur: ["je voudrai","tu voudras","il/elle voudra","nous voudrons","vous voudrez","ils/elles voudront"]
+  },
+  "pouvoir": {
+    present: ["je peux","tu peux","il/elle peut","nous pouvons","vous pouvez","ils/elles peuvent"],
+    pc: ["j'ai pu","tu as pu","il/elle a pu","nous avons pu","vous avez pu","ils/elles ont pu"],
+    imp: ["je pouvais","tu pouvais","il/elle pouvait","nous pouvions","vous pouviez","ils/elles pouvaient"],
+    futur: ["je pourrai","tu pourras","il/elle pourra","nous pourrons","vous pourrez","ils/elles pourront"]
+  },
+  "devoir": {
+    present: ["je dois","tu dois","il/elle doit","nous devons","vous devez","ils/elles doivent"],
+    pc: ["j'ai dû","tu as dû","il/elle a dû","nous avons dû","vous avez dû","ils/elles ont dû"],
+    imp: ["je devais","tu devais","il/elle devait","nous devions","vous deviez","ils/elles devaient"],
+    futur: ["je devrai","tu devras","il/elle devra","nous devrons","vous devrez","ils/elles devront"]
+  },
+  "savoir": {
+    present: ["je sais","tu sais","il/elle sait","nous savons","vous savez","ils/elles savent"],
+    pc: ["j'ai su","tu as su","il/elle a su","nous avons su","vous avez su","ils/elles ont su"],
+    imp: ["je savais","tu savais","il/elle savait","nous savions","vous saviez","ils/elles savaient"],
+    futur: ["je saurai","tu sauras","il/elle saura","nous saurons","vous saurez","ils/elles sauront"]
+  },
+  "voir": {
+    present: ["je vois","tu vois","il/elle voit","nous voyons","vous voyez","ils/elles voient"],
+    pc: ["j'ai vu","tu as vu","il/elle a vu","nous avons vu","vous avez vu","ils/elles ont vu"],
+    imp: ["je voyais","tu voyais","il/elle voyait","nous voyions","vous voyiez","ils/elles voyaient"],
+    futur: ["je verrai","tu verras","il/elle verra","nous verrons","vous verrez","ils/elles verront"]
+  },
+  "dire": {
+    present: ["je dis","tu dis","il/elle dit","nous disons","vous dites","ils/elles disent"],
+    pc: ["j'ai dit","tu as dit","il/elle a dit","nous avons dit","vous avez dit","ils/elles ont dit"],
+    imp: ["je disais","tu disais","il/elle disait","nous disions","vous disiez","ils/elles disaient"],
+    futur: ["je dirai","tu diras","il/elle dira","nous dirons","vous direz","ils/elles diront"]
+  },
+  "venir": {
+    present: ["je viens","tu viens","il/elle vient","nous venons","vous venez","ils/elles viennent"],
+    pc: ["je suis venu(e)","tu es venu(e)","il/elle est venu(e)","nous sommes venu(e)s","vous êtes venu(e)(s)","ils/elles sont venu(e)s"],
+    imp: ["je venais","tu venais","il/elle venait","nous venions","vous veniez","ils/elles venaient"],
+    futur: ["je viendrai","tu viendras","il/elle viendra","nous viendrons","vous viendrez","ils/elles viendront"]
+  },
+  "mettre": {
+    present: ["je mets","tu mets","il/elle met","nous mettons","vous mettez","ils/elles mettent"],
+    pc: ["j'ai mis","tu as mis","il/elle a mis","nous avons mis","vous avez mis","ils/elles ont mis"],
+    imp: ["je mettais","tu mettais","il/elle mettait","nous mettions","vous mettiez","ils/elles mettaient"],
+    futur: ["je mettrai","tu mettras","il/elle mettra","nous mettrons","vous mettrez","ils/elles mettront"]
+  },
+  "sortir": {
+    present: ["je sors","tu sors","il/elle sort","nous sortons","vous sortez","ils/elles sortent"],
+    pc: ["je suis sorti(e)","tu es sorti(e)","il/elle est sorti(e)","nous sommes sorti(e)s","vous êtes sorti(e)(s)","ils/elles sont sorti(e)s"],
+    imp: ["je sortais","tu sortais","il/elle sortait","nous sortions","vous sortiez","ils/elles sortaient"],
+    futur: ["je sortirai","tu sortiras","il/elle sortira","nous sortirons","vous sortirez","ils/elles sortiront"]
+  },
+  "partir": {
+    present: ["je pars","tu pars","il/elle part","nous partons","vous partez","ils/elles partent"],
+    pc: ["je suis parti(e)","tu es parti(e)","il/elle est parti(e)","nous sommes parti(e)s","vous êtes parti(e)(s)","ils/elles sont parti(e)s"],
+    imp: ["je partais","tu partais","il/elle partait","nous partions","vous partiez","ils/elles partaient"],
+    futur: ["je partirai","tu partiras","il/elle partira","nous partirons","vous partirez","ils/elles partiront"]
+  },
+  "dormir": {
+    present: ["je dors","tu dors","il/elle dort","nous dormons","vous dormez","ils/elles dorment"],
+    pc: ["j'ai dormi","tu as dormi","il/elle a dormi","nous avons dormi","vous avez dormi","ils/elles ont dormi"],
+    imp: ["je dormais","tu dormais","il/elle dormait","nous dormions","vous dormiez","ils/elles dormaient"],
+    futur: ["je dormirai","tu dormiras","il/elle dormira","nous dormirons","vous dormirez","ils/elles dormiront"]
+  },
+  "connaître": {
+    present: ["je connais","tu connais","il/elle connaît","nous connaissons","vous connaissez","ils/elles connaissent"],
+    pc: ["j'ai connu","tu as connu","il/elle a connu","nous avons connu","vous avez connu","ils/elles ont connu"],
+    imp: ["je connaissais","tu connaissais","il/elle connaissait","nous connaissions","vous connaissiez","ils/elles connaissaient"],
+    futur: ["je connaîtrai","tu connaîtras","il/elle connaîtra","nous connaîtrons","vous connaîtrez","ils/elles connaîtront"]
+  },
+  "écrire": {
+    present: ["j'écris","tu écris","il/elle écrit","nous écrivons","vous écrivez","ils/elles écrivent"],
+    pc: ["j'ai écrit","tu as écrit","il/elle a écrit","nous avons écrit","vous avez écrit","ils/elles ont écrit"],
+    imp: ["j'écrivais","tu écrivais","il/elle écrivait","nous écrivions","vous écriviez","ils/elles écrivaient"],
+    futur: ["j'écrirai","tu écriras","il/elle écrira","nous écrirons","vous écrirez","ils/elles écriront"]
+  },
+  "lire": {
+    present: ["je lis","tu lis","il/elle lit","nous lisons","vous lisez","ils/elles lisent"],
+    pc: ["j'ai lu","tu as lu","il/elle a lu","nous avons lu","vous avez lu","ils/elles ont lu"],
+    imp: ["je lisais","tu lisais","il/elle lisait","nous lisions","vous lisiez","ils/elles lisaient"],
+    futur: ["je lirai","tu liras","il/elle lira","nous lirons","vous lirez","ils/elles liront"]
+  },
+  "boire": {
+    present: ["je bois","tu bois","il/elle boit","nous buvons","vous buvez","ils/elles boivent"],
+    pc: ["j'ai bu","tu as bu","il/elle a bu","nous avons bu","vous avez bu","ils/elles ont bu"],
+    imp: ["je buvais","tu buvais","il/elle buvait","nous buvions","vous buviez","ils/elles buvaient"],
+    futur: ["je boirai","tu boiras","il/elle boira","nous boirons","vous boirez","ils/elles boiront"]
+  },
+  "courir": {
+    present: ["je cours","tu cours","il/elle court","nous courons","vous courez","ils/elles courent"],
+    pc: ["j'ai couru","tu as couru","il/elle a couru","nous avons couru","vous avez couru","ils/elles ont couru"],
+    imp: ["je courais","tu courais","il/elle courait","nous courions","vous couriez","ils/elles couraient"],
+    futur: ["je courrai","tu courras","il/elle courra","nous courrons","vous courrez","ils/elles courront"]
+  },
+  "ouvrir": {
+    present: ["j'ouvre","tu ouvres","il/elle ouvre","nous ouvrons","vous ouvrez","ils/elles ouvrent"],
+    pc: ["j'ai ouvert","tu as ouvert","il/elle a ouvert","nous avons ouvert","vous avez ouvert","ils/elles ont ouvert"],
+    imp: ["j'ouvrais","tu ouvrais","il/elle ouvrait","nous ouvrions","vous ouvriez","ils/elles ouvraient"],
+    futur: ["j'ouvrirai","tu ouvriras","il/elle ouvrira","nous ouvrirons","vous ouvrirez","ils/elles ouvriront"]
+  },
+  "attendre": {
+    present: ["j'attends","tu attends","il/elle attend","nous attendons","vous attendez","ils/elles attendent"],
+    pc: ["j'ai attendu","tu as attendu","il/elle a attendu","nous avons attendu","vous avez attendu","ils/elles ont attendu"],
+    imp: ["j'attendais","tu attendais","il/elle attendait","nous attendions","vous attendiez","ils/elles attendaient"],
+    futur: ["j'attendrai","tu attendras","il/elle attendra","nous attendrons","vous attendrez","ils/elles attendront"]
+  },
+  "répondre": {
+    present: ["je réponds","tu réponds","il/elle répond","nous répondons","vous répondez","ils/elles répondent"],
+    pc: ["j'ai répondu","tu as répondu","il/elle a répondu","nous avons répondu","vous avez répondu","ils/elles ont répondu"],
+    imp: ["je répondais","tu répondais","il/elle répondait","nous répondions","vous répondiez","ils/elles répondaient"],
+    futur: ["je répondrai","tu répondras","il/elle répondra","nous répondrons","vous répondrez","ils/elles répondront"]
+  },
+  "acheter": {
+    present: ["j'achète","tu achètes","il/elle achète","nous achetons","vous achetez","ils/elles achètent"],
+    pc: ["j'ai acheté","tu as acheté","il/elle a acheté","nous avons acheté","vous avez acheté","ils/elles ont acheté"],
+    imp: ["j'achetais","tu achetais","il/elle achetait","nous achetions","vous achetiez","ils/elles achetaient"],
+    futur: ["j'achèterai","tu achèteras","il/elle achètera","nous achèterons","vous achèterez","ils/elles achèteront"]
+  },
+  "appeler": {
+    present: ["j'appelle","tu appelles","il/elle appelle","nous appelons","vous appelez","ils/elles appellent"],
+    pc: ["j'ai appelé","tu as appelé","il/elle a appelé","nous avons appelé","vous avez appelé","ils/elles ont appelé"],
+    imp: ["j'appelais","tu appelais","il/elle appelait","nous appelions","vous appeliez","ils/elles appelaient"],
+    futur: ["j'appellerai","tu appelleras","il/elle appellera","nous appellerons","vous appellerez","ils/elles appelleront"]
+  },
+  "se lever": {
+    present: ["je me lève","tu te lèves","il/elle se lève","nous nous levons","vous vous levez","ils/elles se lèvent"],
+    pc: ["je me suis levé(e)","tu t'es levé(e)","il/elle s'est levé(e)","nous nous sommes levé(e)s","vous vous êtes levé(e)(s)","ils/elles se sont levé(e)s"],
+    imp: ["je me levais","tu te levais","il/elle se levait","nous nous levions","vous vous leviez","ils/elles se levaient"],
+    futur: ["je me lèverai","tu te lèveras","il/elle se lèvera","nous nous lèverons","vous vous lèverez","ils/elles se lèveront"]
+  },
+  "se coucher": {
+    present: ["je me couche","tu te couches","il/elle se couche","nous nous couchons","vous vous couchez","ils/elles se couchent"],
+    pc: ["je me suis couché(e)","tu t'es couché(e)","il/elle s'est couché(e)","nous nous sommes couché(e)s","vous vous êtes couché(e)(s)","ils/elles se sont couché(e)s"],
+    imp: ["je me couchais","tu te couchais","il/elle se couchait","nous nous couchions","vous vous couchiez","ils/elles se couchaient"],
+    futur: ["je me coucherai","tu te coucheras","il/elle se couchera","nous nous coucherons","vous vous coucherez","ils/elles se coucheront"]
+  },
+  "se réveiller": {
+    present: ["je me réveille","tu te réveilles","il/elle se réveille","nous nous réveillons","vous vous réveillez","ils/elles se réveillent"],
+    pc: ["je me suis réveillé(e)","tu t'es réveillé(e)","il/elle s'est réveillé(e)","nous nous sommes réveillé(e)s","vous vous êtes réveillé(e)(s)","ils/elles se sont réveillé(e)s"],
+    imp: ["je me réveillais","tu te réveillais","il/elle se réveillait","nous nous réveillions","vous vous réveilliez","ils/elles se réveillaient"],
+    futur: ["je me réveillerai","tu te réveilleras","il/elle se réveillera","nous nous réveillerons","vous vous réveillerez","ils/elles se réveilleront"]
+  },
+  "s'habiller": {
+    present: ["je m'habille","tu t'habilles","il/elle s'habille","nous nous habillons","vous vous habillez","ils/elles s'habillent"],
+    pc: ["je me suis habillé(e)","tu t'es habillé(e)","il/elle s'est habillé(e)","nous nous sommes habillé(e)s","vous vous êtes habillé(e)(s)","ils/elles se sont habillé(e)s"],
+    imp: ["je m'habillais","tu t'habillais","il/elle s'habillait","nous nous habillions","vous vous habilliez","ils/elles s'habillaient"],
+    futur: ["je m'habillerai","tu t'habilleras","il/elle s'habillera","nous nous habillerons","vous vous habillerez","ils/elles s'habilleront"]
+  },
+  "s'amuser": {
+    present: ["je m'amuse","tu t'amuses","il/elle s'amuse","nous nous amusons","vous vous amusez","ils/elles s'amusent"],
+    pc: ["je me suis amusé(e)","tu t'es amusé(e)","il/elle s'est amusé(e)","nous nous sommes amusé(e)s","vous vous êtes amusé(e)(s)","ils/elles se sont amusé(e)s"],
+    imp: ["je m'amusais","tu t'amusais","il/elle s'amusait","nous nous amusions","vous vous amusiez","ils/elles s'amusaient"],
+    futur: ["je m'amuserai","tu t'amuseras","il/elle s'amusera","nous nous amuserons","vous vous amuserez","ils/elles s'amuseront"]
+  },
+  "manger": {
+    present: ["je mange","tu manges","il/elle mange","nous mangeons","vous mangez","ils/elles mangent"],
+    pc: ["j'ai mangé","tu as mangé","il/elle a mangé","nous avons mangé","vous avez mangé","ils/elles ont mangé"],
+    imp: ["je mangeais","tu mangeais","il/elle mangeait","nous mangions","vous mangiez","ils/elles mangeaient"],
+    futur: ["je mangerai","tu mangeras","il/elle mangera","nous mangerons","vous mangerez","ils/elles mangeront"]
+  },
+  "commencer": {
+    present: ["je commence","tu commences","il/elle commence","nous commençons","vous commencez","ils/elles commencent"],
+    pc: ["j'ai commencé","tu as commencé","il/elle a commencé","nous avons commencé","vous avez commencé","ils/elles ont commencé"],
+    imp: ["je commençais","tu commençais","il/elle commençait","nous commencions","vous commenciez","ils/elles commençaient"],
+    futur: ["je commencerai","tu commenceras","il/elle commencera","nous commencerons","vous commencerez","ils/elles commenceront"]
+  },
+  "préférer": {
+    present: ["je préfère","tu préfères","il/elle préfère","nous préférons","vous préférez","ils/elles préfèrent"],
+    pc: ["j'ai préféré","tu as préféré","il/elle a préféré","nous avons préféré","vous avez préféré","ils/elles ont préféré"],
+    imp: ["je préférais","tu préférais","il/elle préférait","nous préférions","vous préfériez","ils/elles préféraient"],
+    futur: ["je préférerai","tu préféreras","il/elle préférera","nous préférerons","vous préférerez","ils/elles préféreront"]
+  },
+  "payer": {
+    present: ["je paie","tu paies","il/elle paie","nous payons","vous payez","ils/elles paient"],
+    pc: ["j'ai payé","tu as payé","il/elle a payé","nous avons payé","vous avez payé","ils/elles ont payé"],
+    imp: ["je payais","tu payais","il/elle payait","nous payions","vous payiez","ils/elles payaient"],
+    futur: ["je paierai","tu paieras","il/elle paiera","nous paierons","vous paierez","ils/elles paieront"]
+  },
+  "essayer": {
+    present: ["j'essaie","tu essaies","il/elle essaie","nous essayons","vous essayez","ils/elles essaient"],
+    pc: ["j'ai essayé","tu as essayé","il/elle a essayé","nous avons essayé","vous avez essayé","ils/elles ont essayé"],
+    imp: ["j'essayais","tu essayais","il/elle essayait","nous essayions","vous essayiez","ils/elles essayaient"],
+    futur: ["j'essaierai","tu essaieras","il/elle essaiera","nous essaierons","vous essaierez","ils/elles essaieront"]
+  }
+};
+const pronouns = ["je","tu","il/elle","nous","vous","ils/elles"];
+let activeTenses = ["present","pc","imp","futur"];
+
+const verbEnglish = {
+  "parler":"to speak", "finir":"to finish", "aller":"to go", "avoir":"to have", "être":"to be",
+  "faire":"to do/make", "prendre":"to take", "vouloir":"to want", "pouvoir":"to be able to/can",
+  "devoir":"to have to/must", "savoir":"to know (facts)", "voir":"to see", "dire":"to say/tell",
+  "venir":"to come", "mettre":"to put", "sortir":"to go out", "partir":"to leave", "dormir":"to sleep",
+  "connaître":"to know (people/places)", "écrire":"to write", "lire":"to read", "boire":"to drink",
+  "courir":"to run", "ouvrir":"to open", "attendre":"to wait", "répondre":"to answer",
+  "acheter":"to buy", "appeler":"to call", "se lever":"to get up", "se coucher":"to go to bed",
+  "se réveiller":"to wake up", "s'habiller":"to get dressed", "s'amuser":"to have fun",
+  "manger":"to eat", "commencer":"to begin", "préférer":"to prefer", "payer":"to pay", "essayer":"to try"
+};
+
+// English base forms + irregular past/ing/3rd-person-singular data, used to generate a
+// rough English gloss under each conjugated French answer (e.g. "je parlais" -> "I was speaking")
+const verbEnglishData = {
+  "parler":{base:"speak", past:"spoke", ing:"speaking", pres3:"speaks"},
+  "finir":{base:"finish", past:"finished", ing:"finishing", pres3:"finishes"},
+  "aller":{base:"go", past:"went", ing:"going", pres3:"goes"},
+  "faire":{base:"do", past:"did", ing:"doing", pres3:"does"},
+  "prendre":{base:"take", past:"took", ing:"taking", pres3:"takes"},
+  "vouloir":{base:"want", past:"wanted", ing:"wanting", pres3:"wants"},
+  "savoir":{base:"know", past:"knew", ing:"knowing", pres3:"knows"},
+  "voir":{base:"see", past:"saw", ing:"seeing", pres3:"sees"},
+  "dire":{base:"say", past:"said", ing:"saying", pres3:"says"},
+  "venir":{base:"come", past:"came", ing:"coming", pres3:"comes"},
+  "mettre":{base:"put", past:"put", ing:"putting", pres3:"puts"},
+  "sortir":{base:"go out", past:"went out", ing:"going out", pres3:"goes out"},
+  "partir":{base:"leave", past:"left", ing:"leaving", pres3:"leaves"},
+  "dormir":{base:"sleep", past:"slept", ing:"sleeping", pres3:"sleeps"},
+  "connaître":{base:"know", past:"knew", ing:"knowing", pres3:"knows"},
+  "écrire":{base:"write", past:"wrote", ing:"writing", pres3:"writes"},
+  "lire":{base:"read", past:"read", ing:"reading", pres3:"reads"},
+  "boire":{base:"drink", past:"drank", ing:"drinking", pres3:"drinks"},
+  "courir":{base:"run", past:"ran", ing:"running", pres3:"runs"},
+  "ouvrir":{base:"open", past:"opened", ing:"opening", pres3:"opens"},
+  "attendre":{base:"wait", past:"waited", ing:"waiting", pres3:"waits"},
+  "répondre":{base:"answer", past:"answered", ing:"answering", pres3:"answers"},
+  "acheter":{base:"buy", past:"bought", ing:"buying", pres3:"buys"},
+  "appeler":{base:"call", past:"called", ing:"calling", pres3:"calls"},
+  "se lever":{base:"get up", past:"got up", ing:"getting up", pres3:"gets up"},
+  "se coucher":{base:"go to bed", past:"went to bed", ing:"going to bed", pres3:"goes to bed"},
+  "se réveiller":{base:"wake up", past:"woke up", ing:"waking up", pres3:"wakes up"},
+  "s'habiller":{base:"get dressed", past:"got dressed", ing:"getting dressed", pres3:"gets dressed"},
+  "s'amuser":{base:"have fun", past:"had fun", ing:"having fun", pres3:"has fun"},
+  "manger":{base:"eat", past:"ate", ing:"eating", pres3:"eats"},
+  "commencer":{base:"begin", past:"began", ing:"beginning", pres3:"begins"},
+  "préférer":{base:"prefer", past:"preferred", ing:"preferring", pres3:"prefers"},
+  "payer":{base:"pay", past:"paid", ing:"paying", pres3:"pays"},
+  "essayer":{base:"try", past:"tried", ing:"trying", pres3:"tries"}
+};
+const englishSubjects = ["I","you","he/she","we","you","they"];
+const englishBeForms = { present:["am","are","is","are","are","are"], past:["was","were","was","were","were","were"] };
+
+function englishGloss(verb, tense, i){
+  if(verb === 'être'){
+    if(tense === 'present') return englishSubjects[i] + " " + englishBeForms.present[i];
+    if(tense === 'pc' || tense === 'imp') return englishSubjects[i] + " " + englishBeForms.past[i];
+    if(tense === 'futur') return englishSubjects[i] + " will be";
+  }
+  if(verb === 'avoir'){
+    if(tense === 'present') return englishSubjects[i] + " " + (i===2 ? "has" : "have");
+    if(tense === 'pc' || tense === 'imp') return englishSubjects[i] + " had";
+    if(tense === 'futur') return englishSubjects[i] + " will have";
+  }
+  if(verb === 'pouvoir'){
+    if(tense === 'present') return englishSubjects[i] + " can";
+    if(tense === 'pc' || tense === 'imp') return englishSubjects[i] + " could";
+    if(tense === 'futur') return englishSubjects[i] + " will be able to";
+  }
+  if(verb === 'devoir'){
+    if(tense === 'present') return englishSubjects[i] + " " + (i===2 ? "has to" : "have to");
+    if(tense === 'pc' || tense === 'imp') return englishSubjects[i] + " had to";
+    if(tense === 'futur') return englishSubjects[i] + " will have to";
+  }
+  const d = verbEnglishData[verb];
+  if(!d) return "";
+  if(tense === 'present') return englishSubjects[i] + " " + (i===2 ? d.pres3 : d.base);
+  if(tense === 'pc') return englishSubjects[i] + " " + d.past;
+  if(tense === 'imp') return englishSubjects[i] + " " + englishBeForms.past[i] + " " + d.ing;
+  if(tense === 'futur') return englishSubjects[i] + " will " + d.base;
+  return "";
+}
+
+const picker = document.getElementById('verbPicker');
+Object.keys(verbs).forEach(v=>{
+  const opt = document.createElement('option');
+  opt.value = v; opt.textContent = v + " — " + (verbEnglish[v] || "");
+  picker.appendChild(opt);
+});
+
+const board = document.getElementById('board');
+const headRow = document.getElementById('headRow');
+const tbody = document.getElementById('tbody');
+
+function render(){
+  board.classList.remove('reveal');
+  const verb = picker.value;
+  const data = verbs[verb];
+
+  headRow.innerHTML = '<th></th>' + activeTenses.map(t=>`<th>${tenseLabels[t]}</th>`).join('');
+
+  tbody.innerHTML = '';
+  pronouns.forEach((p,i)=>{
+    const row = document.createElement('tr');
+    let cells = `<td class="pronoun">${p}</td>`;
+    activeTenses.forEach(t=>{
+      const ans = data[t][i];
+      const gloss = englishGloss(verb, t, i);
+      cells += `<td class="cell"><input type="text" placeholder="…" data-answer="${ans}"><div class="answer">${ans}<br><span class="answer-en">${gloss}</span></div></td>`;
+    });
+    row.innerHTML = cells;
+    tbody.appendChild(row);
+  });
+}
+
+picker.addEventListener('change', render);
+
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    const t = chip.dataset.tense;
+    if(chip.classList.contains('active')){
+      if(activeTenses.length === 1) return; // keep at least one column
+      activeTenses = activeTenses.filter(x=>x!==t);
+      chip.classList.remove('active');
+    } else {
+      activeTenses.push(t);
+      chip.classList.add('active');
+    }
+    render();
+  });
+});
+
+document.getElementById('checkBtn').addEventListener('click', ()=> board.classList.toggle('reveal'));
+document.getElementById('eraseBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#tbody input').forEach(inp => inp.value = '');
+  board.classList.remove('reveal');
+});
+
+try{ render(); }catch(e){ console.error('Conjugation table init error:', e); }
+
+// ---- vocabulary wall ----
+const vocab = {
+  "restaurant": [
+    ["l'addition","the bill"], ["commander","to order"], ["une réclamation","a complaint"],
+    ["le pourboire","the tip"], ["un plat","a dish"], ["la carte","the menu"],
+    ["une portion","a portion"], ["remplacer un plat","to swap a dish"],
+    ["une entrée","a starter"], ["le service","the service"], ["à emporter","to take away"], ["une note salée","a hefty bill"]
+  ],
+  "santé": [
+    ["la douleur","pain"], ["un rhume","a cold"], ["se sentir","to feel"],
+    ["guérir","to heal"], ["un conseil","a piece of advice"], ["éviter","to avoid"],
+    ["soigner","to treat"], ["la fièvre","fever"],
+    ["une ordonnance","a prescription"], ["un cachet","a pill"], ["se reposer","to rest"], ["tomber malade","to fall ill"]
+  ],
+  "médias": [
+    ["une chaîne","a channel"], ["les informations","the news"], ["un reportage","a report"],
+    ["s'informer","to keep informed"], ["la presse","the press"], ["un titre","a headline"],
+    ["diffuser","to broadcast"], ["un abonnement","a subscription"],
+    ["un journaliste","a journalist"], ["une émission","a program/show"], ["la rubrique","the section/column"], ["un scandale","a scandal"]
+  ],
+  "environnement": [
+    ["le réchauffement","warming"], ["recycler","to recycle"], ["une ressource","a resource"],
+    ["polluer","to pollute"], ["l'énergie","energy"], ["protéger","to protect"],
+    ["un déchet","waste"], ["durable","sustainable"],
+    ["le gaspillage","waste/wastefulness"], ["une espèce menacée","an endangered species"], ["la biodiversité","biodiversity"], ["covoiturer","to carpool"]
+  ],
+  "voyages": [
+    ["un itinéraire","an itinerary"], ["un retard","a delay"], ["l'hébergement","lodging"],
+    ["un souvenir","a souvenir"], ["à l'étranger","abroad"], ["une escale","a layover"],
+    ["le décalage horaire","jet lag"], ["raconter","to recount/tell"],
+    ["un vol","a flight"], ["une valise","a suitcase"], ["un guide touristique","a tour guide"], ["dépayser","to give a change of scenery"]
+  ],
+  "futur & tech": [
+    ["prédire","to predict"], ["un robot","a robot"], ["une invention","an invention"],
+    ["l'avenir","the future"], ["évoluer","to evolve"], ["un appareil","a device"],
+    ["se développer","to develop"], ["la réalité virtuelle","virtual reality"],
+    ["un algorithme","an algorithm"], ["se connecter","to log in/connect"], ["l'intelligence artificielle","artificial intelligence"], ["un progrès","a step forward"]
+  ],
+  "logement": [
+    ["un loyer","rent"], ["un locataire","a tenant"], ["un propriétaire","an owner/landlord"],
+    ["déménager","to move house"], ["un quartier","a neighborhood"], ["meublé","furnished"],
+    ["le voisinage","the vicinity"], ["un bail","a lease"],
+    ["un immeuble","a building"], ["le chauffage","heating"], ["emménager","to move in"], ["les charges","utilities/fees"]
+  ],
+  "personnalité & comparaisons": [
+    ["pareil","similar"], ["différent","different"], ["autant que","as much as"],
+    ["davantage","more"], ["plutôt","rather"], ["avoir tendance à","to tend to"],
+    ["sociable","sociable"], ["têtu","stubborn"],
+    ["généreux","generous"], ["timide","shy"], ["avoir en commun","to have in common"], ["se ressembler","to resemble each other"]
+  ],
+  "enfance": [
+    ["grandir","to grow up"], ["un souvenir d'enfance","a childhood memory"], ["autrefois","in the past/formerly"],
+    ["une habitude","a habit"], ["gronder","to scold"], ["jouer à","to play (a game)"],
+    ["l'école primaire","elementary school"], ["avoir l'habitude de","to be used to"],
+    ["un jouet","a toy"], ["une punition","a punishment"], ["faire semblant","to pretend"], ["un conte","a tale/story"]
+  ],
+  "vie professionnelle": [
+    ["un entretien","an interview"], ["embaucher","to hire"], ["une carrière","a career"],
+    ["démissionner","to resign"], ["un collègue","a colleague"], ["un stage","an internship"],
+    ["postuler","to apply"], ["un salaire","a salary"],
+    ["un CV","a resume"], ["une promotion","a promotion"], ["licencier","to lay off/fire"], ["le télétravail","remote work"]
+  ],
+  "opinions & débats": [
+    ["il est important que","it's important that"], ["je doute que","I doubt that"], ["à mon avis","in my opinion"],
+    ["être d'accord","to agree"], ["un point de vue","a point of view"], ["convaincre","to convince"],
+    ["s'opposer à","to oppose"], ["un débat","a debate"],
+    ["contredire","to contradict"], ["un argument","an argument"], ["nuancer","to qualify/nuance"], ["soutenir","to support (a view)"]
+  ],
+  "vie quotidienne": [
+    ["faire les courses","to go grocery shopping"], ["le ménage","housework"], ["se détendre","to relax"],
+    ["un emploi du temps","a schedule"], ["une corvée","a chore"], ["se dépêcher","to hurry"],
+    ["prendre rendez-vous","to make an appointment"], ["gérer","to manage"],
+    ["se réveiller","to wake up"], ["ranger","to tidy up"], ["un imprévu","an unexpected event"], ["profiter de","to make the most of"]
+  ],
+  "transport": [
+    ["un embouteillage","a traffic jam"], ["le métro","the subway"], ["un billet","a ticket"],
+    ["garer","to park"], ["la circulation","traffic"], ["un piéton","a pedestrian"],
+    ["monter à bord","to board"], ["à pied","on foot"]
+  ],
+  "argent & finances": [
+    ["économiser","to save money"], ["un budget","a budget"], ["emprunter","to borrow"],
+    ["un prêt","a loan"], ["dépenser","to spend"], ["rembourser","to pay back"],
+    ["les impôts","taxes"], ["une facture","a bill/invoice"]
+  ],
+  "sports & loisirs": [
+    ["s'entraîner","to train"], ["un match","a game/match"], ["une équipe","a team"],
+    ["un adversaire","an opponent"], ["bricoler","to tinker/DIY"], ["un passe-temps","a hobby"],
+    ["la randonnée","hiking"], ["un supporter","a fan"]
+  ],
+  "émotions & sentiments": [
+    ["la joie","joy"], ["la tristesse","sadness"], ["en colère","angry"],
+    ["soulagé","relieved"], ["inquiet","worried"], ["fier","proud"],
+    ["gêné","embarrassed"], ["déçu","disappointed"]
+  ],
+  "expressions idiomatiques": [
+    ["avoir le cafard","to feel blue"], ["coûter les yeux de la tête","to cost an arm and a leg"], ["poser un lapin à quelqu'un","to stand someone up"],
+    ["avoir le coup de foudre","love at first sight"], ["tomber dans les pommes","to faint"], ["il pleut des cordes","it's raining cats and dogs"],
+    ["avoir la pêche","to feel great"], ["casser les pieds à quelqu'un","to annoy someone"]
+  ],
+  "météo & saisons": [
+    ["il fait beau","the weather's nice"], ["un orage","a storm"], ["le brouillard","fog"],
+    ["geler","to freeze"], ["un rayon de soleil","a sunbeam"], ["une vague de chaleur","a heatwave"],
+    ["s'améliorer","to improve (weather)"], ["prévoir","to forecast"]
+  ],
+  "fruits": [
+    ["une pomme","an apple"], ["une banane","a banana"], ["une orange","an orange"],
+    ["une fraise","a strawberry"], ["un raisin","a grape"], ["un citron","a lemon"],
+    ["une poire","a pear"], ["une pêche","a peach"]
+  ],
+  "légumes": [
+    ["une carotte","a carrot"], ["une pomme de terre","a potato"], ["un oignon","an onion"],
+    ["une tomate","a tomato"], ["un poivron","a bell pepper"], ["une courgette","a zucchini"],
+    ["une salade","a lettuce/salad"], ["un champignon","a mushroom"]
+  ],
+  "parties du corps": [
+    ["la tête","the head"], ["le bras","the arm"], ["la main","the hand"],
+    ["la jambe","the leg"], ["le pied","the foot"], ["le dos","the back"],
+    ["le ventre","the stomach"], ["les yeux","the eyes"]
+  ],
+  "la maison": [
+    ["la cuisine","the kitchen"], ["la chambre","the bedroom"], ["la salle de bain","the bathroom"],
+    ["le salon","the living room"], ["le jardin","the garden"], ["la fenêtre","the window"],
+    ["la porte","the door"], ["l'escalier","the staircase"]
+  ],
+  "famille": [
+    ["les parents","the parents"], ["le frère","the brother"], ["la sœur","the sister"],
+    ["le grand-père","the grandfather"], ["la grand-mère","the grandmother"], ["l'oncle","the uncle"],
+    ["la tante","the aunt"], ["le cousin","the cousin"]
+  ],
+  "routine du matin au soir": [
+    ["se réveiller","to wake up"], ["se laver","to wash up"], ["prendre le petit-déjeuner","to have breakfast"],
+    ["partir au travail","to leave for work"], ["déjeuner","to have lunch"], ["rentrer à la maison","to come home"],
+    ["dîner","to have dinner"], ["se coucher","to go to bed"]
+  ]
+};
+
+const vocabTabs = document.getElementById('vocabTabs');
+const vocabGrid = document.getElementById('vocabGrid');
+let activeCat = Object.keys(vocab)[0];
+
+const vocabEnglish = {
+  "restaurant": "Restaurant", "santé": "Health", "médias": "Media", "environnement": "Environment",
+  "voyages": "Travel", "futur & tech": "Future & tech", "logement": "Housing",
+  "personnalité & comparaisons": "Personality & comparisons", "enfance": "Childhood",
+  "vie professionnelle": "Professional life", "opinions & débats": "Opinions & debates",
+  "vie quotidienne": "Daily life", "transport": "Transport", "argent & finances": "Money & finances",
+  "sports & loisirs": "Sports & hobbies", "émotions & sentiments": "Emotions & feelings",
+  "expressions idiomatiques": "Idiomatic expressions", "météo & saisons": "Weather & seasons",
+  "fruits": "Fruits", "légumes": "Vegetables", "parties du corps": "Body parts",
+  "la maison": "The house", "famille": "Family", "routine du matin au soir": "Morning-to-night routine"
+};
+
+Object.keys(vocab).forEach(cat=>{
+  const tab = document.createElement('div');
+  tab.className = 'vtab' + (cat===activeCat ? ' active':'');
+  tab.textContent = cat;
+  tab.dataset.en = vocabEnglish[cat] || '';
+  tab.addEventListener('click', ()=>{
+    activeCat = cat;
+    document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    renderVocab();
+  });
+  vocabTabs.appendChild(tab);
+});
+
+function renderVocab(){
+  vocabGrid.innerHTML = '';
+  vocab[activeCat].forEach(([fr,en])=>{
+    const card = document.createElement('div');
+    card.className = 'vcard';
+    card.dataset.en = en;
+    card.innerHTML = `<div class="fr">${fr}</div><div class="en">${en}</div>`;
+    card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+    vocabGrid.appendChild(card);
+  });
+}
+try{ renderVocab(); }catch(e){ console.error('Vocab wall init error:', e); }
+
+document.getElementById('modeToggle').addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  const btn = document.getElementById('modeToggle');
+  const label = document.getElementById('modeLabel');
+  btn.classList.toggle('on', isDark);
+  btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+  label.textContent = isDark ? 'Light mode' : 'Dark mode';
+});
+
+// ---- writing workshop ----
+const writingPrompts = [
+  "Raconte ton parcours professionnel : où as-tu travaillé, et depuis combien de temps ?",
+  "Décris ton enfance : où habitais-tu, et que faisais-tu souvent ?",
+  "Raconte un événement qui a changé ta vie.",
+  "Décris ta maison idéale et les règles de vie que tu voudrais avoir.",
+  "Compare ta personnalité à celle d'un membre de ta famille.",
+  "Imagine à quoi ressemblera le monde en 2050.",
+  "Présente une idée de projet ou d'entreprise que tu aimerais lancer.",
+  "Raconte un problème que tu as eu au restaurant et comment tu l'as réglé.",
+  "Donne des conseils de santé détaillés à un ami qui ne se sent pas bien.",
+  "Donne ton opinion sur une actualité récente.",
+  "Explique ce que tu ferais pour protéger la planète.",
+  "Raconte ce qu'un ami t'a dit à propos de son dernier voyage."
+];
+let promptIndex = 0;
+const promptBox = document.getElementById('promptBox');
+
+function showPrompt(){
+  if(!promptBox) return;
+  promptBox.textContent = writingPrompts[promptIndex];
+  promptIndex = (promptIndex + 1) % writingPrompts.length;
+}
+const newPromptBtn = document.getElementById('newPromptBtn');
+if(newPromptBtn) newPromptBtn.addEventListener('click', showPrompt);
+showPrompt();
+
+const writingArea = document.getElementById('writingArea');
+const wordCount = document.getElementById('wordCount');
+if(writingArea && wordCount){
+  writingArea.addEventListener('input', ()=>{
+    const trimmed = writingArea.value.trim();
+    const words = trimmed === '' ? [] : trimmed.split(/\s+/).filter(Boolean);
+    wordCount.textContent = words.length + " words";
+  });
+}
+
+const clearWritingBtn = document.getElementById('clearWritingBtn');
+if(clearWritingBtn){
+  clearWritingBtn.addEventListener('click', ()=>{
+    if(writingArea) writingArea.value = '';
+    if(wordCount) wordCount.textContent = '0 words';
+    const fb = document.getElementById('feedbackBox');
+    if(fb) fb.style.display = 'none';
+  });
+}
+
+const feedbackBtn = document.getElementById('feedbackBtn');
+if(feedbackBtn){
+  feedbackBtn.addEventListener('click', async ()=>{
+    const text = writingArea ? writingArea.value.trim() : '';
+    const feedbackBox = document.getElementById('feedbackBox');
+    if(!feedbackBox) return;
+    if(!text){
+      feedbackBox.style.display = 'block';
+      feedbackBox.textContent = "Write a few sentences first!";
+      return;
+    }
+    feedbackBox.style.display = 'block';
+    feedbackBox.textContent = "Scoring your writing…";
+    try{
+      const response = await fetch("https://soft-forest-cbbb.amanjits200.workers.dev", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          max_tokens: 1300,
+          messages: [
+            { role: "user", content:
+              "You are an examiner grading a French learner's writing sample the way an official TEF/TCF " +
+              "Expression Écrite examiner would, for a learner currently around A2 level. " +
+              "Score the text out of 20, broken into 4 criteria worth 5 points each: " +
+              "(1) Task fulfillment / relevance to the topic, " +
+              "(2) Vocabulary range & spelling, " +
+              "(3) Grammar & verb conjugation accuracy, " +
+              "(4) Coherence & cohesion (logical flow, connectors). " +
+              "Also give an estimated CECR level (A1, A2, or B1) based on the sample. " +
+              "Write your feedback in English, formatted like this:\n" +
+              "SCORE: X/20 (estimated level: A2 or similar)\n" +
+              "- Task fulfillment: x/5\n" +
+              "- Vocabulary & spelling: x/5\n" +
+              "- Grammar & conjugation: x/5\n" +
+              "- Coherence & cohesion: x/5\n" +
+              "Strengths: 1-2 short bullet points.\n" +
+              "Errors to fix: 2-4 bullet points, each showing the mistake and the French correction.\n" +
+              "Model answer (in French): write your own short model paragraph (4-6 sentences) answering the same topic, " +
+              "at a strong A2/B1 level, deliberately mixing at least two different tenses so it shows what a well-built " +
+              "answer looks like.\n" +
+              "How to build complex sentences (in English): 2-3 sentences explaining, based on this topic, how to combine " +
+              "tenses to write more complex sentences — e.g. imparfait for background/description plus passé composé for " +
+              "the specific event, or using time connectors (quand, pendant que, alors que, dès que) to link two clauses " +
+              "in different tenses. Point to one example from the model answer above.\n" +
+              "Keep the whole response concise (under 260 words total) and encouraging.\n\n" +
+              "Learner's text:\n" + text
+            }
+          ]
+        })
+      });
+      if(!response.ok){
+        feedbackBox.textContent = "Scoring failed (connection issue). Try again in a moment.";
+        return;
+      }
+      const data = await response.json();
+      const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
+      feedbackBox.textContent = reply || "Sorry, couldn't generate feedback. Try again.";
+    } catch(err){
+      feedbackBox.textContent = "Scoring failed. Try again in a moment.";
+    }
+  });
+}
+
+// ---- A2 course review ----
+const testUnits = {
+  "U1 (25-26): passé composé & time markers": {
+    summary: "Use passé composé for completed past actions. 'Il y a' + time = ago (with passé composé). 'Depuis' + time = since/for (with présent, for ongoing situations).",
+    exercises: [
+      { prompt: "J'___ (habiter) ici depuis trois ans.", answer: "habite", why: "'Depuis' + present tense = an action that started in the past and is still true now." },
+      { prompt: "Elle ___ (partir) il y a deux jours.", answer: "est partie", why: "'Il y a' + passé composé = a completed action; partir uses être as its auxiliary." },
+      { prompt: "Nous ___ (finir) nos études l'année dernière.", answer: "avons fini", why: "Passé composé of finir (avoir + fini) for a finished past action." },
+      { prompt: "Il ___ (travailler) dans cette entreprise depuis 2019.", answer: "travaille", why: "'Depuis' + present tense for an action still ongoing today." },
+      { prompt: "Ils ___ (arriver) il y a une heure.", answer: "sont arrivés", why: "'Il y a' + passé composé; arriver takes être as its auxiliary." },
+      { prompt: "Tu ___ (apprendre) le français depuis combien de temps ?", answer: "apprends", why: "'Depuis combien de temps' asks about an action still happening — use présent." },
+      { prompt: "Nous ___ (déménager) il y a six mois.", answer: "avons déménagé", why: "'Il y a' + passé composé for a finished action at a specific point in the past." },
+      { prompt: "Elle ___ (vivre) à Lyon depuis son enfance.", answer: "vit", why: "'Depuis' + present tense for a situation that began in the past and continues." },
+      { prompt: "J'___ (perdre) mon téléphone il y a une semaine.", answer: "ai perdu", why: "'Il y a' + passé composé; perdre takes avoir as its auxiliary." },
+      { prompt: "Vous ___ (commencer) ce projet depuis quand ?", answer: "commencez", why: "'Depuis quand' asks since when an ongoing action started — use présent." }
+    ]
+  },
+  "U2 (27-28): l'imparfait": {
+    summary: "Imparfait describes past habits and ongoing situations/descriptions. Formed from the 'nous' present stem + imparfait endings (-ais, -ais, -ait, -ions, -iez, -aient). Être is irregular: ét-.",
+    exercises: [
+      { prompt: "Quand j'étais petit, je ___ (jouer) dans le jardin.", answer: "jouais", why: "Imparfait for a repeated childhood habit." },
+      { prompt: "Il ___ (faire) beau tous les étés.", answer: "faisait", why: "Imparfait for a repeated/habitual weather description in the past." },
+      { prompt: "Nous ___ (habiter) à Paris.", answer: "habitions", why: "Imparfait describes an ongoing past situation." },
+      { prompt: "Mes parents ___ (travailler) beaucoup quand j'étais jeune.", answer: "travaillaient", why: "Imparfait for a habitual past action." },
+      { prompt: "Tu ___ (aller) à l'école à pied.", answer: "allais", why: "Imparfait for a repeated past habit." },
+      { prompt: "Elle ___ (avoir) peur des chiens.", answer: "avait", why: "Imparfait describes a past state or feeling." },
+      { prompt: "Nous ___ (manger) souvent chez ma grand-mère.", answer: "mangions", why: "Imparfait for a repeated past habit." },
+      { prompt: "Ils ___ (regarder) la télé tous les soirs.", answer: "regardaient", why: "Imparfait for a repeated evening habit." },
+      { prompt: "Je ___ (être) très timide enfant.", answer: "étais", why: "Imparfait describes a past personality trait or state." },
+      { prompt: "Vous ___ (passer) vos vacances à la mer.", answer: "passiez", why: "Imparfait for a repeated past habit." }
+    ]
+  },
+  "U1-2 (29): PC vs imparfait": {
+    summary: "Imparfait sets the scene/background; passé composé marks the specific event that interrupts or happens within that background.",
+    exercises: [
+      { prompt: "Je ___ (regarder) la télé quand le téléphone ___ (sonner).", answer: "regardais / a sonné", why: "Imparfait sets the background action; passé composé marks the interrupting event." },
+      { prompt: "Il ___ (pleuvoir) toute la journée, alors nous ___ (rester) à la maison.", answer: "pleuvait / sommes restés", why: "Imparfait describes ongoing weather; passé composé marks the resulting action." },
+      { prompt: "Elle ___ (dormir) quand l'orage ___ (commencer).", answer: "dormait / a commencé", why: "Imparfait = ongoing action; passé composé = the event that interrupts it." },
+      { prompt: "Nous ___ (marcher) dans la rue quand nous ___ (voir) l'accident.", answer: "marchions / avons vu", why: "Imparfait = background action; passé composé = the specific moment noticed." },
+      { prompt: "Il ___ (faire) ses devoirs quand ses amis ___ (arriver).", answer: "faisait / sont arrivés", why: "Imparfait = ongoing action; passé composé = the arrival event." },
+      { prompt: "Je ___ (prendre) une douche quand le téléphone ___ (sonner) encore.", answer: "prenais / a sonné", why: "Imparfait = background action; passé composé = the interrupting event." },
+      { prompt: "Elle ___ (lire) un livre quand elle ___ (s'endormir).", answer: "lisait / s'est endormie", why: "Imparfait = ongoing action; passé composé = the moment she fell asleep." },
+      { prompt: "Nous ___ (attendre) le bus depuis dix minutes quand il ___ (arriver).", answer: "attendions / est arrivé", why: "Imparfait = ongoing waiting; passé composé = the bus's arrival." },
+      { prompt: "Ils ___ (jouer) au foot quand il ___ (commencer) à pleuvoir.", answer: "jouaient / a commencé", why: "Imparfait = background action; passé composé = when the rain started." },
+      { prompt: "Tu ___ (conduire) quand tu ___ (recevoir) l'appel.", answer: "conduisais / as reçu", why: "Imparfait = ongoing action; passé composé = the moment the call came." }
+    ]
+  },
+  "U3 (30-31): relative pronouns & subjunctive intro": {
+    summary: "Qui = subject, que = object, où = place/time. Subjunctive appears after expressions like 'il faut que' + a conjugated verb in the subjunctive.",
+    exercises: [
+      { prompt: "C'est la maison ___ j'ai grandi.", answer: "où", why: "'Où' replaces a place already mentioned." },
+      { prompt: "Le livre ___ tu m'as prêté est génial.", answer: "que", why: "'Que' replaces the direct object of the relative clause." },
+      { prompt: "Il faut que tu ___ (être) à l'heure.", answer: "sois", why: "'Il faut que' triggers the subjunctive; être → que tu sois." },
+      { prompt: "La femme ___ travaille ici est ma tante.", answer: "qui", why: "'Qui' replaces the subject of the relative clause." },
+      { prompt: "Voici la ville ___ je suis né.", answer: "où", why: "'Où' replaces the place mentioned." },
+      { prompt: "Il est important que nous ___ (finir) ce projet.", answer: "finissions", why: "'Il est important que' triggers the subjunctive." },
+      { prompt: "C'est le film ___ j'ai vu hier.", answer: "que", why: "'Que' replaces the direct object (the film)." },
+      { prompt: "Je cherche quelqu'un ___ parle espagnol.", answer: "qui", why: "'Qui' replaces the subject (the person who speaks Spanish)." },
+      { prompt: "Il faut que je ___ (aller) chez le médecin.", answer: "aille", why: "'Il faut que' + subjunctive of aller (irregular stem: aill-)." },
+      { prompt: "C'est le jour ___ nous nous sommes rencontrés.", answer: "où", why: "'Où' replaces the time already mentioned." }
+    ]
+  },
+  "U4 (33-34): comparisons & indefinite adjectives": {
+    summary: "Comparisons: plus/moins/aussi ... que. 'Chaque' (each) is always singular. 'Tout/toute/tous/toutes' agrees in gender/number.",
+    exercises: [
+      { prompt: "Elle est ___ sociable ___ son frère. (more ... than)", answer: "plus / que", why: "'Plus...que' expresses a superiority comparison." },
+      { prompt: "___ personne a ses habitudes. (each)", answer: "chaque", why: "'Chaque' (each) is always singular and invariable." },
+      { prompt: "Il travaille ___ moi. (as much as)", answer: "autant que", why: "'Autant que' compares quantities/degree equally." },
+      { prompt: "Ce restaurant est ___ cher ___ l'autre. (less ... than)", answer: "moins / que", why: "'Moins...que' expresses an inferiority comparison." },
+      { prompt: "___ les élèves ont réussi l'examen. (all)", answer: "tous", why: "'Tous' agrees with a masculine plural noun (les élèves)." },
+      { prompt: "Elle a ___ d'expérience que moi. (more)", answer: "davantage", why: "'Davantage' means 'more' and often follows the noun in this structure." },
+      { prompt: "Ma sœur est ___ patiente ___ moi. (as ... as)", answer: "aussi / que", why: "'Aussi...que' expresses an equal comparison." },
+      { prompt: "J'ai lu ___ livre de cette série. (each)", answer: "chaque", why: "'Chaque' + singular noun means 'every/each'." },
+      { prompt: "___ le monde était content. (everyone)", answer: "tout", why: "'Tout le monde' is a fixed expression meaning 'everyone'." },
+      { prompt: "Il gagne ___ que son collègue. (less)", answer: "moins", why: "'Moins que' expresses an inferiority comparison." }
+    ]
+  },
+  "U5 (35-36): futur simple & tech vocab": {
+    summary: "Futur simple = infinitive (or irregular stem) + endings -ai, -as, -a, -ons, -ez, -ont. Used for predictions about the future.",
+    exercises: [
+      { prompt: "Dans dix ans, nous ___ (vivre) sur Mars.", answer: "vivrons", why: "Futur simple of vivre for a future prediction." },
+      { prompt: "Les robots ___ (remplacer) certains emplois.", answer: "remplaceront", why: "Futur simple of remplacer for a prediction about the future." },
+      { prompt: "Tu ___ (voir) que j'avais raison.", answer: "verras", why: "Futur simple of voir (irregular stem: verr-)." },
+      { prompt: "Nous ___ (pouvoir) voyager plus facilement.", answer: "pourrons", why: "Futur simple of pouvoir (irregular stem: pourr-)." },
+      { prompt: "Elle ___ (devenir) ingénieure.", answer: "deviendra", why: "Futur simple of devenir (irregular stem: deviendr-)." },
+      { prompt: "Ils ___ (avoir) une voiture électrique.", answer: "auront", why: "Futur simple of avoir (irregular stem: aur-)." },
+      { prompt: "On ___ (devoir) s'adapter aux nouvelles technologies.", answer: "devra", why: "Futur simple of devoir (irregular stem: devr-)." },
+      { prompt: "Je ___ (savoir) parler trois langues.", answer: "saurai", why: "Futur simple of savoir (irregular stem: saur-)." },
+      { prompt: "Vous ___ (recevoir) les résultats demain.", answer: "recevrez", why: "Futur simple of recevoir (irregular stem: recevr-)." },
+      { prompt: "Il ___ (falloir) protéger l'environnement.", answer: "faudra", why: "Futur simple of the impersonal verb falloir (irregular stem: faudr-)." }
+    ]
+  },
+  "U6 (37-38): quantities & restaurant": {
+    summary: "Quantity expressions: un peu de, beaucoup de, trop de, assez de + noun (no article between the expression and the noun).",
+    exercises: [
+      { prompt: "Je voudrais ___ pain. (a little)", answer: "un peu de", why: "'Un peu de' expresses a small quantity." },
+      { prompt: "Il y a ___ sel dans ce plat. (too much)", answer: "trop de", why: "'Trop de' expresses an excessive quantity." },
+      { prompt: "Elle boit ___ eau chaque jour. (enough)", answer: "assez d'", why: "'Assez de' (elided before a vowel) expresses a sufficient quantity." },
+      { prompt: "Nous avons ___ temps pour finir. (not much)", answer: "peu de", why: "'Peu de' expresses a small/insufficient quantity." },
+      { prompt: "Il y a ___ monde dans ce restaurant. (a lot of)", answer: "beaucoup de", why: "'Beaucoup de' expresses a large quantity." },
+      { prompt: "Je n'ai ___ argent. (no)", answer: "pas d'", why: "'Ne...pas de/d'' expresses zero quantity in a negative sentence." },
+      { prompt: "Peux-tu me donner ___ sucre ? (a little)", answer: "un peu de", why: "'Un peu de' expresses a small quantity." },
+      { prompt: "Il a commandé ___ plats différents. (several)", answer: "plusieurs", why: "'Plusieurs' means 'several' and doesn't take 'de' before the noun." },
+      { prompt: "Il reste ___ places. (a few)", answer: "quelques", why: "'Quelques' means 'a few' and doesn't take 'de' before the noun." },
+      { prompt: "Elle a mangé ___ gâteau. (too much)", answer: "trop de", why: "'Trop de' expresses an excessive quantity." }
+    ]
+  },
+  "U7 (41-42): health & COD/COI pronouns": {
+    summary: "COD (direct object) pronouns: le/la/les. COI (indirect object) pronouns: lui/leur. Use COI with verbs followed by 'à quelqu'un' (donner à, parler à).",
+    exercises: [
+      { prompt: "Je ___ donne un conseil. (to him/her — COI)", answer: "lui", why: "'Lui' is the COI pronoun for 'to him/her'." },
+      { prompt: "Elle ___ voit tous les jours. (him — COD)", answer: "le", why: "'Le' is the COD pronoun replacing a masculine direct object." },
+      { prompt: "Il ___ écrit une lettre. (to them — COI)", answer: "leur", why: "'Leur' is the COI pronoun for 'to them'." },
+      { prompt: "Nous ___ invitons au dîner. (them — COD)", answer: "les", why: "'Les' is the COD pronoun replacing a plural direct object." },
+      { prompt: "Tu ___ téléphones souvent ? (to her — COI)", answer: "lui", why: "'Lui' is the COI pronoun for 'to her'." },
+      { prompt: "Je ___ ai vue hier. (her — COD)", answer: "l'", why: "'L'' (elided la) is the COD pronoun for 'her'." },
+      { prompt: "Le médecin ___ a examiné. (me — COD)", answer: "m'", why: "'M'' (elided me) is the COD pronoun for 'me'." },
+      { prompt: "Ils ___ ont donné des médicaments. (to us — COI)", answer: "nous", why: "'Nous' is the COI pronoun for 'to us'." },
+      { prompt: "Elle ___ conseille de se reposer. (to you — COI)", answer: "te", why: "'Te' is the COI pronoun for 'to you' (informal)." },
+      { prompt: "Je ___ remercie pour votre aide. (you — COD)", answer: "vous", why: "'Vous' is the COD pronoun for 'you' (formal/plural)." }
+    ]
+  },
+  "U8 (43-44): media & subjunctive (opinions)": {
+    summary: "Subjunctive follows verbs/expressions of doubt, feeling, or opinion: douter que, il est important que, avoir peur que.",
+    exercises: [
+      { prompt: "Je doute qu'il ___ (avoir) raison.", answer: "ait", why: "'Douter que' triggers the subjunctive; avoir → qu'il ait." },
+      { prompt: "Il est important que nous ___ (regarder) les informations.", answer: "regardions", why: "'Il est important que' triggers the subjunctive." },
+      { prompt: "Je ne pense pas qu'elle ___ (être) journaliste.", answer: "soit", why: "Doubt ('ne pas penser que') triggers the subjunctive; être → soit." },
+      { prompt: "Il faut que tu ___ (lire) le journal.", answer: "lises", why: "'Il faut que' triggers the subjunctive of lire." },
+      { prompt: "Je suis content que vous ___ (venir).", answer: "veniez", why: "An expression of feeling ('être content que') triggers the subjunctive." },
+      { prompt: "Il est possible qu'ils ___ (diffuser) ce reportage demain.", answer: "diffusent", why: "'Il est possible que' triggers the subjunctive." },
+      { prompt: "Elle a peur que la presse ___ (exagérer).", answer: "exagère", why: "'Avoir peur que' (feeling) triggers the subjunctive." },
+      { prompt: "Je souhaite que tu ___ (comprendre) mon point de vue.", answer: "comprennes", why: "'Souhaiter que' triggers the subjunctive." },
+      { prompt: "Il est nécessaire que nous ___ (savoir) la vérité.", answer: "sachions", why: "'Il est nécessaire que' triggers the subjunctive; savoir → sachions." },
+      { prompt: "Je regrette qu'il ne ___ (pouvoir) pas venir.", answer: "puisse", why: "'Regretter que' (feeling) triggers the subjunctive; pouvoir → puisse." }
+    ]
+  },
+  "U9 (45-46): conditionnel présent & environment": {
+    summary: "Conditionnel présent = futur stem + imparfait endings (-ais, -ais, -ait, -ions, -iez, -aient). Used for hypotheticals and polite suggestions.",
+    exercises: [
+      { prompt: "Si j'avais le choix, je ___ (recycler) plus.", answer: "recyclerais", why: "Conditionnel présent in a 'si + imparfait' hypothetical sentence." },
+      { prompt: "Nous ___ (devoir) protéger la planète.", answer: "devrions", why: "Conditionnel présent expresses a polite suggestion/obligation." },
+      { prompt: "Tu ___ (pouvoir) économiser l'eau.", answer: "pourrais", why: "Conditionnel présent expresses a polite possibility." },
+      { prompt: "Ils ___ (aimer) vivre dans une maison durable.", answer: "aimeraient", why: "Conditionnel présent expresses a hypothetical wish." },
+      { prompt: "Elle ___ (vouloir) réduire ses déchets.", answer: "voudrait", why: "Conditionnel présent expresses a polite wish." },
+      { prompt: "Nous ___ (préférer) utiliser des énergies renouvelables.", answer: "préférerions", why: "Conditionnel présent expresses a polite preference." },
+      { prompt: "Je ___ (faire) plus attention à la pollution.", answer: "ferais", why: "Conditionnel présent expresses a hypothetical action." },
+      { prompt: "Vous ___ (devoir) éteindre les lumières.", answer: "devriez", why: "Conditionnel présent expresses a polite suggestion." },
+      { prompt: "On ___ (pouvoir) sauver des espèces menacées.", answer: "pourrait", why: "Conditionnel présent expresses a hypothetical possibility." },
+      { prompt: "Ils ___ (être) plus heureux avec moins de gaspillage.", answer: "seraient", why: "Conditionnel présent expresses a hypothetical state." }
+    ]
+  },
+  "U10-12 (47): reported speech & passive voice": {
+    summary: "Reported speech shifts tenses back (futur → conditionnel when reporting in the past). Passive voice: être (in the right tense) + past participle.",
+    exercises: [
+      { prompt: "Il m'a dit qu'il ___ (partir) le lendemain. (reported speech)", answer: "partirait", why: "Reported speech shifts futur to conditionnel when the reporting verb is in the past." },
+      { prompt: "Le gâteau ___ (manger) par les enfants. (passive voice)", answer: "a été mangé", why: "Passive voice: être (passé composé) + past participle, agreeing with the subject." },
+      { prompt: "Elle a expliqué qu'elle ___ (arriver) en retard.", answer: "arriverait", why: "Reported speech shifts futur to conditionnel after a past reporting verb." },
+      { prompt: "La maison ___ (construire) en 1990. (passive voice)", answer: "a été construite", why: "Passive voice: être + past participle, agreeing with the feminine subject." },
+      { prompt: "Il a annoncé qu'il ___ (déménager) bientôt.", answer: "déménagerait", why: "Reported speech shifts futur to conditionnel." },
+      { prompt: "Le film ___ (réaliser) par un jeune cinéaste. (passive voice)", answer: "a été réalisé", why: "Passive voice: être + past participle." },
+      { prompt: "Elle a dit qu'elle ___ (finir) son travail avant midi.", answer: "finirait", why: "Reported speech shifts futur to conditionnel." },
+      { prompt: "Les billets ___ (vendre) en ligne. (passive voice)", answer: "sont vendus", why: "Passive voice in the présent: être + past participle, agreeing with the plural subject." },
+      { prompt: "Il m'a promis qu'il m'___ (appeler) le soir.", answer: "appellerait", why: "Reported speech shifts futur to conditionnel." },
+      { prompt: "Le problème ___ (résoudre) rapidement. (passive voice)", answer: "a été résolu", why: "Passive voice: être + past participle." }
+    ]
+  }
+};
+
+const unitPicker = document.getElementById('unitPicker');
+Object.keys(testUnits).forEach(u=>{
+  const opt = document.createElement('option');
+  opt.value = u; opt.textContent = u;
+  unitPicker.appendChild(opt);
+});
+
+const unitSummary = document.getElementById('unitSummary');
+const unitExercises = document.getElementById('unitExercises');
+
+function renderUnit(){
+  const u = testUnits[unitPicker.value];
+  unitSummary.textContent = u.summary;
+  unitExercises.innerHTML = '';
+  u.exercises.forEach(ex=>{
+    const row = document.createElement('div');
+    row.className = 'exercise-row';
+    row.dataset.answer = ex.answer;
+    row.dataset.why = ex.why;
+    row.innerHTML = `
+      <div class="ex-prompt">${ex.prompt}</div>
+      <input type="text" placeholder="ta réponse…">
+      <div class="ex-feedback"></div>
+    `;
+    unitExercises.appendChild(row);
+  });
+}
+
+function normalize(s){
+  return s.trim().toLowerCase().replace(/\s+/g,' ').replace(/[.!?]+$/,'');
+}
+
+function gradeUnit(){
+  unitExercises.querySelectorAll('.exercise-row').forEach(row=>{
+    const input = row.querySelector('input');
+    const feedback = row.querySelector('.ex-feedback');
+    const answer = row.dataset.answer;
+    const why = row.dataset.why;
+    const userVal = input.value;
+    row.classList.remove('correct','incorrect');
+    if(userVal.trim() === ''){
+      feedback.innerHTML = `<span class="fb-answer">Correct answer: ${answer}</span><span class="fb-why">${why}</span>`;
+      row.classList.add('incorrect');
+      return;
+    }
+    const isCorrect = normalize(userVal) === normalize(answer);
+    if(isCorrect){
+      row.classList.add('correct');
+      feedback.innerHTML = `<span class="fb-mark fb-correct">✓ Correct!</span><span class="fb-why">${why}</span>`;
+    } else {
+      row.classList.add('incorrect');
+      feedback.innerHTML = `<span class="fb-mark fb-incorrect">✗ Not quite — correct answer: ${answer}</span><span class="fb-why">${why}</span>`;
+    }
+  });
+}
+
+unitPicker.addEventListener('change', renderUnit);
+document.getElementById('unitCheckBtn').addEventListener('click', gradeUnit);
+document.getElementById('unitEraseBtn').addEventListener('click', ()=>{
+  unitExercises.querySelectorAll('input').forEach(inp => inp.value = '');
+  unitExercises.querySelectorAll('.exercise-row').forEach(row=>{
+    row.classList.remove('correct','incorrect');
+    row.querySelector('.ex-feedback').innerHTML = '';
+  });
+});
+document.getElementById('unitToggleBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('unitToggleBtn');
+  const hidden = unitExercises.style.display === 'none';
+  unitExercises.style.display = hidden ? 'block' : 'none';
+  btn.textContent = hidden ? 'hide questions' : 'show questions';
+});
+try{ renderUnit(); }catch(e){ console.error('Course review init error:', e); }
+
+document.querySelectorAll('button.action, .chip, .vtab, .switch').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    el.classList.remove('bounce');
+    void el.offsetWidth; // restart animation
+    el.classList.add('bounce');
+  });
+  el.addEventListener('animationend', ()=> el.classList.remove('bounce'));
+});// ---- listening practice ----
+const listeningSets = {
+  "Au restaurant": {
+    lines: [
+      { speaker: "A", text: "Bonjour, vous avez une table pour deux ?" },
+      { speaker: "B", text: "Oui, suivez-moi. Voici la carte." },
+      { speaker: "A", text: "Merci. Je voudrais un plat du jour, s'il vous plaît." },
+      { speaker: "B", text: "Très bien. Et comme boisson ?" },
+      { speaker: "A", text: "Un peu d'eau, merci." },
+      { speaker: "B", text: "Voulez-vous une entrée ?" },
+      { speaker: "A", text: "Non merci, juste le plat." },
+      { speaker: "B", text: "D'accord, ça arrive tout de suite." }
+    ],
+    questions: [
+      { prompt: "Combien de personnes ont besoin d'une table ?", options: ["One", "Two", "Three", "Four"], correct: 1, why: "Le client dit « une table pour deux »." },
+      { prompt: "Qu'est-ce que le client commande ?", options: ["Le plat du jour", "Une soupe", "Un dessert", "Une salade"], correct: 0, why: "Il dit « je voudrais un plat du jour »." },
+      { prompt: "Quelle boisson demande-t-il ?", options: ["Du vin", "De l'eau", "Du café", "Du jus"], correct: 1, why: "Il répond « un peu d'eau »." },
+      { prompt: "Veulent-ils une entrée ?", options: ["Oui", "Non"], correct: 1, why: "Ils disent « non merci, juste le plat »." },
+      { prompt: "Que dit le serveur avant de partir ?", options: ["Bon appétit", "Ça arrive tout de suite", "L'addition, s'il vous plaît", "C'est fermé"], correct: 1, why: "Le serveur termine par « ça arrive tout de suite »." }
+    ]
+  },
+  "Chez le médecin": {
+    lines: [
+      { speaker: "A", text: "Bonjour docteur, je ne me sens pas bien." },
+      { speaker: "B", text: "Qu'est-ce qui ne va pas ?" },
+      { speaker: "A", text: "J'ai mal à la tête et un peu de fièvre." },
+      { speaker: "B", text: "Depuis combien de temps ?" },
+      { speaker: "A", text: "Depuis hier soir." },
+      { speaker: "B", text: "Je vous conseille de vous reposer et de boire beaucoup d'eau." },
+      { speaker: "A", text: "Dois-je prendre des médicaments ?" },
+      { speaker: "B", text: "Oui, prenez un cachet le matin et le soir." }
+    ],
+    questions: [
+      { prompt: "Quel symptôme le patient décrit-il ?", options: ["Mal au dos", "Mal à la tête", "Mal au ventre", "Mal aux dents"], correct: 1, why: "Il dit « j'ai mal à la tête »." },
+      { prompt: "Depuis quand se sent-il malade ?", options: ["Depuis ce matin", "Depuis hier soir", "Depuis une semaine", "Depuis deux jours"], correct: 1, why: "Il répond « depuis hier soir »." },
+      { prompt: "Que conseille le médecin ?", options: ["Faire du sport", "Se reposer et boire de l'eau", "Manger plus", "Aller à l'hôpital"], correct: 1, why: "Le médecin conseille de se reposer et de boire beaucoup d'eau." },
+      { prompt: "À quelle fréquence faut-il prendre le cachet ?", options: ["Une fois par jour", "Matin et soir", "Trois fois par jour", "Seulement le soir"], correct: 1, why: "« Un cachet le matin et le soir »." },
+      { prompt: "Le médecin prescrit-il des médicaments ?", options: ["Oui", "Non"], correct: 0, why: "Le patient demande s'il doit prendre des médicaments et le médecin dit oui." }
+    ]
+  },
+  "Demander son chemin": {
+    lines: [
+      { speaker: "A", text: "Excusez-moi, savez-vous où se trouve la gare ?" },
+      { speaker: "B", text: "Oui, continuez tout droit, puis tournez à gauche." },
+      { speaker: "A", text: "C'est loin d'ici ?" },
+      { speaker: "B", text: "Non, c'est à environ dix minutes à pied." },
+      { speaker: "A", text: "Merci beaucoup !" },
+      { speaker: "B", text: "De rien, bonne journée !" }
+    ],
+    questions: [
+      { prompt: "Que cherche la personne ?", options: ["La gare", "La banque", "Le musée", "L'hôpital"], correct: 0, why: "Elle demande « où se trouve la gare »." },
+      { prompt: "Dans quelle direction doit-elle tourner ?", options: ["À droite", "À gauche", "Tout droit seulement", "En arrière"], correct: 1, why: "« Continuez tout droit, puis tournez à gauche »." },
+      { prompt: "À quelle distance se trouve la gare ?", options: ["5 minutes", "10 minutes", "20 minutes", "1 heure"], correct: 1, why: "« Environ dix minutes à pied »." },
+      { prompt: "Comment doit-elle y aller ?", options: ["En voiture", "À pied", "En bus", "En vélo"], correct: 1, why: "La réponse précise « à pied »." },
+      { prompt: "Comment réagit la personne à la fin ?", options: ["Ils sont fâchés", "Ils disent merci", "Ils sont perdus", "Ils repartent sans rien dire"], correct: 1, why: "Elle dit « merci beaucoup »." }
+    ]
+  },
+  "Faire les courses": {
+    lines: [
+      { speaker: "A", text: "Bonjour, je voudrais un kilo de pommes, s'il vous plaît." },
+      { speaker: "B", text: "Voilà. Vous voulez autre chose ?" },
+      { speaker: "A", text: "Oui, un peu de fromage aussi." },
+      { speaker: "B", text: "Combien de fromage ?" },
+      { speaker: "A", text: "Deux cents grammes, s'il vous plaît." },
+      { speaker: "B", text: "Ça fait douze euros en tout." },
+      { speaker: "A", text: "Voici l'argent. Merci !" }
+    ],
+    questions: [
+      { prompt: "Quel fruit achètent-ils ?", options: ["Des poires", "Des pommes", "Des bananes", "Des oranges"], correct: 1, why: "Ils demandent « un kilo de pommes »." },
+      { prompt: "Combien de fromage commandent-ils ?", options: ["100 grammes", "200 grammes", "500 grammes", "Un kilo"], correct: 1, why: "« Deux cents grammes »." },
+      { prompt: "Quel est le prix total ?", options: ["Dix euros", "Douze euros", "Quinze euros", "Vingt euros"], correct: 1, why: "« Ça fait douze euros en tout »." },
+      { prompt: "Que disent-ils à la fin ?", options: ["Au revoir", "Merci", "À bientôt", "Pardon"], correct: 1, why: "Ils terminent par « merci »." },
+      { prompt: "Comment paient-ils ?", options: ["Par carte", "En espèces (avec l'argent)", "Par chèque", "Ils ne paient pas"], correct: 1, why: "Ils disent « voici l'argent » — en espèces." }
+    ]
+  },
+  "Parler de la météo": {
+    lines: [
+      { speaker: "A", text: "Il fait quel temps aujourd'hui ?" },
+      { speaker: "B", text: "Il pleut beaucoup et il fait froid." },
+      { speaker: "A", text: "Est-ce qu'il va faire beau demain ?" },
+      { speaker: "B", text: "Oui, la météo annonce du soleil pour demain matin." },
+      { speaker: "A", text: "Super, on pourra sortir alors !" },
+      { speaker: "B", text: "Oui, mais prends un pull, il fera encore un peu frais." }
+    ],
+    questions: [
+      { prompt: "Quel temps fait-il aujourd'hui ?", options: ["Il fait beau", "Il pleut et il fait froid", "Il neige", "Il fait chaud"], correct: 1, why: "« Il pleut beaucoup et il fait froid »." },
+      { prompt: "Quelle est la météo prévue pour demain ?", options: ["De la pluie", "Du soleil", "De la neige", "Du vent"], correct: 1, why: "« La météo annonce du soleil »." },
+      { prompt: "Qu'est-ce qu'ils doivent apporter ?", options: ["Un parapluie", "Un pull", "Des lunettes de soleil", "Un manteau d'hiver"], correct: 1, why: "« Prends un pull », il fera encore un peu frais." },
+      { prompt: "Quand fera-t-il du soleil ?", options: ["Ce soir", "Demain matin", "La semaine prochaine", "Dans deux jours"], correct: 1, why: "« Pour demain matin »." },
+      { prompt: "Que décident-ils de faire demain ?", options: ["Rester à la maison", "Sortir", "Travailler", "Annuler leurs plans"], correct: 1, why: "Ils disent « on pourra sortir alors »." }
+    ]
+  },
+  "Au téléphone": {
+    lines: [
+      { speaker: "A", text: "Allô, salut Marie, ça va ?" },
+      { speaker: "B", text: "Oui, ça va bien, merci ! Et toi ?" },
+      { speaker: "A", text: "Très bien. Tu es libre ce soir ?" },
+      { speaker: "B", text: "Oui, pourquoi tu me demandes ça ?" },
+      { speaker: "A", text: "On pourrait aller au cinéma ensemble." },
+      { speaker: "B", text: "Bonne idée ! On se retrouve à quelle heure ?" },
+      { speaker: "A", text: "Vers dix-neuf heures, devant le cinéma." },
+      { speaker: "B", text: "Parfait, à ce soir alors !" }
+    ],
+    questions: [
+      { prompt: "Qui A appelle-t-il ?", options: ["Marie", "Sophie", "Paul", "Julie"], correct: 0, why: "A dit « salut Marie » au début de l'appel." },
+      { prompt: "Que propose A de faire ?", options: ["Aller au restaurant", "Aller au cinéma", "Faire du shopping", "Aller à la plage"], correct: 1, why: "« On pourrait aller au cinéma ensemble »." },
+      { prompt: "À quelle heure se retrouvent-ils ?", options: ["18h", "19h", "20h", "21h"], correct: 1, why: "« Vers dix-neuf heures »." },
+      { prompt: "Où vont-ils se retrouver ?", options: ["Chez Marie", "Devant le cinéma", "Au restaurant", "À la gare"], correct: 1, why: "Ils se retrouvent « devant le cinéma »." },
+      { prompt: "Comment B réagit-elle au plan ?", options: ["Elle refuse", "Elle trouve que c'est une bonne idée", "Elle hésite", "Elle est fâchée"], correct: 1, why: "B dit « bonne idée »." }
+    ]
+  },
+  "À la banque": {
+    lines: [
+      { speaker: "A", text: "Bonjour, je voudrais ouvrir un compte bancaire." },
+      { speaker: "B", text: "Très bien, avez-vous une pièce d'identité ?" },
+      { speaker: "A", text: "Oui, voici ma carte d'identité." },
+      { speaker: "B", text: "Merci. Vous voulez aussi une carte bancaire ?" },
+      { speaker: "A", text: "Oui, s'il vous plaît." },
+      { speaker: "B", text: "D'accord, elle arrivera par courrier dans une semaine." },
+      { speaker: "A", text: "Très bien, merci pour votre aide." }
+    ],
+    questions: [
+      { prompt: "Que veut faire le client ?", options: ["Fermer un compte", "Ouvrir un compte", "Retirer de l'argent", "Faire un prêt"], correct: 1, why: "« Je voudrais ouvrir un compte bancaire »." },
+      { prompt: "Quel document présente-t-il ?", options: ["Un passeport", "Une carte d'identité", "Un permis de conduire", "Une facture"], correct: 1, why: "Il présente « ma carte d'identité »." },
+      { prompt: "Que demande-t-il aussi ?", options: ["Un chéquier", "Une carte bancaire", "Un prêt", "Un coffre-fort"], correct: 1, why: "Il demande « une carte bancaire »." },
+      { prompt: "Quand va-t-elle arriver ?", options: ["Demain", "Dans une semaine", "Dans un mois", "Tout de suite"], correct: 1, why: "« Dans une semaine »." },
+      { prompt: "Comment sera-t-elle livrée ?", options: ["En personne", "Par courrier", "Par email", "Par téléphone"], correct: 1, why: "« Elle arrivera par courrier »." }
+    ]
+  },
+  "À l'aéroport": {
+    lines: [
+      { speaker: "A", text: "Bonjour, votre passeport et votre billet, s'il vous plaît." },
+      { speaker: "B", text: "Voici, madame." },
+      { speaker: "A", text: "Merci. Vous avez des bagages à enregistrer ?" },
+      { speaker: "B", text: "Oui, une valise." },
+      { speaker: "A", text: "Très bien. Voici votre carte d'embarquement, porte douze." },
+      { speaker: "B", text: "À quelle heure est l'embarquement ?" },
+      { speaker: "A", text: "Dans quarante-cinq minutes." },
+      { speaker: "B", text: "Merci beaucoup !" }
+    ],
+    questions: [
+      { prompt: "Quels deux documents l'agent demande-t-il ?", options: ["Billet et carte bancaire", "Passeport et billet", "Passeport et bagages", "Billet et bagages"], correct: 1, why: "« Votre passeport et votre billet »." },
+      { prompt: "Combien de valises le passager enregistre-t-il ?", options: ["Aucune", "Une", "Deux", "Trois"], correct: 1, why: "Il répond « oui, une valise »." },
+      { prompt: "Quel est le numéro de la porte d'embarquement ?", options: ["Dix", "Onze", "Douze", "Vingt"], correct: 2, why: "« Porte douze »." },
+      { prompt: "Dans combien de temps est l'embarquement ?", options: ["Quinze minutes", "Trente minutes", "Quarante-cinq minutes", "Une heure"], correct: 2, why: "« Dans quarante-cinq minutes »." },
+      { prompt: "Que reçoit le passager ?", options: ["Un billet", "Une carte d'embarquement", "Un passeport", "Un reçu"], correct: 1, why: "Il reçoit « votre carte d'embarquement »." }
+    ]
+  },
+  "Chez le coiffeur": {
+    lines: [
+      { speaker: "A", text: "Bonjour, j'aimerais une coupe de cheveux, s'il vous plaît." },
+      { speaker: "B", text: "Bien sûr. Vous voulez les cheveux courts ou juste une coupe légère ?" },
+      { speaker: "A", text: "Juste un peu plus courts, pas trop court." },
+      { speaker: "B", text: "D'accord, et voulez-vous une couleur aussi ?" },
+      { speaker: "A", text: "Non merci, juste la coupe." },
+      { speaker: "B", text: "Très bien, installez-vous ici." },
+      { speaker: "A", text: "Merci." }
+    ],
+    questions: [
+      { prompt: "Quel service le client demande-t-il ?", options: ["Une couleur", "Une coupe de cheveux", "Un brushing", "Une permanente"], correct: 1, why: "« J'aimerais une coupe de cheveux »." },
+      { prompt: "À quel point veut-il les cheveux plus courts ?", options: ["Très court", "Un peu plus court", "Juste égaliser", "Pas de changement"], correct: 1, why: "« Un peu plus courts, pas trop court »." },
+      { prompt: "Veut-il aussi une couleur ?", options: ["Oui", "Non"], correct: 1, why: "Il dit « non merci » quand on lui demande." },
+      { prompt: "Que demande-t-il seulement ?", options: ["Juste la coupe", "Juste la couleur", "Les deux", "Rien"], correct: 0, why: "« Juste la coupe »." },
+      { prompt: "Où le coiffeur lui demande-t-il de s'asseoir ?", options: ["Ici", "Là-bas", "Dans la salle d'attente", "Dehors"], correct: 0, why: "« Installez-vous ici »." }
+    ]
+  },
+  "À la poste": {
+    lines: [
+      { speaker: "A", text: "Bonjour, je voudrais envoyer ce colis en Espagne." },
+      { speaker: "B", text: "D'accord, vous voulez l'envoi standard ou express ?" },
+      { speaker: "A", text: "Combien de temps met l'envoi standard ?" },
+      { speaker: "B", text: "Environ cinq jours." },
+      { speaker: "A", text: "Et l'express ?" },
+      { speaker: "B", text: "Deux jours, mais c'est plus cher." },
+      { speaker: "A", text: "Je vais prendre l'express alors." },
+      { speaker: "B", text: "Très bien, ça fait dix-huit euros." }
+    ],
+    questions: [
+      { prompt: "Où va le colis ?", options: ["En Italie", "En Espagne", "En Allemagne", "Au Portugal"], correct: 1, why: "« Envoyer ce colis en Espagne »." },
+      { prompt: "Combien de temps met l'envoi standard ?", options: ["Deux jours", "Cinq jours", "Une semaine", "Dix jours"], correct: 1, why: "« Environ cinq jours »." },
+      { prompt: "Combien de temps met l'envoi express ?", options: ["Un jour", "Deux jours", "Trois jours", "Quatre jours"], correct: 1, why: "« Deux jours, mais c'est plus cher »." },
+      { prompt: "Quelle option choisit le client ?", options: ["Standard", "Express", "Aucune", "Les deux"], correct: 1, why: "« Je vais prendre l'express alors »." },
+      { prompt: "Combien ça coûte ?", options: ["Dix euros", "Quinze euros", "Dix-huit euros", "Vingt euros"], correct: 2, why: "« Ça fait dix-huit euros »." }
+    ]
+  },
+  "Louer un appartement": {
+    lines: [
+      { speaker: "A", text: "Bonjour, je m'intéresse à l'appartement que vous louez." },
+      { speaker: "B", text: "Ah oui, il a deux chambres et une cuisine équipée." },
+      { speaker: "A", text: "Quel est le loyer par mois ?" },
+      { speaker: "B", text: "Neuf cents euros, charges comprises." },
+      { speaker: "A", text: "Est-ce que les animaux sont acceptés ?" },
+      { speaker: "B", text: "Oui, pas de problème." },
+      { speaker: "A", text: "Parfait, quand puis-je visiter ?" },
+      { speaker: "B", text: "Demain après-midi, si vous voulez." }
+    ],
+    questions: [
+      { prompt: "Combien de chambres a l'appartement ?", options: ["Une", "Deux", "Trois", "Quatre"], correct: 1, why: "« Il a deux chambres »." },
+      { prompt: "Quel est le loyer mensuel ?", options: ["Sept cents euros", "Huit cents euros", "Neuf cents euros", "Mille euros"], correct: 2, why: "« Neuf cents euros, charges comprises »." },
+      { prompt: "Les charges sont-elles comprises ?", options: ["Oui", "Non"], correct: 0, why: "« Charges comprises » signifie que les charges sont incluses." },
+      { prompt: "Les animaux sont-ils acceptés ?", options: ["Oui", "Non"], correct: 0, why: "« Oui, pas de problème »." },
+      { prompt: "Quand peuvent-ils visiter ?", options: ["Ce soir", "Demain après-midi", "La semaine prochaine", "Dans un mois"], correct: 1, why: "« Demain après-midi »." }
+    ]
+  },
+  "Au travail": {
+    lines: [
+      { speaker: "A", text: "Bonjour, tu as fini le rapport pour la réunion ?" },
+      { speaker: "B", text: "Presque, il me manque juste les chiffres de ventes." },
+      { speaker: "A", text: "La réunion est à quatorze heures, tu as le temps." },
+      { speaker: "B", text: "Oui, je vais finir avant midi." },
+      { speaker: "A", text: "Super, tu peux me l'envoyer par email après ?" },
+      { speaker: "B", text: "Bien sûr, pas de problème." },
+      { speaker: "A", text: "Merci beaucoup, à plus tard." }
+    ],
+    questions: [
+      { prompt: "Sur quoi B travaille-t-il ?", options: ["Une présentation", "Un rapport", "Un email", "Un projet"], correct: 1, why: "A demande « le rapport pour la réunion »." },
+      { prompt: "Qu'est-ce qui manque au rapport ?", options: ["Les chiffres de ventes", "Le titre", "La conclusion", "Les photos"], correct: 0, why: "« Il me manque juste les chiffres de ventes »." },
+      { prompt: "À quelle heure est la réunion ?", options: ["Midi", "Quatorze heures", "Seize heures", "Dix-huit heures"], correct: 1, why: "« La réunion est à quatorze heures »." },
+      { prompt: "Quand B va-t-il finir ?", options: ["Avant midi", "Après la réunion", "Demain", "Ce soir"], correct: 0, why: "« Je vais finir avant midi »." },
+      { prompt: "Comment B doit-il l'envoyer ?", options: ["Par la poste", "Par email", "En main propre", "Par fax"], correct: 1, why: "« Tu peux me l'envoyer par email »." }
+    ]
+  },
+  "Faire du sport": {
+    lines: [
+      { speaker: "A", text: "Tu fais du sport régulièrement ?" },
+      { speaker: "B", text: "Oui, je cours trois fois par semaine." },
+      { speaker: "A", text: "Le matin ou le soir ?" },
+      { speaker: "B", text: "Plutôt le matin, avant le travail." },
+      { speaker: "A", text: "Et tu fais d'autres activités ?" },
+      { speaker: "B", text: "Oui, je fais aussi de la natation le week-end." },
+      { speaker: "A", text: "C'est bien, ça te fait du bien !" }
+    ],
+    questions: [
+      { prompt: "À quelle fréquence B court-il ?", options: ["Une fois par semaine", "Deux fois par semaine", "Trois fois par semaine", "Tous les jours"], correct: 2, why: "« Je cours trois fois par semaine »." },
+      { prompt: "Quand B court-il généralement ?", options: ["Le matin", "L'après-midi", "Le soir", "La nuit"], correct: 0, why: "« Plutôt le matin »." },
+      { prompt: "Avant ou après le travail ?", options: ["Avant", "Après"], correct: 0, why: "« Avant le travail »." },
+      { prompt: "Quelle autre activité B fait-il ?", options: ["Le vélo", "La natation", "Le yoga", "Le tennis"], correct: 1, why: "« Je fais aussi de la natation »." },
+      { prompt: "Quand B nage-t-il ?", options: ["En semaine", "Le week-end", "Tous les jours", "Jamais"], correct: 1, why: "« Le week-end »." }
+    ]
+  },
+  "Les projets de vacances": {
+    lines: [
+      { speaker: "A", text: "Tu as des projets pour les vacances ?" },
+      { speaker: "B", text: "Oui, je pars en Italie avec ma famille." },
+      { speaker: "A", text: "Super ! Vous partez pour combien de temps ?" },
+      { speaker: "B", text: "Deux semaines, en août." },
+      { speaker: "A", text: "Vous allez visiter quelles villes ?" },
+      { speaker: "B", text: "Rome et Florence surtout." },
+      { speaker: "A", text: "Ça a l'air génial !" }
+    ],
+    questions: [
+      { prompt: "Où B part-il ?", options: ["En Espagne", "En Italie", "En Grèce", "Au Portugal"], correct: 1, why: "« Je pars en Italie »." },
+      { prompt: "Avec qui B voyage-t-il ?", options: ["Des amis", "Sa famille", "Seul", "Des collègues"], correct: 1, why: "« Avec ma famille »." },
+      { prompt: "Combien de temps dure le voyage ?", options: ["Une semaine", "Deux semaines", "Un mois", "Trois jours"], correct: 1, why: "« Deux semaines »." },
+      { prompt: "En quel mois ?", options: ["Juillet", "Août", "Septembre", "Juin"], correct: 1, why: "« En août »." },
+      { prompt: "Quelles villes vont-ils visiter ?", options: ["Milan et Venise", "Rome et Florence", "Naples et Turin", "Pise et Bologne"], correct: 1, why: "« Rome et Florence surtout »." }
+    ]
+  },
+  "Une panne de voiture": {
+    lines: [
+      { speaker: "A", text: "Allô, ma voiture est en panne sur l'autoroute." },
+      { speaker: "B", text: "D'accord, où êtes-vous exactement ?" },
+      { speaker: "A", text: "Je suis près de la sortie douze." },
+      { speaker: "B", text: "Un technicien arrive dans vingt minutes." },
+      { speaker: "A", text: "Merci. Est-ce que je dois rester dans la voiture ?" },
+      { speaker: "B", text: "Non, sortez et restez derrière la barrière de sécurité." },
+      { speaker: "A", text: "D'accord, merci beaucoup." }
+    ],
+    questions: [
+      { prompt: "Où la voiture est-elle tombée en panne ?", options: ["En ville", "Sur l'autoroute", "Au parking", "À la maison"], correct: 1, why: "« Ma voiture est en panne sur l'autoroute »." },
+      { prompt: "Près de quelle sortie ?", options: ["Dix", "Onze", "Douze", "Treize"], correct: 2, why: "« Près de la sortie douze »." },
+      { prompt: "Dans combien de temps l'aide arrive-t-elle ?", options: ["Dix minutes", "Vingt minutes", "Trente minutes", "Une heure"], correct: 1, why: "« Un technicien arrive dans vingt minutes »." },
+      { prompt: "Le conducteur doit-il rester dans la voiture ?", options: ["Oui", "Non"], correct: 1, why: "La réponse est « non, sortez »." },
+      { prompt: "Où doivent-ils attendre ?", options: ["Dans la voiture", "Derrière la barrière de sécurité", "Sur la route", "Dans le coffre"], correct: 1, why: "« Restez derrière la barrière de sécurité »." }
+    ]
+  },
+  "Au cinéma": {
+    lines: [
+      { speaker: "A", text: "Bonjour, deux places pour le film de dix-neuf heures, s'il vous plaît." },
+      { speaker: "B", text: "D'accord, vous voulez être près de l'écran ou au fond ?" },
+      { speaker: "A", text: "Au fond, s'il vous plaît." },
+      { speaker: "B", text: "Très bien, ça fait vingt-deux euros." },
+      { speaker: "A", text: "Voici. Est-ce qu'on peut apporter du popcorn ?" },
+      { speaker: "B", text: "Il y a un stand juste à côté." },
+      { speaker: "A", text: "Parfait, merci !" }
+    ],
+    questions: [
+      { prompt: "Combien de places achètent-ils ?", options: ["Une", "Deux", "Trois", "Quatre"], correct: 1, why: "« Deux places »." },
+      { prompt: "À quelle heure est le film ?", options: ["Dix-huit heures", "Dix-neuf heures", "Vingt heures", "Vingt-et-une heures"], correct: 1, why: "« Le film de dix-neuf heures »." },
+      { prompt: "Où veulent-ils s'asseoir ?", options: ["Près de l'écran", "Au fond", "Sur le côté", "Au milieu"], correct: 1, why: "« Au fond, s'il vous plaît »." },
+      { prompt: "Combien coûtent les billets ?", options: ["Dix-huit euros", "Vingt euros", "Vingt-deux euros", "Vingt-cinq euros"], correct: 2, why: "« Ça fait vingt-deux euros »." },
+      { prompt: "Où peuvent-ils acheter du popcorn ?", options: ["À un stand à côté", "Dans la salle", "À l'entrée", "Il n'y en a pas"], correct: 0, why: "« Il y a un stand juste à côté »." }
+    ]
+  },
+  "Un entretien d'embauche": {
+    lines: [
+      { speaker: "A", text: "Bonjour, merci d'être venu. Parlez-moi de votre expérience." },
+      { speaker: "B", text: "J'ai travaillé trois ans comme assistant marketing." },
+      { speaker: "A", text: "Pourquoi voulez-vous quitter votre poste actuel ?" },
+      { speaker: "B", text: "Je cherche de nouveaux défis et plus de responsabilités." },
+      { speaker: "A", text: "Quelles sont vos disponibilités ?" },
+      { speaker: "B", text: "Je peux commencer dans un mois." },
+      { speaker: "A", text: "Parfait, nous vous recontacterons bientôt." }
+    ],
+    questions: [
+      { prompt: "Quel était le poste précédent de B ?", options: ["Assistant marketing", "Comptable", "Vendeur", "Ingénieur"], correct: 0, why: "« Comme assistant marketing »." },
+      { prompt: "Combien d'années d'expérience a-t-il ?", options: ["Un an", "Deux ans", "Trois ans", "Cinq ans"], correct: 2, why: "« J'ai travaillé trois ans »." },
+      { prompt: "Pourquoi B veut-il partir ?", options: ["Le salaire", "De nouveaux défis", "Les horaires", "Le trajet"], correct: 1, why: "« Je cherche de nouveaux défis »." },
+      { prompt: "Quand B peut-il commencer ?", options: ["Immédiatement", "Dans un mois", "Dans six mois", "Jamais"], correct: 1, why: "« Je peux commencer dans un mois »." },
+      { prompt: "Que va-t-il se passer ensuite ?", options: ["B est refusé", "On le recontactera", "Il commence demain", "Rien"], correct: 1, why: "« Nous vous recontacterons bientôt »." }
+    ]
+  },
+  "La routine quotidienne": {
+    lines: [
+      { speaker: "A", text: "À quelle heure te lèves-tu le matin ?" },
+      { speaker: "B", text: "Je me lève à six heures et demie." },
+      { speaker: "A", text: "Et qu'est-ce que tu fais avant d'aller au travail ?" },
+      { speaker: "B", text: "Je prends une douche et je prends mon petit-déjeuner." },
+      { speaker: "A", text: "Comment vas-tu au travail ?" },
+      { speaker: "B", text: "Je prends le bus, ça prend vingt minutes." },
+      { speaker: "A", text: "Tu rentres à quelle heure le soir ?" },
+      { speaker: "B", text: "Vers dix-huit heures trente." }
+    ],
+    questions: [
+      { prompt: "À quelle heure B se lève-t-il ?", options: ["Six heures", "Six heures et demie", "Sept heures", "Sept heures et demie"], correct: 1, why: "« Je me lève à six heures et demie »." },
+      { prompt: "Que fait B avant le travail ?", options: ["Rien", "Douche et petit-déjeuner", "Sport", "Lecture"], correct: 1, why: "« Je prends une douche et je prends mon petit-déjeuner »." },
+      { prompt: "Comment B va-t-il au travail ?", options: ["En voiture", "En bus", "À pied", "En vélo"], correct: 1, why: "« Je prends le bus »." },
+      { prompt: "Combien de temps dure le trajet ?", options: ["Dix minutes", "Vingt minutes", "Trente minutes", "Une heure"], correct: 1, why: "« Ça prend vingt minutes »." },
+      { prompt: "À quelle heure B rentre-t-il ?", options: ["Dix-sept heures", "Dix-huit heures", "Dix-huit heures trente", "Dix-neuf heures"], correct: 2, why: "« Vers dix-huit heures trente »." }
+    ]
+  },
+  "Une invitation à dîner": {
+    lines: [
+      { speaker: "A", text: "Salut ! Tu es libre samedi soir ? On organise un dîner." },
+      { speaker: "B", text: "Oui, avec plaisir ! C'est chez toi ?" },
+      { speaker: "A", text: "Oui, à vingt heures. Tu peux apporter un dessert ?" },
+      { speaker: "B", text: "Bien sûr, je vais faire une tarte aux pommes." },
+      { speaker: "A", text: "Génial, à samedi alors !" },
+      { speaker: "B", text: "À samedi !" }
+    ],
+    questions: [
+      { prompt: "Quel jour a lieu le dîner ?", options: ["Vendredi", "Samedi", "Dimanche", "Lundi"], correct: 1, why: "« Tu es libre samedi soir »." },
+      { prompt: "Où cela se passe-t-il ?", options: ["Chez B", "Chez A", "Au restaurant", "Dans un parc"], correct: 1, why: "B demande « c'est chez toi » et A confirme." },
+      { prompt: "À quelle heure ça commence ?", options: ["Dix-neuf heures", "Vingt heures", "Vingt-et-une heures", "Vingt-deux heures"], correct: 1, why: "« À vingt heures »." },
+      { prompt: "Qu'est-ce qu'on demande à B d'apporter ?", options: ["Une boisson", "Un dessert", "Une entrée", "Rien"], correct: 1, why: "« Tu peux apporter un dessert »." },
+      { prompt: "Qu'est-ce que B va apporter exactement ?", options: ["Un gâteau au chocolat", "Une tarte aux pommes", "Une salade", "Du pain"], correct: 1, why: "« Je vais faire une tarte aux pommes »." }
+    ]
+  },
+  "Perdre ses affaires": {
+    lines: [
+      { speaker: "A", text: "Excusez-moi, j'ai perdu mon portefeuille dans le magasin." },
+      { speaker: "B", text: "D'accord, à quoi ressemble-t-il ?" },
+      { speaker: "A", text: "Il est noir avec ma carte d'identité et de l'argent dedans." },
+      { speaker: "B", text: "Un instant, je vais vérifier les objets trouvés." },
+      { speaker: "A", text: "Merci beaucoup." },
+      { speaker: "B", text: "Ah voilà, quelqu'un l'a trouvé près de la caisse." },
+      { speaker: "A", text: "Quel soulagement, merci infiniment !" }
+    ],
+    questions: [
+      { prompt: "Qu'est-ce que la personne a perdu ?", options: ["Un téléphone", "Un portefeuille", "Des clés", "Un sac"], correct: 1, why: "« J'ai perdu mon portefeuille »." },
+      { prompt: "De quelle couleur est-il ?", options: ["Marron", "Noir", "Bleu", "Rouge"], correct: 1, why: "« Il est noir »." },
+      { prompt: "Qu'y a-t-il à l'intérieur ?", options: ["Des clés", "Carte d'identité et argent", "Un téléphone", "Rien"], correct: 1, why: "« Ma carte d'identité et de l'argent dedans »." },
+      { prompt: "Où l'employé vérifie-t-il ?", options: ["La caisse", "Les objets trouvés", "Le bureau", "Dehors"], correct: 1, why: "« Je vais vérifier les objets trouvés »." },
+      { prompt: "Où a-t-il été retrouvé ?", options: ["À l'entrée", "Près de la caisse", "Dans les toilettes", "Dehors"], correct: 1, why: "« Près de la caisse »." }
+    ]
+  }
+};
+
+const convoPicker = document.getElementById('convoPicker');
+Object.keys(listeningSets).forEach(title=>{
+  const opt = document.createElement('option');
+  opt.value = title; opt.textContent = title;
+  convoPicker.appendChild(opt);
+});
+
+const convoTranscript = document.getElementById('convoTranscript');
+const listenQuestions = document.getElementById('listenQuestions');
+
+function renderListening(){
+  const set = listeningSets[convoPicker.value];
+  convoTranscript.style.display = 'none';
+  convoTranscript.innerHTML = set.lines.map(l => `<strong>${l.speaker}:</strong> ${l.text}`).join('<br>');
+  listenQuestions.innerHTML = '';
+  set.questions.forEach((q, qi)=>{
+    const card = document.createElement('div');
+    card.className = 'listen-question';
+    card.dataset.correct = q.correct;
+    card.dataset.why = q.why;
+    const optionsHtml = q.options.map((opt, oi)=>
+      `<button type="button" class="lq-option" data-index="${oi}">${opt}</button>`
+    ).join('');
+    card.innerHTML = `
+      <div class="lq-prompt">${qi+1}. ${q.prompt}</div>
+      <div class="lq-options">${optionsHtml}</div>
+      <div class="lq-feedback"></div>
+    `;
+    listenQuestions.appendChild(card);
+  });
+  listenQuestions.querySelectorAll('.lq-option').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const card = btn.closest('.listen-question');
+      card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+}
+
+convoPicker.addEventListener('change', renderListening);
+document.getElementById('showTranscriptBtn').addEventListener('click', ()=>{
+  convoTranscript.style.display = convoTranscript.style.display === 'none' ? 'block' : 'none';
+});
+
+document.getElementById('listenCheckBtn').addEventListener('click', ()=>{
+  listenQuestions.querySelectorAll('.listen-question').forEach(card=>{
+    const correctIdx = parseInt(card.dataset.correct, 10);
+    const why = card.dataset.why;
+    const selected = card.querySelector('.lq-option.selected');
+    const feedback = card.querySelector('.lq-feedback');
+    card.classList.remove('correct','incorrect');
+    card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('correct-answer','wrong-answer'));
+    if(!selected){
+      card.classList.add('incorrect');
+      card.querySelectorAll('.lq-option')[correctIdx].classList.add('correct-answer');
+      feedback.textContent = why;
+      return;
+    }
+    const selectedIdx = parseInt(selected.dataset.index, 10);
+    if(selectedIdx === correctIdx){
+      card.classList.add('correct');
+      selected.classList.add('correct-answer');
+      feedback.textContent = "✓ Correct! " + why;
+    } else {
+      card.classList.add('incorrect');
+      selected.classList.add('wrong-answer');
+      card.querySelectorAll('.lq-option')[correctIdx].classList.add('correct-answer');
+      feedback.textContent = "✗ Not quite. " + why;
+    }
+  });
+});
+
+document.getElementById('listenClearBtn').addEventListener('click', ()=>{
+  listenQuestions.querySelectorAll('.listen-question').forEach(card=>{
+    card.classList.remove('correct','incorrect');
+    card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('selected','correct-answer','wrong-answer'));
+    card.querySelector('.lq-feedback').textContent = '';
+  });
+});
+document.getElementById('listenToggleBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('listenToggleBtn');
+  const hidden = listenQuestions.style.display === 'none';
+  listenQuestions.style.display = hidden ? 'block' : 'none';
+  btn.textContent = hidden ? 'hide questions' : 'show questions';
+});
+
+const speechStatus = document.getElementById('speechStatus');
+const voicePicker = document.getElementById('voicePicker');
+let selectedVoice = null;
+let allVoices = [];
+
+function populateVoices(){
+  if(!window.speechSynthesis) return;
+  allVoices = speechSynthesis.getVoices();
+  if(allVoices.length === 0) return;
+  voicePicker.innerHTML = '';
+  const frVoices = allVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
+  const listToShow = frVoices.length ? frVoices : allVoices;
+  listToShow.forEach((v, i)=>{
+    const opt = document.createElement('option');
+    opt.value = v.name;
+    opt.textContent = v.name + ' (' + v.lang + ')';
+    voicePicker.appendChild(opt);
+  });
+  selectedVoice = listToShow[0];
+  if(frVoices.length === 0){
+    speechStatus.textContent = '⚠ No French voice found on this device — using ' + listToShow[0].name + ' instead (pronunciation may be off).';
+  } else {
+    speechStatus.textContent = '';
+  }
+}
+
+try{
+  if(window.speechSynthesis){
+    populateVoices();
+    speechSynthesis.onvoiceschanged = populateVoices;
+  } else {
+    speechStatus.textContent = '⚠ Your browser does not support text-to-speech. Use "show / hide transcript" instead.';
+    voicePicker.style.display = 'none';
+  }
+} catch(e){ console.error('Speech synthesis init error:', e); }
+
+voicePicker.addEventListener('change', ()=>{
+  selectedVoice = allVoices.find(v => v.name === voicePicker.value) || null;
+});
+
+document.getElementById('playConvoBtn').addEventListener('click', ()=>{
+  if(!window.speechSynthesis){
+    alert("Sorry, your browser doesn't support text-to-speech playback. Try opening the transcript instead.");
+    return;
+  }
+  speechSynthesis.cancel();
+  const set = listeningSets[convoPicker.value];
+  speechStatus.textContent = '🔊 Playing…';
+  // small delay after cancel() avoids a common browser race condition where
+  // new utterances queued immediately after cancel() get silently dropped
+  setTimeout(()=>{
+    set.lines.forEach((line, idx)=>{
+      const utter = new SpeechSynthesisUtterance(line.text);
+      utter.lang = 'fr-FR';
+      if(selectedVoice) utter.voice = selectedVoice;
+      utter.rate = 0.88;
+      utter.pitch = line.speaker === 'A' ? 1.0 : 1.25;
+      utter.onerror = (e)=>{
+        speechStatus.textContent = '⚠ Playback error: ' + (e.error || 'unknown') + '. Try a different voice above, or use the transcript.';
+      };
+      if(idx === set.lines.length - 1){
+        utter.onend = ()=>{ speechStatus.textContent = '✓ Finished playing.'; };
+      }
+      speechSynthesis.speak(utter);
+    });
+    // Chrome sometimes pauses the queue on its own — this nudges it along
+    let resumeGuard = setInterval(()=>{
+      if(!speechSynthesis.speaking){ clearInterval(resumeGuard); return; }
+      if(speechSynthesis.paused) speechSynthesis.resume();
+    }, 500);
+  }, 80);
+});
+
+document.getElementById('stopConvoBtn').addEventListener('click', ()=>{
+  if(window.speechSynthesis){
+    speechSynthesis.cancel();
+    speechStatus.textContent = '';
+  }
+});
+
+try{ renderListening(); }catch(e){ console.error('Listening practice init error:', e); }
+
+// ---- reference book ----
+const refVerbTrans = {
+  "parler":"to speak","manger":"to eat","commencer":"to begin","préférer":"to prefer","payer":"to pay",
+  "essayer":"to try","acheter":"to buy","appeler":"to call","aimer":"to like/love","habiter":"to live (somewhere)",
+  "regarder":"to watch","écouter":"to listen","chercher":"to look for","trouver":"to find","donner":"to give",
+  "demander":"to ask","expliquer":"to explain","jouer":"to play","travailler":"to work","penser":"to think",
+  "finir":"to finish","choisir":"to choose","réussir":"to succeed","remplir":"to fill","réfléchir":"to reflect/think",
+  "grandir":"to grow up","vieillir":"to grow old","maigrir":"to lose weight","grossir":"to gain weight","rougir":"to blush",
+  "agir":"to act","punir":"to punish","guérir":"to heal","obéir":"to obey","désobéir":"to disobey",
+  "applaudir":"to applaud","avertir":"to warn","établir":"to establish","nourrir":"to feed","bâtir":"to build",
+  "attendre":"to wait","répondre":"to answer","vendre":"to sell","perdre":"to lose","descendre":"to go down",
+  "entendre":"to hear","rendre":"to give back","défendre":"to defend","dépendre":"to depend","mordre":"to bite",
+  "tondre":"to mow","confondre":"to confuse","correspondre":"to correspond","fondre":"to melt","pendre":"to hang",
+  "prétendre":"to claim","suspendre":"to suspend","tordre":"to twist","interrompre":"to interrupt","rompre":"to break off",
+  "se lever":"to get up","se coucher":"to go to bed","se réveiller":"to wake up","s'habiller":"to get dressed",
+  "s'amuser":"to have fun","se laver":"to wash up","se doucher":"to shower","se maquiller":"to put on makeup",
+  "se raser":"to shave","se brosser les dents":"to brush one's teeth","se peigner":"to comb one's hair",
+  "se reposer":"to rest","se promener":"to take a walk","se dépêcher":"to hurry","se souvenir":"to remember",
+  "s'appeler":"to be called","se sentir":"to feel","s'ennuyer":"to be bored","se marier":"to get married",
+  "s'inquiéter":"to worry",
+  "aller":"to go","avoir":"to have","être":"to be","faire":"to do/make","prendre":"to take","vouloir":"to want",
+  "pouvoir":"to be able to","devoir":"to have to","savoir":"to know (facts)","voir":"to see","dire":"to say",
+  "venir":"to come","mettre":"to put","sortir":"to go out","partir":"to leave","dormir":"to sleep",
+  "connaître":"to know (people)","écrire":"to write","lire":"to read","boire":"to drink","courir":"to run","ouvrir":"to open"
+};
+
+function verbList(str){
+  return str.split(', ').map(v=>{
+    const t = refVerbTrans[v];
+    return t ? `<span class="rv" data-en="${t}">${v}</span>` : v;
+  }).join(', ');
+}
+
+const refData = {
+  verbs: `
+    <h2>Regular -ER verbs</h2>
+    <p>` + verbList("parler, manger, commencer, préférer, payer, essayer, acheter, appeler, aimer, habiter, regarder, écouter, chercher, trouver, donner, demander, expliquer, jouer, travailler, penser") + `</p>
+    <h2>Regular -IR verbs</h2>
+    <p>` + verbList("finir, choisir, réussir, remplir, réfléchir, grandir, vieillir, maigrir, grossir, rougir, agir, punir, guérir, obéir, désobéir, applaudir, avertir, établir, nourrir, bâtir") + `</p>
+    <h2>Regular -RE verbs</h2>
+    <p>` + verbList("attendre, répondre, vendre, perdre, descendre, entendre, rendre, défendre, dépendre, mordre, tondre, confondre, correspondre, fondre, pendre, prétendre, suspendre, tordre, interrompre, rompre") + `</p>
+    <h2>Reflexive (pronominal) verbs</h2>
+    <p>` + verbList("se lever, se coucher, se réveiller, s'habiller, s'amuser, se laver, se doucher, se maquiller, se raser, se brosser les dents, se peigner, se reposer, se promener, se dépêcher, se souvenir, s'appeler, se sentir, s'ennuyer, se marier, s'inquiéter") + `</p>
+    <h2>Irregular verbs</h2>
+    <p>` + verbList("aller, avoir, être, faire, prendre, vouloir, pouvoir, devoir, savoir, voir, dire, venir, mettre, sortir, partir, dormir, connaître, écrire, lire, boire, courir, ouvrir") + `</p>
+    <p style="font-size:12px; opacity:0.6; margin-top:10px;">Hover over any verb to see its English translation.</p>
+  `,
+  formulas: `
+    <h2>Passé composé</h2>
+    <p>avoir/être (présent) + past participle.<br>
+    -er verbs → -é (parlé) · -ir verbs → -i (fini) · -re verbs → -u (attendu).<br>
+    Verbs of movement/state (aller, venir, arriver, partir, entrer, sortir, monter, descendre, naître, mourir, rester, retourner, tomber) and all reflexive verbs use être instead of avoir.</p>
+    <h2>Imparfait</h2>
+    <p>Take the "nous" form of the présent, drop "-ons", add: -ais, -ais, -ait, -ions, -iez, -aient.<br>
+    Exception: être uses the stem ét- (j'étais, tu étais...).</p>
+    <h2>Futur simple</h2>
+    <p>Infinitive (drop the final -e on -re verbs) + endings: -ai, -as, -a, -ons, -ez, -ont.<br>
+    Irregular stems: aller→ir-, avoir→aur-, être→ser-, faire→fer-, pouvoir→pourr-, devoir→devr-, savoir→saur-, voir→verr-, venir→viendr-, vouloir→voudr-.</p>
+    <h2>Conditionnel présent</h2>
+    <p>Same stem as futur simple + imparfait endings: -ais, -ais, -ait, -ions, -iez, -aient.</p>
+    <h2>Subjonctif présent</h2>
+    <p>Take the "ils" form of the présent, drop "-ent", add: -e, -es, -e, -ions, -iez, -ent (nous/vous often match the imparfait forms).<br>
+    Irregular subjunctives: être (que je sois), avoir (que j'aie), aller (que j'aille), faire (que je fasse), pouvoir (que je puisse), savoir (que je sache), vouloir (que je veuille).<br>
+    Common triggers: il faut que, vouloir que, il est important/possible/nécessaire que, douter que, avoir peur que, être content/triste que.</p>
+  `,
+  articles: `
+    <h2>Definite articles</h2>
+    <p>le (masc.), la (fem.), l' (before a vowel), les (plural) — "the"</p>
+    <h2>Indefinite articles</h2>
+    <p>un (masc.), une (fem.), des (plural) — "a/an/some"</p>
+    <h2>Partitive articles</h2>
+    <p>du (masc.), de la (fem.), de l' (before a vowel), des (plural) — "some/any" (uncountable quantities)</p>
+    <h2>Contractions</h2>
+    <p>à + le → au · à + les → aux · de + le → du · de + les → des</p>
+  `,
+  connectors: `
+    <h2>Time</h2>
+    <p>d'abord (first), ensuite/puis (then/next), enfin (finally), pendant que (while), quand (when), dès que (as soon as)</p>
+    <h2>Cause</h2>
+    <p>parce que (because), car (because/for), puisque (since)</p>
+    <h2>Consequence</h2>
+    <p>donc (so), alors (so/then), c'est pourquoi (that's why)</p>
+    <h2>Opposition</h2>
+    <p>mais (but), cependant/pourtant (however), par contre (on the other hand)</p>
+    <h2>Addition</h2>
+    <p>et (and), aussi (also), de plus (moreover)</p>
+  `,
+  time: `
+    <h2>Asking the time / Demander l'heure</h2>
+    <p>Quelle heure est-il ? — What time is it? &nbsp;·&nbsp; Vous avez l'heure ? — Do you have the time? (casual)</p>
+    <h2>The basic pattern / La structure de base</h2>
+    <p>Il est + [number] + heure(s) — "It is ... o'clock." Use <em>heure</em> (singular) only for 1h: il est une heure. From 2h onward, use <em>heures</em>: il est deux heures.</p>
+    <h2>Minutes past the hour / Les minutes après l'heure</h2>
+    <p>Il est trois heures dix — it's 3:10 &nbsp;·&nbsp; Il est trois heures et quart — it's 3:15, quarter past three &nbsp;·&nbsp; Il est trois heures et demie — it's 3:30, half past three</p>
+    <h2>Minutes before the next hour / Les minutes avant l'heure</h2>
+    <p>Il est trois heures moins vingt — it's 2:40, twenty to three &nbsp;·&nbsp; Il est trois heures moins le quart — it's 2:45, quarter to three</p>
+    <h2>Noon &amp; midnight / Midi et minuit</h2>
+    <p>Il est midi — it's noon (12:00 pm) &nbsp;·&nbsp; Il est minuit — it's midnight (12:00 am) — these don't take "heure(s)."</p>
+    <h2>Morning / afternoon / evening / Matin, après-midi, soir</h2>
+    <p>du matin — in the morning (a.m.) &nbsp;·&nbsp; de l'après-midi — in the afternoon &nbsp;·&nbsp; du soir — in the evening (p.m.)<br>
+    Example: il est neuf heures du soir — it's 9:00 p.m.</p>
+    <h2>24-hour (official) time / L'heure officielle</h2>
+    <p>Used for schedules, TV, transport — no "et quart / moins le quart," just say the minutes directly.<br>
+    15h30 → il est quinze heures trente — it's 3:30 p.m. &nbsp;·&nbsp; 20h45 → il est vingt heures quarante-cinq — it's 8:45 p.m.</p>
+  `
+};
+
+const refModal = document.getElementById('refModal');
+const refContent = document.getElementById('refContent');
+
+const numberWords = [
+  "un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix",
+  "onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf","vingt",
+  "vingt et un","vingt-deux","vingt-trois","vingt-quatre","vingt-cinq","vingt-six","vingt-sept","vingt-huit","vingt-neuf","trente",
+  "trente et un","trente-deux","trente-trois","trente-quatre","trente-cinq","trente-six","trente-sept","trente-huit","trente-neuf","quarante",
+  "quarante et un","quarante-deux","quarante-trois","quarante-quatre","quarante-cinq","quarante-six","quarante-sept","quarante-huit","quarante-neuf","cinquante",
+  "cinquante et un","cinquante-deux","cinquante-trois","cinquante-quatre","cinquante-cinq","cinquante-six","cinquante-sept","cinquante-huit","cinquante-neuf","soixante",
+  "soixante et un","soixante-deux","soixante-trois","soixante-quatre","soixante-cinq","soixante-six","soixante-sept","soixante-huit","soixante-neuf","soixante-dix",
+  "soixante et onze","soixante-douze","soixante-treize","soixante-quatorze","soixante-quinze","soixante-seize","soixante-dix-sept","soixante-dix-huit","soixante-dix-neuf","quatre-vingts",
+  "quatre-vingt-un","quatre-vingt-deux","quatre-vingt-trois","quatre-vingt-quatre","quatre-vingt-cinq","quatre-vingt-six","quatre-vingt-sept","quatre-vingt-huit","quatre-vingt-neuf","quatre-vingt-dix",
+  "quatre-vingt-onze","quatre-vingt-douze","quatre-vingt-treize","quatre-vingt-quatorze","quatre-vingt-quinze","quatre-vingt-seize","quatre-vingt-dix-sept","quatre-vingt-dix-huit","quatre-vingt-dix-neuf","cent"
+];
+const numberSpecial = [ [1000,"mille"], [2026,"deux mille vingt-six"] ];
+
+function pronounceFr(text){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'fr-FR';
+  if(typeof selectedVoice !== 'undefined' && selectedVoice) utter.voice = selectedVoice;
+  utter.rate = 0.9;
+  speechSynthesis.speak(utter);
+}
+
+function buildClockSVG(){
+  const cx = 150, cy = 150;
+  const rFace = 140, rTick1 = 128, rTick2 = 140, rOuterLabel = 113, rInnerLabel = 92;
+  let ticks = '', innerLabels = '', outerLabels = '';
+  for(let i = 1; i <= 12; i++){
+    const posIndex = i % 12;
+    const angleDeg = posIndex * 30 - 90;
+    const angleRad = angleDeg * Math.PI / 180;
+    const x1 = cx + rTick1 * Math.cos(angleRad), y1 = cy + rTick1 * Math.sin(angleRad);
+    const x2 = cx + rTick2 * Math.cos(angleRad), y2 = cy + rTick2 * Math.sin(angleRad);
+    ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#8a8f98" stroke-width="2"/>`;
+
+    const frWordIn = numberWords[i-1];
+    const frPhraseIn = (i===1) ? "il est une heure" : `il est ${frWordIn} heures`;
+    const enPhraseIn = (i===1) ? "it's one o'clock" : `it's ${i} o'clock`;
+    const xi = cx + rInnerLabel * Math.cos(angleRad), yi = cy + rInnerLabel * Math.sin(angleRad);
+    innerLabels += `<g class="clock-hit" data-tip="${frPhraseIn} — ${enPhraseIn}">
+        <circle cx="${xi.toFixed(1)}" cy="${yi.toFixed(1)}" r="13" fill="transparent"/>
+        <text x="${xi.toFixed(1)}" y="${(yi+5).toFixed(1)}" text-anchor="middle" font-size="17" font-weight="700" fill="#1f5fb0" font-family="Inter,sans-serif" style="pointer-events:none;">${i}</text>
+      </g>`;
+
+    const outerVal = (i === 12) ? 24 : i + 12;
+    const frWordOut = numberWords[outerVal-1];
+    const frPhraseOut = (outerVal===24) ? "il est vingt-quatre heures (minuit)" : `il est ${frWordOut} heures`;
+    const enHour12 = (outerVal===24) ? 12 : outerVal - 12;
+    const enPhraseOut = (outerVal===24) ? "it's 12 a.m. (midnight)" : `it's ${enHour12} p.m.`;
+    const xo = cx + rOuterLabel * Math.cos(angleRad), yo = cy + rOuterLabel * Math.sin(angleRad);
+    outerLabels += `<g class="clock-hit" data-tip="${frPhraseOut} — ${enPhraseOut}">
+        <circle cx="${xo.toFixed(1)}" cy="${yo.toFixed(1)}" r="11" fill="transparent"/>
+        <text x="${xo.toFixed(1)}" y="${(yo+4).toFixed(1)}" text-anchor="middle" font-size="12.5" font-weight="600" fill="#c0392b" font-family="Inter,sans-serif" style="pointer-events:none;">${outerVal}</text>
+      </g>`;
+  }
+  // hands illustrating 3:15 / trois heures et quart / three fifteen
+  const hourAngle = ((3 + 15/60) * 30 - 90) * Math.PI / 180;
+  const minAngle = (15 * 6 - 90) * Math.PI / 180;
+  const hx = cx + 55 * Math.cos(hourAngle), hy = cy + 55 * Math.sin(hourAngle);
+  const mx = cx + 82 * Math.cos(minAngle), my = cy + 82 * Math.sin(minAngle);
+
+  return `
+    <svg viewBox="0 0 300 300" style="width:100%; max-width:320px; display:block; margin:0 auto;">
+      <circle cx="${cx}" cy="${cy}" r="${rFace}" fill="#fdfdfc" stroke="#8a8f98" stroke-width="2.5"/>
+      <circle cx="${cx}" cy="${cy}" r="${rOuterLabel+13}" fill="none" stroke="#e3e5e8" stroke-width="1"/>
+      ${ticks}
+      ${outerLabels}
+      ${innerLabels}
+      <line x1="${cx}" y1="${cy}" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#1c1e22" stroke-width="4" stroke-linecap="round"/>
+      <line x1="${cx}" y1="${cy}" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#1c1e22" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="4.5" fill="#1c1e22"/>
+    </svg>
+    <p style="text-align:center; font-size:12.5px; margin-top:8px;">
+      <span style="color:#1f5fb0; font-weight:600;">Inside = 12-hour (12h)</span> &nbsp;·&nbsp;
+      <span style="color:#c0392b; font-weight:600;">Outside = 24-hour (24h)</span>
+    </p>
+    <p style="text-align:center; font-size:11.5px; opacity:0.6;">Hover any number to see the time said in French and English.</p>
+    <p style="text-align:center; font-size:12.5px; opacity:0.75;">
+      Hands show 3:15 — <strong>trois heures et quart</strong> (French) / <strong>three fifteen</strong> (English)
+    </p>`;
+}
+
+function buildNumbersHTML(){
+  let cols = '';
+  for(let start = 1; start <= 91; start += 10){
+    let items = '';
+    for(let n = start; n <= start + 9 && n <= 100; n++){
+      items += `<div class="num-item" data-fr="${numberWords[n-1]}"><span class="n">${n}</span><span>${numberWords[n-1]}</span></div>`;
+    }
+    cols += `<div class="num-col">${items}</div>`;
+  }
+  let special = numberSpecial.map(([n,w])=>
+    `<div class="num-item" data-fr="${w}" style="display:inline-flex;"><span class="n">${n}</span><span>${w}</span></div>`
+  ).join('');
+  return `<h2>Numbers 1–100</h2><div class="num-grid">${cols}</div>
+    <h2>Bonus numbers</h2><div class="num-special">${special}</div>
+    <p style="font-size:12px; opacity:0.6; margin-top:10px;">Click any number to hear it pronounced.</p>`;
+}
+
+function showRef(tab){
+  if(tab === 'numbers'){ refContent.innerHTML = buildNumbersHTML(); }
+  else if(tab === 'time'){ refContent.innerHTML = buildClockSVG() + refData.time; }
+  else { refContent.innerHTML = refData[tab]; }
+  document.querySelectorAll('.ref-tab').forEach(t=> t.classList.toggle('active', t.dataset.ref === tab));
+  if(tab === 'numbers'){
+    refContent.querySelectorAll('.num-item').forEach(item=>{
+      item.addEventListener('click', ()=> pronounceFr(item.dataset.fr));
+    });
+  }
+  if(tab === 'time'){
+    const tip = document.getElementById('clockTooltip');
+    refContent.querySelectorAll('.clock-hit').forEach(el=>{
+      const show = (evt)=>{
+        tip.textContent = el.dataset.tip;
+        tip.style.display = 'block';
+        const x = evt.clientX, y = evt.clientY;
+        tip.style.left = x + 'px';
+        tip.style.top = (y - 34) + 'px';
+        tip.style.transform = 'translateX(-50%)';
+      };
+      el.addEventListener('mouseenter', show);
+      el.addEventListener('mousemove', show);
+      el.addEventListener('mouseleave', ()=>{ tip.style.display = 'none'; });
+      el.addEventListener('click', (evt)=>{ show(evt); setTimeout(()=>{ tip.style.display='none'; }, 1800); });
+    });
+  }
+}
+
+document.getElementById('refBookBtn').addEventListener('click', ()=>{
+  refModal.classList.add('open');
+  showRef('verbs');
+});
+document.getElementById('refCloseBtn').addEventListener('click', ()=> refModal.classList.remove('open'));
+refModal.addEventListener('click', (e)=>{ if(e.target === refModal) refModal.classList.remove('open'); });
+document.querySelectorAll('.ref-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=> showRef(tab.dataset.ref));
+});
+// ---- speaking practice ----
+const speakQuestions = {
+  "à la maison": [
+    "Est-ce que vous habitez dans une maison ou un appartement ?",
+    "Combien de pièces y a-t-il chez vous ?",
+    "Avec qui est-ce que vous habitez ?",
+    "Quelle est votre pièce préférée dans la maison ?",
+    "Est-ce que vous avez un jardin ?",
+    "À quelle heure faites-vous le ménage ?",
+    "Qui fait la cuisine chez vous ?",
+    "Avez-vous un animal de compagnie à la maison ?",
+    "Depuis quand habitez-vous à cette adresse ?",
+    "Décrivez votre chambre, s'il vous plaît."
+  ],
+  "à l'école": [
+    "Quelle est votre matière préférée à l'école ?",
+    "À quelle heure commencent les cours ?",
+    "Comment allez-vous à l'école ?",
+    "Combien d'élèves y a-t-il dans votre classe ?",
+    "Aimez-vous vos professeurs ?",
+    "Que faites-vous pendant la récréation ?",
+    "Avez-vous beaucoup de devoirs ?",
+    "Quel est votre meilleur souvenir d'école ?",
+    "Mangez-vous à la cantine ?",
+    "Quelle langue étrangère étudiez-vous ?"
+  ],
+  "à l'hôpital": [
+    "Pourquoi êtes-vous à l'hôpital aujourd'hui ?",
+    "Depuis quand avez-vous mal ?",
+    "Avez-vous de la fièvre ?",
+    "Est-ce que vous prenez des médicaments ?",
+    "Avez-vous déjà vu un médecin pour ce problème ?",
+    "Où avez-vous mal exactement ?",
+    "Êtes-vous allergique à un médicament ?",
+    "Avez-vous une assurance maladie ?",
+    "Voulez-vous voir un spécialiste ?",
+    "Comment vous sentez-vous maintenant ?"
+  ],
+  "au restaurant": [
+    "Combien de personnes êtes-vous pour le dîner ?",
+    "Avez-vous réservé une table ?",
+    "Préférez-vous une table à l'intérieur ou en terrasse ?",
+    "Qu'est-ce que vous voulez commander comme entrée ?",
+    "Avez-vous des allergies alimentaires ?",
+    "Que voulez-vous boire ?",
+    "Préférez-vous la viande, le poisson ou un plat végétarien ?",
+    "Voulez-vous voir la carte des desserts ?",
+    "Comment avez-vous trouvé le repas ?",
+    "Voulez-vous l'addition maintenant ?"
+  ],
+  "au travail": [
+    "Quel est votre métier ?",
+    "Depuis combien de temps travaillez-vous dans cette entreprise ?",
+    "À quelle heure commencez-vous le travail ?",
+    "Aimez-vous votre travail ?",
+    "Combien de collègues avez-vous ?",
+    "Travaillez-vous le week-end ?",
+    "Quel est le plus grand défi de votre travail ?",
+    "Prenez-vous une pause déjeuner ?",
+    "Comment allez-vous au travail ?",
+    "Avez-vous des projets professionnels pour l'avenir ?"
+  ],
+  "au supermarché": [
+    "Qu'est-ce que vous achetez aujourd'hui ?",
+    "Combien de fois par semaine faites-vous les courses ?",
+    "Préférez-vous les grands supermarchés ou les petits magasins ?",
+    "Avez-vous une liste de courses ?",
+    "Comment payez-vous d'habitude, en espèces ou par carte ?",
+    "Achetez-vous des produits bio ?",
+    "Où se trouve le rayon des fruits et légumes ?",
+    "Avez-vous trouvé tout ce que vous cherchiez ?",
+    "Combien coûte votre panier aujourd'hui ?",
+    "Avez-vous une carte de fidélité ?"
+  ],
+  "en famille": [
+    "Combien de personnes y a-t-il dans votre famille ?",
+    "Avez-vous des frères et sœurs ?",
+    "Où habitent vos parents ?",
+    "Que faites-vous en famille le dimanche ?",
+    "Quel membre de votre famille voyez-vous le plus souvent ?",
+    "Fêtez-vous les anniversaires en famille ?",
+    "Avez-vous des enfants ?",
+    "Ressemblez-vous à votre mère ou à votre père ?",
+    "Quelle est votre tradition familiale préférée ?",
+    "Partez-vous en vacances en famille ?"
+  ],
+  "les loisirs": [
+    "Qu'est-ce que vous aimez faire pendant votre temps libre ?",
+    "Lisez-vous souvent des livres ?",
+    "Quel type de musique préférez-vous ?",
+    "Regardez-vous des films ou des séries ?",
+    "Avez-vous un passe-temps créatif ?",
+    "Sortez-vous souvent avec des amis ?",
+    "Aimez-vous cuisiner pendant votre temps libre ?",
+    "Jouez-vous à des jeux vidéo ?",
+    "Quel est votre loisir depuis l'enfance ?",
+    "Combien de temps libre avez-vous chaque semaine ?"
+  ],
+  "le sport": [
+    "Faites-vous du sport régulièrement ?",
+    "Quel est votre sport préféré ?",
+    "À quelle fréquence allez-vous à la salle de sport ?",
+    "Préférez-vous les sports d'équipe ou individuels ?",
+    "Avez-vous déjà participé à une compétition ?",
+    "Regardez-vous le sport à la télévision ?",
+    "Quel sport aimeriez-vous essayer ?",
+    "Faites-vous du sport seul ou avec des amis ?",
+    "Quel équipement sportif possédez-vous ?",
+    "Le sport est-il important pour vous ? Pourquoi ?"
+  ],
+  "les voyages": [
+    "Où êtes-vous allé en vacances la dernière fois ?",
+    "Préférez-vous voyager seul ou accompagné ?",
+    "Quel pays aimeriez-vous visiter ?",
+    "Comment préférez-vous voyager, en avion ou en train ?",
+    "Combien de temps durent vos vacances habituellement ?",
+    "Qu'est-ce que vous mettez dans votre valise ?",
+    "Aimez-vous découvrir la cuisine locale en voyage ?",
+    "Avez-vous déjà eu un problème pendant un voyage ?",
+    "Préférez-vous la mer ou la montagne ?",
+    "Quel est votre meilleur souvenir de voyage ?"
+  ],
+  "la météo": [
+    "Quel temps fait-il aujourd'hui chez vous ?",
+    "Quelle est votre saison préférée ?",
+    "Aimez-vous la pluie ?",
+    "Que faites-vous quand il fait très chaud ?",
+    "Neige-t-il souvent où vous habitez ?",
+    "Regardez-vous la météo avant de sortir ?",
+    "Quel temps préférez-vous pour les vacances ?",
+    "Le climat a-t-il changé ces dernières années ?",
+    "Portez-vous un parapluie quand il pleut ?",
+    "Quelle est la température idéale pour vous ?"
+  ],
+  "les transports": [
+    "Comment venez-vous ici aujourd'hui ?",
+    "Avez-vous une voiture ?",
+    "Prenez-vous souvent les transports en commun ?",
+    "Combien de temps dure votre trajet quotidien ?",
+    "Préférez-vous le bus, le métro ou le train ?",
+    "Savez-vous faire du vélo ?",
+    "Y a-t-il beaucoup de circulation où vous habitez ?",
+    "Avez-vous déjà raté un train ou un bus ?",
+    "Comment allez-vous à l'aéroport d'habitude ?",
+    "Le transport en commun est-il pratique dans votre ville ?"
+  ],
+  "chez le médecin": [
+    "Pourquoi avez-vous pris rendez-vous aujourd'hui ?",
+    "Depuis quand avez-vous ces symptômes ?",
+    "Avez-vous des antécédents médicaux importants ?",
+    "Prenez-vous déjà un traitement ?",
+    "Avez-vous bien dormi cette semaine ?",
+    "Faites-vous de l'exercice régulièrement ?",
+    "Avez-vous des allergies connues ?",
+    "Voulez-vous une ordonnance ?",
+    "Devez-vous revenir pour un contrôle ?",
+    "Avez-vous d'autres questions pour le médecin ?"
+  ],
+  "au téléphone": [
+    "Allô, qui est à l'appareil ?",
+    "Pourquoi appelez-vous aujourd'hui ?",
+    "Voulez-vous laisser un message ?",
+    "À quel numéro peut-on vous rappeler ?",
+    "Est-ce que c'est urgent ?",
+    "Voulez-vous parler à quelqu'un en particulier ?",
+    "Quand êtes-vous disponible pour un rendez-vous ?",
+    "Pouvez-vous répéter votre nom, s'il vous plaît ?",
+    "Avez-vous d'autres questions avant de raccrocher ?",
+    "Puis-je vous rappeler plus tard ?"
+  ],
+  "les courses": [
+    "Qu'est-ce que vous cherchez aujourd'hui ?",
+    "Quelle taille faites-vous ?",
+    "Préférez-vous cette couleur ou une autre ?",
+    "Voulez-vous essayer ce vêtement ?",
+    "Avez-vous un budget pour cet achat ?",
+    "Y a-t-il une réduction sur cet article ?",
+    "Comment souhaitez-vous payer ?",
+    "Voulez-vous un sac pour vos achats ?",
+    "Avez-vous besoin d'aide pour trouver autre chose ?",
+    "Voulez-vous un reçu ?"
+  ],
+  "la routine quotidienne": [
+    "À quelle heure vous réveillez-vous le matin ?",
+    "Que faites-vous juste après vous être réveillé ?",
+    "Prenez-vous le petit-déjeuner tous les jours ?",
+    "Comment se passe votre journée habituellement ?",
+    "À quelle heure rentrez-vous chez vous le soir ?",
+    "Que faites-vous avant de vous coucher ?",
+    "Combien d'heures dormez-vous en général ?",
+    "Votre routine change-t-elle le week-end ?",
+    "Faites-vous quelque chose de relaxant le soir ?",
+    "Trouvez-vous votre routine fatigante ?"
+  ],
+  "les vacances": [
+    "Quand prenez-vous vos prochaines vacances ?",
+    "Où allez-vous partir cette année ?",
+    "Préférez-vous des vacances actives ou reposantes ?",
+    "Combien de jours de vacances avez-vous par an ?",
+    "Partez-vous à l'étranger ou restez-vous dans votre pays ?",
+    "Qu'est-ce que vous aimez faire pendant les vacances ?",
+    "Avec qui partez-vous habituellement en vacances ?",
+    "Prenez-vous beaucoup de photos en vacances ?",
+    "Combien dépensez-vous en général pour des vacances ?",
+    "Quel est votre lieu de vacances idéal ?"
+  ],
+  "à la banque": [
+    "Que puis-je faire pour vous aujourd'hui ?",
+    "Avez-vous un compte dans notre banque ?",
+    "Voulez-vous ouvrir un nouveau compte ?",
+    "Avez-vous une pièce d'identité sur vous ?",
+    "Voulez-vous une carte bancaire ?",
+    "Préférez-vous les services en ligne ou en agence ?",
+    "Avez-vous des questions sur vos relevés bancaires ?",
+    "Voulez-vous faire un virement aujourd'hui ?",
+    "Souhaitez-vous prendre rendez-vous avec un conseiller ?",
+    "Avez-vous d'autres questions concernant votre compte ?"
+  ],
+  "le week-end": [
+    "Qu'avez-vous prévu pour ce week-end ?",
+    "Préférez-vous rester à la maison ou sortir le week-end ?",
+    "Faites-vous la grasse matinée le week-end ?",
+    "Voyez-vous vos amis le week-end ?",
+    "Quel est votre week-end idéal ?",
+    "Faites-vous du sport le week-end ?",
+    "Le week-end dernier, qu'avez-vous fait ?",
+    "Sortez-vous au restaurant le week-end ?",
+    "Combien de temps dure votre week-end habituellement ?",
+    "Préférez-vous le samedi ou le dimanche ?"
+  ],
+  "les amis": [
+    "Combien d'amis proches avez-vous ?",
+    "Comment avez-vous rencontré votre meilleur ami ?",
+    "Que faites-vous avec vos amis d'habitude ?",
+    "Voyez-vous vos amis souvent ?",
+    "Qu'est-ce qui est important pour vous chez un ami ?",
+    "Avez-vous des amis d'enfance ?",
+    "Sortez-vous en groupe ou en petit comité ?",
+    "Vos amis habitent-ils près de chez vous ?",
+    "Aimez-vous organiser des soirées avec vos amis ?",
+    "Qu'est-ce que vous appréciez le plus chez vos amis ?"
+  ]
+};
+
+const speakScenarios = {
+  "réserver une table au restaurant": "You are a French restaurant host answering the phone. The learner is calling to book a table. Stay in character, respond only in French at a simple A1-A2 level, keep replies to 1-2 short sentences, and naturally ask follow-up questions (date, time, number of guests, preferences) to keep the conversation going.",
+  "réserver une chambre d'hôtel": "You are a French hotel receptionist answering the phone. The learner is calling to book a room. Respond only in French, simple A1-A2 level, 1-2 short sentences, ask natural follow-up questions (dates, room type, number of guests, budget).",
+  "prendre rendez-vous chez le médecin": "You are a French doctor's office receptionist on the phone. The learner is calling to book an appointment. Respond only in French, simple A1-A2 level, 1-2 short sentences, ask about symptoms, availability, and urgency.",
+  "acheter un billet de train": "You are a French train station ticket agent. The learner wants to buy a ticket. Respond only in French, simple A1-A2 level, 1-2 short sentences, ask about destination, date, time, and class.",
+  "demander son chemin": "You are a helpful French passerby giving directions on the street. Respond only in French, simple A1-A2 level, 1-2 short sentences, give simple directions and ask clarifying questions if needed.",
+  "louer un appartement": "You are a French landlord/agent renting out an apartment. The learner is calling to ask about it. Respond only in French, simple A1-A2 level, 1-2 short sentences, describe the apartment and ask about the learner's needs.",
+  "signaler un objet perdu": "You are a French lost-and-found desk employee. The learner is reporting a lost item. Respond only in French, simple A1-A2 level, 1-2 short sentences, ask descriptive questions about the item.",
+  "prendre rendez-vous chez le coiffeur": "You are a French hair salon receptionist. The learner is calling to book an appointment. Respond only in French, simple A1-A2 level, 1-2 short sentences, ask about service wanted, date, and time.",
+  "appeler la banque": "You are a French bank customer service representative on the phone. Respond only in French, simple A1-A2 level, 1-2 short sentences, ask clarifying questions about the account issue.",
+  "commander à emporter": "You are a French restaurant employee taking a takeout order over the phone. Respond only in French, simple A1-A2 level, 1-2 short sentences, ask about the order and pickup time.",
+  "demander des informations touristiques": "You are a French tourist information office employee. Respond only in French, simple A1-A2 level, 1-2 short sentences, suggest things to do and ask about the visitor's interests.",
+  "annuler un rendez-vous": "You are a French receptionist (any business) handling a cancellation request over the phone. Respond only in French, simple A1-A2 level, 1-2 short sentences, confirm details and offer to reschedule."
+};
+
+// populate dropdowns
+const speakTopicPicker = document.getElementById('speakTopicPicker');
+Object.keys(speakQuestions).forEach(t=>{
+  const opt = document.createElement('option'); opt.value = t; opt.textContent = t;
+  speakTopicPicker.appendChild(opt);
+});
+const speakScenarioPicker = document.getElementById('speakScenarioPicker');
+Object.keys(speakScenarios).forEach(s=>{
+  const opt = document.createElement('option'); opt.value = s; opt.textContent = s;
+  speakScenarioPicker.appendChild(opt);
+});
+
+// mode toggle
+const speakModeA = document.getElementById('speakModeA');
+const speakModeB = document.getElementById('speakModeB');
+document.getElementById('modeABtn').addEventListener('click', ()=>{
+  speakModeA.style.display = 'block'; speakModeB.style.display = 'none';
+  document.getElementById('speakResults').style.display = 'none';
+});
+document.getElementById('modeBBtn').addEventListener('click', ()=>{
+  speakModeB.style.display = 'block'; speakModeA.style.display = 'none';
+  document.getElementById('speakResults').style.display = 'none';
+});
+
+// speech recognition (feature-detected; iOS Safari has no support, falls back to typing)
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+function setupMic(btnId, inputId){
+  const btn = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  if(!SpeechRec){
+    btn.textContent = '🎤 not supported here — type instead';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    return;
+  }
+  if(location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1'){
+    btn.textContent = '🎤 needs https — type instead';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    return;
+  }
+  const rec = new SpeechRec();
+  rec.lang = 'fr-FR';
+  rec.continuous = true;
+  rec.interimResults = true;
+  let listening = false;
+  let finalTranscript = '';
+
+  btn.addEventListener('click', ()=>{
+    if(!listening){
+      try{
+        finalTranscript = '';
+        input.value = '';
+        listening = true;
+        btn.textContent = '⏹ stop recording';
+        rec.start();
+      } catch(err){
+        listening = false;
+        btn.textContent = '🎤 could not start — try again';
+        console.error('Mic start error:', err);
+        setTimeout(()=>{ btn.textContent = '🎤 speak'; }, 2000);
+      }
+    } else {
+      listening = false;
+      btn.textContent = '🎤 speak';
+      try{ rec.stop(); }catch(e){}
+    }
+  });
+
+  rec.onresult = (e)=>{
+    let interim = '';
+    for(let i = e.resultIndex; i < e.results.length; i++){
+      const piece = e.results[i][0].transcript;
+      if(e.results[i].isFinal){ finalTranscript += piece + ' '; }
+      else { interim += piece; }
+    }
+    input.value = (finalTranscript + interim).trim();
+  };
+  rec.onend = ()=>{
+    // browser can end the session on its own (long silence/timeout) —
+    // resync the button state either way
+    listening = false;
+    if(btn.textContent === '⏹ stop recording') btn.textContent = '🎤 speak';
+  };
+  rec.onerror = (e)=>{
+    listening = false;
+    const reason = e && e.error ? e.error : 'unknown';
+    let msg = '🎤 speak';
+    if(reason === 'not-allowed' || reason === 'service-not-allowed'){
+      msg = '🎤 mic blocked — check permissions';
+    } else if(reason === 'no-speech'){
+      msg = '🎤 heard nothing — try again';
+    } else if(reason === 'network'){
+      msg = '🎤 network error — try again';
+    }
+    btn.textContent = msg;
+    console.error('Speech recognition error:', reason);
+    setTimeout(()=>{ btn.textContent = '🎤 speak'; }, 2500);
+  };
+}
+try{ setupMic('micBtnA','speakTextA'); }catch(e){ console.error('Mic A init error:', e); }
+try{ setupMic('micBtnB','speakTextB'); }catch(e){ console.error('Mic B init error:', e); }
+
+// ---- Mode A: examiner asks you ----
+let modeAQuestions = [], modeAIndex = 0, modeATranscript = [];
+const speakProgressA = document.getElementById('speakProgressA');
+const speakQuestionBox = document.getElementById('speakQuestionBox');
+const speakTranscriptA = document.getElementById('speakTranscriptA');
+const speakInputRowA = document.getElementById('speakInputRowA');
+const endModeABtn = document.getElementById('endModeABtn');
+
+function addBubble(container, who, text){
+  const b = document.createElement('div');
+  b.className = 'chat-bubble ' + (who === 'you' ? 'you' : 'examiner');
+  b.innerHTML = `<span class="who">${who === 'you' ? 'You' : 'Examiner'}</span>${text}`;
+  container.appendChild(b);
+  container.scrollTop = container.scrollHeight;
+}
+
+function askModeAQuestion(){
+  if(modeAIndex >= modeAQuestions.length){
+    speakQuestionBox.style.display = 'none';
+    speakInputRowA.style.display = 'none';
+    endModeABtn.style.display = 'inline-block';
+    speakProgressA.textContent = 'All 10 questions done — click "end & get results" below.';
+    return;
+  }
+  const q = modeAQuestions[modeAIndex];
+  speakProgressA.textContent = `Question ${modeAIndex+1} / ${modeAQuestions.length}`;
+  speakQuestionBox.style.display = 'block';
+  speakQuestionBox.textContent = q;
+  addBubble(speakTranscriptA, 'examiner', q);
+  pronounceFr(q);
+}
+
+document.getElementById('startModeABtn').addEventListener('click', ()=>{
+  const topic = speakTopicPicker.value;
+  modeAQuestions = [...speakQuestions[topic]];
+  modeAIndex = 0;
+  modeATranscript = [];
+  speakTranscriptA.innerHTML = '';
+  speakInputRowA.style.display = 'flex';
+  endModeABtn.style.display = 'none';
+  document.getElementById('speakResults').style.display = 'none';
+  askModeAQuestion();
+});
+
+document.getElementById('submitAnswerA').addEventListener('click', ()=>{
+  const input = document.getElementById('speakTextA');
+  const answer = input.value.trim();
+  if(!answer) return;
+  addBubble(speakTranscriptA, 'you', answer);
+  modeATranscript.push({ q: modeAQuestions[modeAIndex], a: answer });
+  input.value = '';
+  modeAIndex++;
+  askModeAQuestion();
+});
+
+endModeABtn.addEventListener('click', ()=>{
+  getSpeakingResults(modeATranscript.map(t=>`Examiner: ${t.q}\nLearner: ${t.a}`).join('\n\n'));
+});
+
+// ---- Mode B: you ask the examiner ----
+let modeBHistory = [], modeBTurns = 0;
+const speakTranscriptB = document.getElementById('speakTranscriptB');
+const speakInputRowB = document.getElementById('speakInputRowB');
+const endModeBBtn = document.getElementById('endModeBBtn');
+
+document.getElementById('startModeBBtn').addEventListener('click', ()=>{
+  const scenario = speakScenarioPicker.value;
+  document.getElementById('speakScenarioIntro').textContent =
+    `Scenario: ${scenario}. Start the conversation in French — say hello and ask your first question.`;
+  modeBHistory = [];
+  modeBTurns = 0;
+  speakTranscriptB.innerHTML = '';
+  speakInputRowB.style.display = 'flex';
+  endModeBBtn.style.display = 'none';
+  document.getElementById('speakResults').style.display = 'none';
+});
+
+document.getElementById('submitAnswerB').addEventListener('click', async ()=>{
+  const input = document.getElementById('speakTextB');
+  const message = input.value.trim();
+  if(!message) return;
+  addBubble(speakTranscriptB, 'you', message);
+  input.value = '';
+  modeBHistory.push({ role: 'user', content: message });
+
+  const scenario = speakScenarioPicker.value;
+  const sysNote = speakScenarios[scenario];
+  try{
+    const response = await fetch("https://soft-forest-cbbb.amanjits200.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        max_tokens: 300,
+        messages: [
+          { role: "user", content: sysNote + "\n\nConversation so far (as the learner's messages, respond to the latest one in character):\n" +
+            modeBHistory.map(m=>`Learner: ${m.content}`).join('\n')
+          }
+        ]
+      })
+    });
+    const data = await response.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim() || "Désolé, pouvez-vous répéter ?";
+    addBubble(speakTranscriptB, 'examiner', reply);
+    pronounceFr(reply);
+    modeBHistory.push({ role: 'assistant', content: reply });
+  } catch(err){
+    addBubble(speakTranscriptB, 'examiner', "(connection error — try again)");
+  }
+
+  modeBTurns++;
+  if(modeBTurns >= 10){
+    endModeBBtn.style.display = 'inline-block';
+  }
+});
+
+endModeBBtn.addEventListener('click', ()=>{
+  const transcript = modeBHistory.map(m => (m.role==='user' ? 'Learner: ' : 'Examiner: ') + m.content).join('\n');
+  getSpeakingResults(transcript);
+});
+
+// ---- shared scoring ----
+async function getSpeakingResults(transcriptText){
+  const box = document.getElementById('speakResults');
+  box.style.display = 'block';
+  box.innerHTML = 'Scoring your speaking…';
+  try{
+    const response = await fetch("https://soft-forest-cbbb.amanjits200.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        max_tokens: 900,
+        messages: [
+          { role: "user", content:
+            "You are grading a French learner's SPOKEN practice session (transcribed to text) the way a TEF/TCF Expression Orale " +
+            "examiner would, for a learner around A1-A2 level. Note: since this is transcribed text, you can't judge pronunciation directly — " +
+            "focus on content relevance, vocabulary range, grammar accuracy, and interaction/fluency of response. " +
+            "Score out of 20, 4 criteria worth 5 points each: Task fulfillment, Vocabulary & word choice, Grammar & accuracy, Interaction & fluency. " +
+            "Reply in English, in EXACTLY this format:\n" +
+            "SCORE: X/20 (estimated level: A1/A2/B1)\n" +
+            "Task fulfillment: x/5\n" +
+            "Vocabulary & word choice: x/5\n" +
+            "Grammar & accuracy: x/5\n" +
+            "Interaction & fluency: x/5\n" +
+            "Strengths: 1-2 short bullet points.\n" +
+            "Mistakes to fix: 2-4 bullet points, each showing the mistake and the French correction.\n" +
+            "One tip for next time.\n" +
+            "Keep it concise (under 200 words total).\n\n" +
+            "Transcript:\n" + transcriptText
+          }
+        ]
+      })
+    });
+    const data = await response.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
+    box.innerHTML = renderScoreCard(reply);
+  } catch(err){
+    box.innerHTML = "Scoring failed. Check your connection and try again.";
+  }
+}
+
+function renderScoreCard(text){
+  const totalMatch = text.match(/SCORE:\s*(\d+)\s*\/\s*20\s*\(estimated level:\s*([^)]+)\)/i);
+  const critRegex = /(Task fulfillment|Vocabulary & word choice|Grammar & accuracy|Interaction & fluency):\s*(\d+)\s*\/\s*5/gi;
+  let bars = '';
+  let m;
+  while((m = critRegex.exec(text)) !== null){
+    const label = m[1], val = parseInt(m[2],10);
+    bars += `<div class="score-bar-row">
+      <span class="score-bar-label">${label}</span>
+      <span class="score-bar-track"><span class="score-bar-fill" style="width:${(val/5*100)}%;"></span></span>
+      <span class="score-bar-val">${val}/5</span>
+    </div>`;
+  }
+  const restText = text
+    .replace(/SCORE:.*\n?/i, '')
+    .replace(critRegex, '')
+    .trim();
+  const header = totalMatch
+    ? `<div class="score-total">Score: ${totalMatch[1]}/20 &nbsp; (${totalMatch[2].trim()})</div>`
+    : '';
+  return header + bars + `<div style="margin-top:10px; white-space:pre-wrap;">${restText}</div>`;
+}
+</script>
+</body>
+</html>
+
     --marker-blue: #1f5fb0;
     --marker-red: #c0392b;
     --marker-green: #1c7a4d;
