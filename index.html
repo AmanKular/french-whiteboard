@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --board: #fbfbfa;
+    --board: #eeede8;
     --frame: #9aa0a8;
     --frame-dark: #6b7178;
     --ink: #1c1f26;
@@ -715,6 +715,7 @@
       <button class="ref-tab" data-ref="connectors">Connectors</button>
       <button class="ref-tab" data-ref="numbers">Numbers</button>
       <button class="ref-tab" data-ref="time">Time</button>
+      <button class="ref-tab" data-ref="dailystory">Daily Book Story</button>
     </div>
     <div id="refContent" class="ref-content"></div>
     <div id="clockTooltip" class="clock-tooltip"></div>
@@ -765,26 +766,6 @@
 
     <hr class="divider">
 
-    <h1 style="color:var(--marker-green);">Writing Practice</h1>
-    <p class="subtitle">write a few sentences, then get your text checked</p>
-
-    <div class="row">
-      <button class="action btn-check" id="newPromptBtn" style="background:var(--marker-green);">new topic</button>
-    </div>
-    <div id="promptBox" class="prompt-box"></div>
-
-    <textarea id="writingArea" class="writing-area" placeholder="Write your text here…"></textarea>
-    <div class="row" style="justify-content:space-between;">
-      <span id="wordCount" class="word-count">0 words</span>
-      <div style="display:flex; gap:10px;">
-        <button class="action btn-erase" id="clearWritingBtn">clear</button>
-        <button class="action btn-check" id="feedbackBtn">check &amp; score my writing</button>
-      </div>
-    </div>
-    <div id="feedbackBox" class="feedback-box"></div>
-
-    <hr class="divider">
-
     <h1 style="color:var(--marker-red);">A2 Course Review</h1>
     <p class="subtitle">pick a unit from your syllabus, review the grammar point, then fill in the blanks</p>
 
@@ -800,7 +781,7 @@
 
     <hr class="divider">
 
-    <h1 style="color:var(--marker-purple);">Listening Practice</h1>
+    <h1 style="color:var(--marker-purple);">Part 1 — Listening Practice</h1>
     <p class="subtitle">pick a conversation, hit play, and listen closely — the answers are questions about what you heard</p>
 
     <div class="row">
@@ -826,7 +807,43 @@
 
     <hr class="divider">
 
-    <h1 style="color:var(--marker-purple);">Speaking Practice</h1>
+    <h1 style="color:var(--marker-red);">Part 2 — Reading Practice</h1>
+    <p class="subtitle">read the short text, then answer 5 questions about it</p>
+
+    <div class="row">
+      <select id="readPicker"></select>
+      <button class="action btn-erase" id="readToggleBtn">show questions</button>
+    </div>
+    <div id="readTextBox" class="test-summary"></div>
+    <div id="readQuestions" style="display:none;"></div>
+    <div class="row">
+      <button class="action btn-check" id="readCheckBtn">check answers</button>
+      <button class="action btn-erase" id="readClearBtn">clear</button>
+    </div>
+
+    <hr class="divider">
+
+    <h1 style="color:var(--marker-green);">Part 3 — Writing Practice</h1>
+    <p class="subtitle">write a few sentences, then get your text checked</p>
+
+    <div class="row">
+      <button class="action btn-check" id="newPromptBtn" style="background:var(--marker-green);">new topic</button>
+    </div>
+    <div id="promptBox" class="prompt-box"></div>
+
+    <textarea id="writingArea" class="writing-area" placeholder="Write your text here…"></textarea>
+    <div class="row" style="justify-content:space-between;">
+      <span id="wordCount" class="word-count">0 words</span>
+      <div style="display:flex; gap:10px;">
+        <button class="action btn-erase" id="clearWritingBtn">clear</button>
+        <button class="action btn-check" id="feedbackBtn">check &amp; score my writing</button>
+      </div>
+    </div>
+    <div id="feedbackBox" class="feedback-box"></div>
+
+    <hr class="divider">
+
+    <h1 style="color:var(--marker-purple);">Part 4 — Speaking Practice</h1>
     <p class="subtitle">practice speaking like a real oral exam — pick a mode below</p>
 
     <div class="row">
@@ -2531,6 +2548,255 @@ function buildClockSVG(){
     </p>`;
 }
 
+const dailyStories = [
+  {
+    title: "Le chat perdu",
+    text: "Un matin, Léa ne trouve pas son chat, Whiskers. Elle cherche partout dans la maison, sous le lit et derrière le canapé, mais elle ne le trouve pas. Elle sort dans le jardin et appelle son nom plusieurs fois. Soudain, elle entend un petit miaulement venant d'un arbre. Whiskers est monté tout en haut et il a peur de descendre ! Léa demande à son voisin, monsieur Dupont, de l'aider avec son échelle. Ensemble, ils réussissent à faire descendre le chat en toute sécurité. Léa est tellement soulagée qu'elle remercie son voisin avec un gâteau fait maison. Depuis ce jour, Whiskers ne grimpe plus jamais aux arbres.",
+    questions: [
+      { prompt: "Comment s'appelle le chat de Léa ?", options: ["Minou", "Whiskers", "Félix", "Tigrou"], correct: 1, why: "Le chat s'appelle Whiskers." },
+      { prompt: "Où Léa cherche-t-elle d'abord ?", options: ["Dans le jardin", "Dans la maison", "Chez le voisin", "Dans la rue"], correct: 1, why: "Elle cherche d'abord dans la maison." },
+      { prompt: "Où est le chat finalement ?", options: ["Sous la voiture", "Dans un arbre", "Sur le toit", "Dans la cave"], correct: 1, why: "Whiskers est monté dans un arbre." },
+      { prompt: "Qui aide Léa ?", options: ["Sa mère", "Son voisin", "Son frère", "Un policier"], correct: 1, why: "Son voisin, monsieur Dupont, l'aide." },
+      { prompt: "Avec quoi le voisin aide-t-il ?", options: ["Une corde", "Une échelle", "Un filet", "De la nourriture"], correct: 1, why: "Il utilise son échelle." },
+      { prompt: "Comment Léa remercie-t-elle son voisin ?", options: ["Avec de l'argent", "Avec un gâteau", "Avec une lettre", "Avec des fleurs"], correct: 1, why: "Elle lui offre un gâteau fait maison." },
+      { prompt: "Comment se sent Léa après avoir retrouvé son chat ?", options: ["Fâchée", "Soulagée", "Triste", "Surprise"], correct: 1, why: "Elle est soulagée." },
+      { prompt: "Que fait le chat depuis ce jour ?", options: ["Il grimpe encore aux arbres", "Il ne grimpe plus aux arbres", "Il reste dehors", "Il a peur des voisins"], correct: 1, why: "Il ne grimpe plus jamais aux arbres." },
+      { prompt: "Quel bruit Léa entend-elle dans le jardin ?", options: ["Un aboiement", "Un miaulement", "Un cri", "Rien"], correct: 1, why: "Elle entend un miaulement." },
+      { prompt: "Comment s'appelle le voisin ?", options: ["Monsieur Martin", "Monsieur Dupont", "Monsieur Leroy", "Monsieur Petit"], correct: 1, why: "Le voisin s'appelle monsieur Dupont." }
+    ]
+  },
+  {
+    title: "Le cadeau surprise",
+    text: "C'est bientôt l'anniversaire de Sarah, et son frère Hugo veut lui offrir un cadeau spécial. Il décide de lui acheter un vélo, parce qu'elle en parle depuis des mois. Hugo économise son argent de poche pendant trois mois. Il va dans plusieurs magasins pour comparer les prix. Finalement, il trouve un joli vélo bleu, la couleur préférée de Sarah. Le jour de l'anniversaire, Hugo cache le vélo dans le garage et invite Sarah à venir le voir. Quand elle découvre le vélo, elle est tellement heureuse qu'elle pleure de joie. Elle serre son frère dans ses bras et le remercie mille fois. C'est le plus beau jour de l'année pour elle.",
+    questions: [
+      { prompt: "Qui veut offrir un cadeau à Sarah ?", options: ["Sa mère", "Son frère Hugo", "Sa sœur", "Son ami"], correct: 1, why: "Son frère Hugo veut lui offrir un cadeau." },
+      { prompt: "Quel cadeau Hugo choisit-il ?", options: ["Un livre", "Un vélo", "Un téléphone", "Des vêtements"], correct: 1, why: "Il choisit un vélo." },
+      { prompt: "Pendant combien de temps Hugo économise-t-il ?", options: ["Un mois", "Deux mois", "Trois mois", "Six mois"], correct: 2, why: "Il économise pendant trois mois." },
+      { prompt: "Quelle est la couleur préférée de Sarah ?", options: ["Rouge", "Bleu", "Vert", "Jaune"], correct: 1, why: "Le vélo est bleu, sa couleur préférée." },
+      { prompt: "Où Hugo cache-t-il le vélo ?", options: ["Dans sa chambre", "Dans le garage", "Chez un ami", "Dans le jardin"], correct: 1, why: "Il le cache dans le garage." },
+      { prompt: "Comment réagit Sarah en découvrant le cadeau ?", options: ["Elle est déçue", "Elle pleure de joie", "Elle est fâchée", "Elle ne dit rien"], correct: 1, why: "Elle pleure de joie." },
+      { prompt: "Que fait Sarah après avoir vu le cadeau ?", options: ["Elle part", "Elle serre son frère dans ses bras", "Elle appelle sa mère", "Elle range le vélo"], correct: 1, why: "Elle serre son frère dans ses bras." },
+      { prompt: "Pourquoi Hugo choisit-il un vélo ?", options: ["C'était en solde", "Sarah en parle depuis des mois", "C'est une idée de leur mère", "Il en avait un en trop"], correct: 1, why: "Sarah en parle depuis des mois." },
+      { prompt: "Que fait Hugo avant d'acheter le vélo ?", options: ["Il demande conseil à ses parents", "Il compare les prix dans plusieurs magasins", "Il l'achète en ligne", "Il emprunte de l'argent"], correct: 1, why: "Il compare les prix dans plusieurs magasins." },
+      { prompt: "Comment Sarah décrit-elle ce jour ?", options: ["Un jour normal", "Le plus beau jour de l'année", "Un jour fatigant", "Un jour triste"], correct: 1, why: "C'est le plus beau jour de l'année pour elle." }
+    ]
+  },
+  {
+    title: "Le concours de cuisine",
+    text: "Emma participe à un concours de cuisine organisé dans son quartier. Elle décide de préparer un gâteau au chocolat, la recette de sa grand-mère. Le matin du concours, elle se réveille très tôt pour bien préparer son gâteau. Elle mélange soigneusement tous les ingrédients et met le gâteau au four pendant quarante-cinq minutes. Pendant que le gâteau cuit, elle prépare une décoration avec des fraises fraîches. À midi, elle apporte son gâteau au centre communautaire où se déroule le concours. Il y a dix autres participants avec des desserts magnifiques. Après avoir goûté tous les gâteaux, le jury annonce les résultats. Emma gagne la deuxième place ! Elle est très fière et appelle immédiatement sa grand-mère pour partager la bonne nouvelle.",
+    questions: [
+      { prompt: "À quel concours participe Emma ?", options: ["Un concours de danse", "Un concours de cuisine", "Un concours de chant", "Un concours de dessin"], correct: 1, why: "Elle participe à un concours de cuisine." },
+      { prompt: "Que prépare-t-elle ?", options: ["Une tarte", "Un gâteau au chocolat", "Des cookies", "Une mousse"], correct: 1, why: "Elle prépare un gâteau au chocolat." },
+      { prompt: "De qui vient la recette ?", options: ["D'un livre", "De sa grand-mère", "D'internet", "De sa mère"], correct: 1, why: "C'est la recette de sa grand-mère." },
+      { prompt: "Combien de temps le gâteau cuit-il ?", options: ["Trente minutes", "Quarante-cinq minutes", "Une heure", "Vingt minutes"], correct: 1, why: "Il cuit pendant quarante-cinq minutes." },
+      { prompt: "Avec quoi décore-t-elle le gâteau ?", options: ["Du chocolat", "Des fraises fraîches", "De la crème", "Des bonbons"], correct: 1, why: "Elle utilise des fraises fraîches." },
+      { prompt: "Où a lieu le concours ?", options: ["Chez Emma", "Au centre communautaire", "Dans un restaurant", "À l'école"], correct: 1, why: "Le concours a lieu au centre communautaire." },
+      { prompt: "Combien de participants y a-t-il en tout ?", options: ["Cinq", "Dix", "Onze", "Quinze"], correct: 2, why: "Emma + dix autres participants = onze au total." },
+      { prompt: "Quelle place Emma obtient-elle ?", options: ["Première", "Deuxième", "Troisième", "Dernière"], correct: 1, why: "Elle obtient la deuxième place." },
+      { prompt: "Qu'est-ce qu'Emma fait après avoir gagné ?", options: ["Elle rentre chez elle", "Elle appelle sa grand-mère", "Elle pleure", "Elle refait un gâteau"], correct: 1, why: "Elle appelle immédiatement sa grand-mère." },
+      { prompt: "Comment se sent Emma à la fin de l'histoire ?", options: ["Déçue", "Fière", "Fatiguée", "Inquiète"], correct: 1, why: "Elle est très fière." }
+    ]
+  },
+  {
+    title: "La panne de voiture",
+    text: "Julien conduit sur l'autoroute pour aller voir sa famille quand, soudain, sa voiture commence à faire un bruit étrange. Il décide de s'arrêter sur le bord de la route pour vérifier le problème. Malheureusement, il ne connaît rien à la mécanique. Il appelle une entreprise de dépannage, mais on lui dit d'attendre environ une heure. Pendant ce temps, il téléphone à sa sœur pour lui expliquer la situation et la prévenir qu'il sera en retard. Finalement, un technicien arrive et découvre que c'est un simple problème de batterie. En vingt minutes, la voiture redémarre normalement. Julien remercie le technicien et repart, un peu stressé mais soulagé. Il arrive chez sa famille avec deux heures de retard, mais tout le monde est content de le voir.",
+    questions: [
+      { prompt: "Où Julien conduit-il quand sa voiture tombe en panne ?", options: ["En ville", "Sur l'autoroute", "Dans un parking", "À la campagne"], correct: 1, why: "Il conduit sur l'autoroute." },
+      { prompt: "Que remarque-t-il d'abord ?", options: ["Une fumée", "Un bruit étrange", "Une odeur", "Rien"], correct: 1, why: "Il remarque un bruit étrange." },
+      { prompt: "Que fait-il en premier ?", options: ["Il continue de conduire", "Il s'arrête sur le bord de la route", "Il rentre chez lui", "Il appelle sa famille"], correct: 1, why: "Il s'arrête sur le bord de la route." },
+      { prompt: "Combien de temps doit-il attendre le dépannage ?", options: ["Trente minutes", "Une heure", "Deux heures", "Il ne sait pas"], correct: 1, why: "On lui dit d'attendre environ une heure." },
+      { prompt: "Qui appelle-t-il pendant l'attente ?", options: ["Son ami", "Sa sœur", "Son patron", "La police"], correct: 1, why: "Il téléphone à sa sœur." },
+      { prompt: "Quel est le problème de la voiture ?", options: ["Un pneu crevé", "Un problème de batterie", "Plus d'essence", "Le moteur cassé"], correct: 1, why: "C'est un problème de batterie." },
+      { prompt: "Combien de temps prend la réparation ?", options: ["Dix minutes", "Vingt minutes", "Une heure", "Elle n'est pas réparée"], correct: 1, why: "La réparation prend vingt minutes." },
+      { prompt: "Comment se sent Julien après la réparation ?", options: ["En colère", "Soulagé", "Indifférent", "Toujours inquiet"], correct: 1, why: "Il est soulagé." },
+      { prompt: "Avec combien de retard arrive-t-il chez sa famille ?", options: ["Une heure", "Deux heures", "Trois heures", "Il n'est pas en retard"], correct: 1, why: "Il arrive avec deux heures de retard." },
+      { prompt: "Comment réagit la famille quand il arrive ?", options: ["Ils sont fâchés", "Ils sont contents de le voir", "Ils ne remarquent rien", "Ils étaient inquiets"], correct: 1, why: "Tout le monde est content de le voir." }
+    ]
+  },
+  {
+    title: "Le jardin de Mamie",
+    text: "Chaque été, Léo passe deux semaines chez sa grand-mère à la campagne. Cette année, elle lui propose de l'aider à s'occuper de son jardin. Au début, Léo n'est pas très motivé, mais il accepte pour lui faire plaisir. Ensemble, ils plantent des tomates, des courgettes et des fleurs colorées. Chaque matin, ils arrosent les plantes avant qu'il fasse trop chaud. Léo apprend beaucoup de choses sur les légumes et les insectes du jardin. À la fin des deux semaines, il est surpris de voir combien les légumes ont grandi. Sa grand-mère lui donne un panier de légumes à ramener chez lui. Léo promet de revenir aider sa grand-mère l'année prochaine, car il a vraiment adoré cette expérience.",
+    questions: [
+      { prompt: "Où Léo passe-t-il ses étés ?", options: ["Chez ses parents", "Chez sa grand-mère", "À la mer", "Chez des amis"], correct: 1, why: "Il passe ses étés chez sa grand-mère." },
+      { prompt: "Que propose sa grand-mère cette année ?", options: ["De faire du vélo", "De s'occuper du jardin", "De cuisiner", "De voyager"], correct: 1, why: "Elle lui propose de s'occuper du jardin." },
+      { prompt: "Comment Léo se sent-il au début ?", options: ["Très motivé", "Pas très motivé", "En colère", "Fatigué"], correct: 1, why: "Il n'est pas très motivé au début." },
+      { prompt: "Que plantent-ils ensemble ?", options: ["Des arbres", "Des tomates, courgettes et fleurs", "Des pommes de terre seulement", "Du maïs"], correct: 1, why: "Ils plantent des tomates, des courgettes et des fleurs." },
+      { prompt: "Quand arrosent-ils les plantes ?", options: ["Le soir", "Chaque matin", "Une fois par semaine", "L'après-midi"], correct: 1, why: "Ils arrosent chaque matin." },
+      { prompt: "Qu'apprend Léo pendant ces deux semaines ?", options: ["À cuisiner", "Sur les légumes et les insectes", "À conduire", "À pêcher"], correct: 1, why: "Il apprend sur les légumes et les insectes." },
+      { prompt: "Qu'est-ce qui surprend Léo à la fin ?", options: ["Le prix des légumes", "Combien les légumes ont grandi", "Le nombre d'insectes", "La taille du jardin"], correct: 1, why: "Il est surpris de voir combien les légumes ont grandi." },
+      { prompt: "Que donne la grand-mère à Léo en partant ?", options: ["De l'argent", "Un panier de légumes", "Des graines", "Un livre"], correct: 1, why: "Elle lui donne un panier de légumes." },
+      { prompt: "Que promet Léo à la fin ?", options: ["De ne jamais revenir", "De revenir aider l'année prochaine", "D'avoir son propre jardin", "D'appeler plus souvent"], correct: 1, why: "Il promet de revenir aider l'année prochaine." },
+      { prompt: "Comment Léo décrit-il cette expérience ?", options: ["Ennuyeuse", "Il l'a vraiment adorée", "Fatigante", "Sans intérêt"], correct: 1, why: "Il a vraiment adoré cette expérience." }
+    ]
+  },
+  {
+    title: "Le déménagement difficile",
+    text: "La famille Martin déménage dans une nouvelle ville pour le travail du père. Les enfants, Léa et Tom, sont tristes de quitter leurs amis et leur école. Le jour du déménagement, un grand camion arrive tôt le matin pour transporter tous les meubles. Toute la journée, la famille porte des cartons et charge le camion. Léa garde précieusement sa boîte de photos avec ses amis. Après un long trajet de quatre heures, ils arrivent dans leur nouvelle maison. Elle est plus grande que l'ancienne, avec un joli jardin. Les premiers jours sont difficiles, mais après quelques semaines, Léa et Tom se font de nouveaux amis à l'école. Ils réalisent que ce changement n'est pas si terrible finalement.",
+    questions: [
+      { prompt: "Pourquoi la famille Martin déménage-t-elle ?", options: ["Pour être près de la famille", "Pour le travail du père", "Pour le climat", "Pour l'école des enfants"], correct: 1, why: "Ils déménagent pour le travail du père." },
+      { prompt: "Comment se sentent Léa et Tom au début ?", options: ["Excités", "Tristes", "Indifférents", "En colère"], correct: 1, why: "Ils sont tristes de quitter leurs amis." },
+      { prompt: "Quand le camion arrive-t-il ?", options: ["Tard le soir", "Tôt le matin", "À midi", "L'après-midi"], correct: 1, why: "Le camion arrive tôt le matin." },
+      { prompt: "Que garde précieusement Léa ?", options: ["Ses jouets", "Sa boîte de photos", "Ses vêtements", "Ses livres"], correct: 1, why: "Elle garde sa boîte de photos." },
+      { prompt: "Combien de temps dure le trajet ?", options: ["Deux heures", "Trois heures", "Quatre heures", "Six heures"], correct: 2, why: "Le trajet dure quatre heures." },
+      { prompt: "Comment est la nouvelle maison comparée à l'ancienne ?", options: ["Plus petite", "Plus grande", "Identique", "Sans jardin"], correct: 1, why: "Elle est plus grande, avec un jardin." },
+      { prompt: "Comment sont les premiers jours ?", options: ["Faciles", "Difficiles", "Amusants", "Ennuyeux"], correct: 1, why: "Les premiers jours sont difficiles." },
+      { prompt: "Que se passe-t-il après quelques semaines ?", options: ["Ils déménagent encore", "Ils se font de nouveaux amis", "Ils sont toujours tristes", "Ils retournent en arrière"], correct: 1, why: "Ils se font de nouveaux amis." },
+      { prompt: "Où les enfants se font-ils de nouveaux amis ?", options: ["Dans le quartier", "À l'école", "Au parc", "Chez des voisins"], correct: 1, why: "Ils se font des amis à l'école." },
+      { prompt: "Comment les enfants voient-ils le changement à la fin ?", options: ["Comme une catastrophe", "Pas si terrible finalement", "Toujours difficile", "Ils veulent redéménager"], correct: 1, why: "Ils réalisent que ce n'est pas si terrible." }
+    ]
+  },
+  {
+    title: "L'examen important",
+    text: "Nina a un examen très important demain matin, alors elle décide de bien réviser ce soir. Elle range son bureau, sort ses livres et ses notes de cours. Pendant deux heures, elle relit tous ses cours et fait des exercices. Vers vingt-deux heures, sa mère lui apporte une tasse de thé chaud et lui dit de ne pas trop stresser. Nina se couche tôt pour être en forme le lendemain. Le matin de l'examen, elle se réveille avec un peu d'anxiété, mais elle prend un bon petit-déjeuner et relit rapidement ses notes une dernière fois. Pendant l'examen, elle se sent bien préparée et répond à toutes les questions avec confiance. Une semaine plus tard, elle apprend qu'elle a obtenu une excellente note. Tout ce travail en valait vraiment la peine.",
+    questions: [
+      { prompt: "Quand Nina a-t-elle son examen ?", options: ["Ce soir", "Demain matin", "La semaine prochaine", "Dans un mois"], correct: 1, why: "Elle a son examen demain matin." },
+      { prompt: "Que fait-elle en premier pour réviser ?", options: ["Elle dort", "Elle range son bureau", "Elle appelle une amie", "Elle regarde la télé"], correct: 1, why: "Elle range son bureau en premier." },
+      { prompt: "Pendant combien de temps révise-t-elle ?", options: ["Une heure", "Deux heures", "Trois heures", "Toute la nuit"], correct: 1, why: "Elle révise pendant deux heures." },
+      { prompt: "Que lui apporte sa mère ?", options: ["Un café", "Une tasse de thé", "Un gâteau", "Rien"], correct: 1, why: "Sa mère lui apporte une tasse de thé." },
+      { prompt: "Que lui dit sa mère ?", options: ["De réviser plus", "De ne pas trop stresser", "D'aller se coucher tout de suite", "De manger"], correct: 1, why: "Sa mère lui dit de ne pas trop stresser." },
+      { prompt: "Comment se sent Nina le matin de l'examen ?", options: ["Très confiante", "Un peu anxieuse", "Complètement calme", "En colère"], correct: 1, why: "Elle se réveille avec un peu d'anxiété." },
+      { prompt: "Que fait-elle avant l'examen ?", options: ["Elle dort encore un peu", "Elle prend un bon petit-déjeuner", "Elle ne mange rien", "Elle appelle son professeur"], correct: 1, why: "Elle prend un bon petit-déjeuner." },
+      { prompt: "Comment se sent-elle pendant l'examen ?", options: ["Perdue", "Bien préparée", "Fatiguée", "Stressée"], correct: 1, why: "Elle se sent bien préparée." },
+      { prompt: "Quand apprend-elle son résultat ?", options: ["Le jour même", "Une semaine plus tard", "Un mois plus tard", "Elle ne le sait pas encore"], correct: 1, why: "Elle apprend son résultat une semaine plus tard." },
+      { prompt: "Quel résultat obtient-elle ?", options: ["Une mauvaise note", "Une note moyenne", "Une excellente note", "Elle a échoué"], correct: 2, why: "Elle obtient une excellente note." }
+    ]
+  },
+  {
+    title: "La randonnée en montagne",
+    text: "Pierre et ses deux amis décident de faire une randonnée en montagne pendant leurs vacances. Ils se lèvent très tôt pour éviter la chaleur de l'après-midi. Le chemin est difficile au début, avec beaucoup de pierres et de pentes raides. Après deux heures de marche, ils s'arrêtent pour déjeuner près d'un petit lac magnifique. La vue depuis ce point est absolument incroyable. Ils continuent leur ascension et arrivent enfin au sommet vers quatorze heures. De là-haut, ils peuvent voir toute la vallée et plusieurs autres montagnes. Ils prennent beaucoup de photos avant de redescendre. La descente est plus rapide, mais leurs jambes sont très fatiguées à la fin. Malgré la fatigue, tous les trois sont très fiers d'avoir terminé cette randonnée difficile.",
+    questions: [
+      { prompt: "Qui fait la randonnée avec Pierre ?", options: ["Sa famille", "Deux amis", "Un guide", "Personne"], correct: 1, why: "Il fait la randonnée avec deux amis." },
+      { prompt: "Pourquoi se lèvent-ils tôt ?", options: ["Pour voir le lever du soleil", "Pour éviter la chaleur de l'après-midi", "Parce qu'ils ne dorment pas bien", "Pour prendre le bus"], correct: 1, why: "Ils veulent éviter la chaleur de l'après-midi." },
+      { prompt: "Comment est le chemin au début ?", options: ["Facile", "Difficile avec des pierres", "Plat", "Dangereux"], correct: 1, why: "Le chemin est difficile, avec des pierres." },
+      { prompt: "Où s'arrêtent-ils pour déjeuner ?", options: ["Au sommet", "Près d'un lac", "Dans une forêt", "Ils ne s'arrêtent pas"], correct: 1, why: "Ils s'arrêtent près d'un lac." },
+      { prompt: "À quelle heure arrivent-ils au sommet ?", options: ["Midi", "Quatorze heures", "Seize heures", "Dix-huit heures"], correct: 1, why: "Ils arrivent au sommet vers quatorze heures." },
+      { prompt: "Que peuvent-ils voir du sommet ?", options: ["La mer", "La vallée et des montagnes", "Une ville", "Rien, il y a du brouillard"], correct: 1, why: "Ils voient la vallée et plusieurs montagnes." },
+      { prompt: "Que font-ils avant de redescendre ?", options: ["Ils dorment", "Ils prennent des photos", "Ils mangent encore", "Ils attendent le coucher du soleil"], correct: 1, why: "Ils prennent beaucoup de photos." },
+      { prompt: "Comment est la descente comparée à la montée ?", options: ["Plus lente", "Plus rapide", "Identique", "Ils ne redescendent pas"], correct: 1, why: "La descente est plus rapide." },
+      { prompt: "Comment sont leurs jambes à la fin ?", options: ["En pleine forme", "Très fatiguées", "Légèrement fatiguées", "Elles ne disent rien"], correct: 1, why: "Leurs jambes sont très fatiguées." },
+      { prompt: "Comment se sentent-ils malgré la fatigue ?", options: ["Déçus", "Fiers", "Indifférents", "En colère"], correct: 1, why: "Ils sont très fiers malgré la fatigue." }
+    ]
+  },
+  {
+    title: "Le nouvel élève",
+    text: "Karim arrive dans une nouvelle école au milieu de l'année scolaire. Il ne connaît personne et se sent un peu seul le premier jour. Pendant la récréation, il reste assis seul dans un coin de la cour. Une fille de sa classe, Chloé, remarque qu'il est seul et vient lui parler. Elle lui présente ses amis et l'invite à jouer au football avec eux. Karim est très content de cette rencontre. Petit à petit, il commence à se faire des amis dans sa nouvelle classe. Un mois plus tard, il se sent complètement à l'aise dans son école. Il remercie souvent Chloé d'avoir été si gentille avec lui le premier jour, car cela a vraiment changé son expérience.",
+    questions: [
+      { prompt: "Quand Karim arrive-t-il dans sa nouvelle école ?", options: ["Au début de l'année", "Au milieu de l'année", "À la fin de l'année", "Pendant les vacances"], correct: 1, why: "Il arrive au milieu de l'année scolaire." },
+      { prompt: "Comment se sent-il le premier jour ?", options: ["Excité", "Un peu seul", "En colère", "Fatigué"], correct: 1, why: "Il se sent un peu seul." },
+      { prompt: "Où reste-t-il pendant la récréation ?", options: ["Dans la salle de classe", "Seul dans un coin de la cour", "Avec le professeur", "À la bibliothèque"], correct: 1, why: "Il reste seul dans un coin de la cour." },
+      { prompt: "Qui vient lui parler ?", options: ["Un professeur", "Chloé", "Le directeur", "Personne"], correct: 1, why: "Chloé vient lui parler." },
+      { prompt: "À quoi Chloé l'invite-t-elle à jouer ?", options: ["Au basketball", "Au football", "Aux cartes", "À rien"], correct: 1, why: "Elle l'invite à jouer au football." },
+      { prompt: "Comment se sent Karim après cette rencontre ?", options: ["Toujours seul", "Très content", "Indifférent", "Fâché"], correct: 1, why: "Il est très content." },
+      { prompt: "Que fait-il petit à petit ?", options: ["Il retourne dans son ancienne école", "Il se fait des amis", "Il reste seul", "Il change de classe"], correct: 1, why: "Il se fait des amis petit à petit." },
+      { prompt: "Comment se sent-il un mois plus tard ?", options: ["Toujours mal à l'aise", "Complètement à l'aise", "Il veut déménager encore", "Fatigué"], correct: 1, why: "Il se sent complètement à l'aise." },
+      { prompt: "Qui remercie-t-il souvent ?", options: ["Le directeur", "Chloé", "Ses parents", "Son professeur"], correct: 1, why: "Il remercie souvent Chloé." },
+      { prompt: "Qu'est-ce que la gentillesse de Chloé a changé ?", options: ["Rien du tout", "Son expérience à l'école", "Ses notes", "Son adresse"], correct: 1, why: "Cela a changé son expérience à l'école." }
+    ]
+  },
+  {
+    title: "La surprise pour maman",
+    text: "C'est bientôt la fête des mères, et Inès veut organiser une surprise pour sa maman. Avec l'aide de son père, elle prépare un plan secret. Le matin de la fête, Inès se réveille très tôt pour préparer le petit-déjeuner au lit pour sa maman : des croissants, du jus d'orange et des fleurs du jardin. Sa maman est très surprise et émue en ouvrant les yeux. Ensuite, toute la famille passe la journée ensemble au parc, avec un pique-nique préparé la veille. Le soir, ils regardent tous ensemble le film préféré de maman. À la fin de la journée, la maman d'Inès dit que c'est la plus belle fête des mères de sa vie. Inès est très heureuse d'avoir rendu sa maman si joyeuse.",
+    questions: [
+      { prompt: "Quelle fête approche dans cette histoire ?", options: ["L'anniversaire de maman", "La fête des mères", "Noël", "La fête des pères"], correct: 1, why: "C'est bientôt la fête des mères." },
+      { prompt: "Qui aide Inès à organiser la surprise ?", options: ["Sa sœur", "Son père", "Sa grand-mère", "Personne"], correct: 1, why: "Son père l'aide." },
+      { prompt: "Que prépare Inès le matin ?", options: ["Un gâteau", "Le petit-déjeuner au lit", "Un cadeau seulement", "Rien à manger"], correct: 1, why: "Elle prépare le petit-déjeuner au lit." },
+      { prompt: "Qu'y a-t-il dans le petit-déjeuner ?", options: ["Des œufs et du bacon", "Des croissants, jus d'orange et fleurs", "Des céréales seulement", "Une pizza"], correct: 1, why: "Il y a des croissants, du jus d'orange et des fleurs." },
+      { prompt: "Comment réagit la maman en se réveillant ?", options: ["Elle est en colère", "Elle est surprise et émue", "Elle ne remarque rien", "Elle est fatiguée"], correct: 1, why: "Elle est surprise et émue." },
+      { prompt: "Où la famille passe-t-elle la journée ?", options: ["À la maison", "Au parc", "Au restaurant", "À la plage"], correct: 1, why: "Ils passent la journée au parc." },
+      { prompt: "Qu'ont-ils préparé pour le parc ?", options: ["Rien, ils achètent sur place", "Un pique-nique la veille", "Un barbecue", "Des sandwichs le matin même"], correct: 1, why: "Ils ont préparé un pique-nique la veille." },
+      { prompt: "Que font-ils le soir ?", options: ["Ils sortent au restaurant", "Ils regardent le film préféré de maman", "Ils vont se coucher tôt", "Ils invitent des amis"], correct: 1, why: "Ils regardent le film préféré de maman." },
+      { prompt: "Que dit la maman à la fin de la journée ?", options: ["Qu'elle est fatiguée", "Que c'est la plus belle fête des mères de sa vie", "Qu'elle veut rentrer", "Rien de spécial"], correct: 1, why: "Elle dit que c'est la plus belle fête des mères de sa vie." },
+      { prompt: "Comment se sent Inès à la fin ?", options: ["Fatiguée", "Très heureuse", "Déçue", "Indifférente"], correct: 1, why: "Elle est très heureuse." }
+    ]
+  }
+];
+
+function getTodaysStoryIndex(){
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now - start;
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+  return dayOfYear % dailyStories.length;
+}
+
+function buildDailyStoryHTML(){
+  const story = dailyStories[getTodaysStoryIndex()];
+  const questionsHtml = story.questions.map((q, qi)=>{
+    const optionsHtml = q.options.map((opt, oi)=>
+      `<button type="button" class="lq-option" data-index="${oi}">${opt}</button>`
+    ).join('');
+    return `<div class="listen-question" data-correct="${q.correct}" data-why="${q.why.replace(/"/g,'&quot;')}">
+      <div class="lq-prompt">${qi+1}. ${q.prompt}</div>
+      <div class="lq-options">${optionsHtml}</div>
+      <div class="lq-feedback"></div>
+    </div>`;
+  }).join('');
+  return `
+    <h2>📖 Today's story: ${story.title}</h2>
+    <p style="font-size:11.5px; opacity:0.6;">A new story appears automatically each day.</p>
+    <div class="test-summary" style="font-family:'Kalam',cursive; font-size:15px;">${story.text}</div>
+    <div class="row" style="margin:10px 0;">
+      <button class="action btn-erase" id="dailyStoryToggleBtn">show questions (10)</button>
+    </div>
+    <div id="dailyStoryQuestions" style="display:none;">${questionsHtml}</div>
+    <div class="row" style="margin-top:8px;">
+      <button class="action btn-check" id="dailyStoryCheckBtn">check answers</button>
+      <button class="action btn-erase" id="dailyStoryClearBtn">clear</button>
+    </div>
+  `;
+}
+
+function wireDailyStory(){
+  const qBox = document.getElementById('dailyStoryQuestions');
+  qBox.querySelectorAll('.lq-option').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const card = btn.closest('.listen-question');
+      card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+  document.getElementById('dailyStoryToggleBtn').addEventListener('click', ()=>{
+    const btn = document.getElementById('dailyStoryToggleBtn');
+    const hidden = qBox.style.display === 'none';
+    qBox.style.display = hidden ? 'block' : 'none';
+    btn.textContent = hidden ? 'hide questions' : 'show questions (10)';
+  });
+  document.getElementById('dailyStoryCheckBtn').addEventListener('click', ()=>{
+    qBox.querySelectorAll('.listen-question').forEach(card=>{
+      const correctIdx = parseInt(card.dataset.correct, 10);
+      const why = card.dataset.why;
+      const selected = card.querySelector('.lq-option.selected');
+      const feedback = card.querySelector('.lq-feedback');
+      card.classList.remove('correct','incorrect');
+      card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('correct-answer','wrong-answer'));
+      if(!selected){
+        card.classList.add('incorrect');
+        card.querySelectorAll('.lq-option')[correctIdx].classList.add('correct-answer');
+        feedback.textContent = why;
+        return;
+      }
+      const selectedIdx = parseInt(selected.dataset.index, 10);
+      if(selectedIdx === correctIdx){
+        card.classList.add('correct');
+        selected.classList.add('correct-answer');
+        feedback.textContent = "✓ Correct! " + why;
+      } else {
+        card.classList.add('incorrect');
+        selected.classList.add('wrong-answer');
+        card.querySelectorAll('.lq-option')[correctIdx].classList.add('correct-answer');
+        feedback.textContent = "✗ Not quite. " + why;
+      }
+    });
+  });
+  document.getElementById('dailyStoryClearBtn').addEventListener('click', ()=>{
+    qBox.querySelectorAll('.listen-question').forEach(card=>{
+      card.classList.remove('correct','incorrect');
+      card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('selected','correct-answer','wrong-answer'));
+      card.querySelector('.lq-feedback').textContent = '';
+    });
+  });
+}
+
 function buildNumbersHTML(){
   let cols = '';
   for(let start = 1; start <= 91; start += 10){
@@ -2551,6 +2817,7 @@ function buildNumbersHTML(){
 function showRef(tab){
   if(tab === 'numbers'){ refContent.innerHTML = buildNumbersHTML(); }
   else if(tab === 'time'){ refContent.innerHTML = buildClockSVG() + refData.time; }
+  else if(tab === 'dailystory'){ refContent.innerHTML = buildDailyStoryHTML(); wireDailyStory(); }
   else { refContent.innerHTML = refData[tab]; }
   document.querySelectorAll('.ref-tab').forEach(t=> t.classList.toggle('active', t.dataset.ref === tab));
   if(tab === 'numbers'){
@@ -2586,6 +2853,293 @@ refModal.addEventListener('click', (e)=>{ if(e.target === refModal) refModal.cla
 document.querySelectorAll('.ref-tab').forEach(tab=>{
   tab.addEventListener('click', ()=> showRef(tab.dataset.ref));
 });
+// ---- reading practice ----
+const readingPassages = {
+  "Une journée au marché": {
+    text: "Samedi matin, Sophie va au marché avec sa mère. Il y a beaucoup de monde. Elles achètent des légumes frais : des tomates, des carottes et des pommes de terre. Sophie aime beaucoup les fraises, alors elles en achètent un kilo. Ensuite, elles s'arrêtent chez le boulanger pour acheter une baguette. Sur le chemin du retour, il commence à pleuvoir, donc elles rentrent vite à la maison. Sophie est fatiguée mais contente de sa matinée.",
+    questions: [
+      { prompt: "Quand Sophie va-t-elle au marché ?", options: ["Vendredi soir", "Samedi matin", "Dimanche après-midi", "Lundi matin"], correct: 1, why: "Le texte commence par « Samedi matin, Sophie va au marché »." },
+      { prompt: "Avec qui va-t-elle au marché ?", options: ["Son père", "Sa mère", "Sa sœur", "Son ami"], correct: 1, why: "« Sophie va au marché avec sa mère »." },
+      { prompt: "Qu'est-ce que Sophie aime beaucoup ?", options: ["Les tomates", "Les carottes", "Les fraises", "Les pommes de terre"], correct: 2, why: "« Sophie aime beaucoup les fraises »." },
+      { prompt: "Où s'arrêtent-elles ensuite ?", options: ["Chez le boucher", "Chez le boulanger", "Chez le fleuriste", "Chez le pharmacien"], correct: 1, why: "« Elles s'arrêtent chez le boulanger »." },
+      { prompt: "Pourquoi rentrent-elles vite à la maison ?", options: ["Il fait froid", "Il commence à pleuvoir", "Elles sont fatiguées", "Le marché ferme"], correct: 1, why: "« Il commence à pleuvoir, donc elles rentrent vite »." }
+    ]
+  },
+  "Le nouvel appartement de Julie": {
+    text: "Julie vient de déménager dans un nouvel appartement au centre-ville. Il y a deux chambres, une cuisine moderne et un petit balcon. Elle adore son balcon parce qu'elle peut voir toute la ville. Ses amis viennent l'aider à porter les cartons. Après le déménagement, ils commandent une pizza et mangent ensemble dans le salon, assis par terre parce qu'il n'y a pas encore de meubles. Julie est très heureuse de commencer cette nouvelle vie.",
+    questions: [
+      { prompt: "Où se trouve le nouvel appartement de Julie ?", options: ["À la campagne", "Au centre-ville", "Près de la plage", "À la montagne"], correct: 1, why: "« Un nouvel appartement au centre-ville »." },
+      { prompt: "Combien de chambres y a-t-il ?", options: ["Une", "Deux", "Trois", "Quatre"], correct: 1, why: "« Il y a deux chambres »." },
+      { prompt: "Qu'est-ce que Julie adore ?", options: ["La cuisine", "Le balcon", "Le salon", "La chambre"], correct: 1, why: "« Elle adore son balcon »." },
+      { prompt: "Qui vient aider Julie ?", options: ["Sa famille", "Ses amis", "Ses collègues", "Ses voisins"], correct: 1, why: "« Ses amis viennent l'aider »." },
+      { prompt: "Que mangent-ils après le déménagement ?", options: ["Une salade", "Une pizza", "Un gâteau", "Des pâtes"], correct: 1, why: "« Ils commandent une pizza »." }
+    ]
+  },
+  "Un week-end à la campagne": {
+    text: "Thomas et sa femme passent le week-end chez ses parents à la campagne. Le samedi, ils font une longue promenade dans la forêt avec le chien. Le soir, toute la famille dîne ensemble dans le jardin parce qu'il fait beau. Le dimanche matin, Thomas aide son père à réparer la clôture. Avant de repartir, sa mère leur donne des légumes de son jardin. Thomas rentre chez lui fatigué mais heureux d'avoir passé du temps en famille.",
+    questions: [
+      { prompt: "Chez qui Thomas passe-t-il le week-end ?", options: ["Chez ses amis", "Chez ses parents", "Chez sa sœur", "À l'hôtel"], correct: 1, why: "« Ils passent le week-end chez ses parents »." },
+      { prompt: "Que font-ils le samedi ?", options: ["Une promenade en forêt", "Du vélo", "De la pêche", "Du jardinage"], correct: 0, why: "« Une longue promenade dans la forêt »." },
+      { prompt: "Où dînent-ils le soir ?", options: ["Au restaurant", "Dans la cuisine", "Dans le jardin", "Chez des voisins"], correct: 2, why: "« Ils dînent ensemble dans le jardin »." },
+      { prompt: "Qu'est-ce que Thomas aide à faire le dimanche ?", options: ["Cuisiner", "Réparer la clôture", "Laver la voiture", "Peindre la maison"], correct: 1, why: "« Thomas aide son père à réparer la clôture »." },
+      { prompt: "Que donne la mère de Thomas avant qu'ils repartent ?", options: ["De l'argent", "Des légumes", "Des vêtements", "Des livres"], correct: 1, why: "« Sa mère leur donne des légumes de son jardin »." }
+    ]
+  },
+  "Le premier jour de Marc au travail": {
+    text: "Marc commence son nouveau travail dans une entreprise de marketing. Il est un peu nerveux le matin. Sa nouvelle collègue, Amélie, lui montre son bureau et lui présente l'équipe. À midi, ils déjeunent ensemble dans un petit restaurant près du bureau. L'après-midi, Marc participe à sa première réunion, mais il ne comprend pas tout. Le soir, il rentre chez lui fatigué mais content. Il pense que ses nouveaux collègues sont très sympathiques.",
+    questions: [
+      { prompt: "Dans quel type d'entreprise Marc travaille-t-il ?", options: ["Une banque", "Une entreprise de marketing", "Un hôpital", "Une école"], correct: 1, why: "« Une entreprise de marketing »." },
+      { prompt: "Comment se sent Marc le matin ?", options: ["Content", "Nerveux", "Fatigué", "En colère"], correct: 1, why: "« Il est un peu nerveux le matin »." },
+      { prompt: "Qui lui montre son bureau ?", options: ["Son patron", "Amélie", "Sa mère", "Un client"], correct: 1, why: "« Sa nouvelle collègue, Amélie, lui montre son bureau »." },
+      { prompt: "Où déjeunent-ils à midi ?", options: ["Au bureau", "Chez Marc", "Dans un petit restaurant", "Dans un parc"], correct: 2, why: "« Ils déjeunent ensemble dans un petit restaurant »." },
+      { prompt: "Que pense Marc de ses collègues ?", options: ["Ils sont sympathiques", "Ils sont trop sérieux", "Ils sont impolis", "Il ne les aime pas"], correct: 0, why: "« Ses nouveaux collègues sont très sympathiques »." }
+    ]
+  },
+  "La recette de la tarte aux pommes": {
+    text: "Pour faire une tarte aux pommes, il faut d'abord préparer la pâte avec de la farine, du beurre et un peu d'eau. Ensuite, on épluche les pommes et on les coupe en petits morceaux. On met la pâte dans un moule, puis on ajoute les pommes avec un peu de sucre et de cannelle. On fait cuire la tarte au four pendant quarante minutes. Quand elle est dorée, on la sort du four et on la laisse refroidir avant de la manger. C'est un dessert simple et délicieux.",
+    questions: [
+      { prompt: "Avec quoi prépare-t-on la pâte ?", options: ["Farine, beurre et eau", "Farine, sucre et lait", "Beurre et sel", "Œufs et farine"], correct: 0, why: "« Préparer la pâte avec de la farine, du beurre et un peu d'eau »." },
+      { prompt: "Que fait-on avec les pommes ?", options: ["On les fait bouillir", "On les épluche et coupe", "On les congèle", "On les mixe"], correct: 1, why: "« On épluche les pommes et on les coupe en petits morceaux »." },
+      { prompt: "Qu'ajoute-t-on avec les pommes ?", options: ["Du chocolat", "Du sucre et de la cannelle", "Du sel", "De la crème"], correct: 1, why: "« On ajoute les pommes avec un peu de sucre et de cannelle »." },
+      { prompt: "Combien de temps cuit la tarte ?", options: ["Vingt minutes", "Trente minutes", "Quarante minutes", "Une heure"], correct: 2, why: "« On fait cuire la tarte au four pendant quarante minutes »." },
+      { prompt: "Que fait-on avant de manger la tarte ?", options: ["On la sert chaude", "On la laisse refroidir", "On ajoute de la glace", "On la coupe en deux"], correct: 1, why: "« On la laisse refroidir avant de la manger »." }
+    ]
+  },
+  "Un voyage en train": {
+    text: "Léa prend le train pour rendre visite à sa grand-mère à Lyon. Le voyage dure environ deux heures. Dans le train, elle lit un livre et regarde le paysage par la fenêtre. À la gare, sa grand-mère l'attend avec un grand sourire. Elles rentrent ensemble à pied parce que la maison n'est pas loin. Le soir, sa grand-mère prépare son plat préféré : du poulet rôti avec des pommes de terre. Léa passe un très bon week-end.",
+    questions: [
+      { prompt: "Où va Léa en train ?", options: ["À Paris", "À Lyon", "À Marseille", "À Nice"], correct: 1, why: "« Rendre visite à sa grand-mère à Lyon »." },
+      { prompt: "Combien de temps dure le voyage ?", options: ["Une heure", "Deux heures", "Trois heures", "Quatre heures"], correct: 1, why: "« Le voyage dure environ deux heures »." },
+      { prompt: "Que fait Léa pendant le voyage ?", options: ["Elle dort", "Elle lit un livre", "Elle travaille", "Elle téléphone"], correct: 1, why: "« Elle lit un livre et regarde le paysage »." },
+      { prompt: "Comment rentrent-elles de la gare ?", options: ["En bus", "En voiture", "À pied", "En taxi"], correct: 2, why: "« Elles rentrent ensemble à pied »." },
+      { prompt: "Que prépare la grand-mère le soir ?", options: ["Une pizza", "Du poulet rôti", "Une soupe", "Des pâtes"], correct: 1, why: "« Du poulet rôti avec des pommes de terre »." }
+    ]
+  },
+  "La visite chez le vétérinaire": {
+    text: "Le chat de Paul, Minou, ne mange plus depuis deux jours. Paul décide de l'emmener chez le vétérinaire. Dans la salle d'attente, il y a aussi un chien et un lapin. Le vétérinaire examine Minou attentivement et dit qu'il a juste un petit problème d'estomac. Il donne des médicaments à Paul et explique comment les utiliser. Après quelques jours, Minou va beaucoup mieux et recommence à manger normalement. Paul est très soulagé.",
+    questions: [
+      { prompt: "Depuis quand Minou ne mange plus ?", options: ["Un jour", "Deux jours", "Une semaine", "Un mois"], correct: 1, why: "« Ne mange plus depuis deux jours »." },
+      { prompt: "Quels autres animaux sont dans la salle d'attente ?", options: ["Un chat et un oiseau", "Un chien et un lapin", "Deux chats", "Un serpent"], correct: 1, why: "« Il y a aussi un chien et un lapin »." },
+      { prompt: "Quel est le problème de Minou ?", options: ["Un problème de dents", "Un problème d'estomac", "Une blessure", "Rien de grave"], correct: 1, why: "« Un petit problème d'estomac »." },
+      { prompt: "Que donne le vétérinaire à Paul ?", options: ["Des conseils seulement", "Des médicaments", "De la nourriture spéciale", "Rien"], correct: 1, why: "« Il donne des médicaments à Paul »." },
+      { prompt: "Comment se sent Paul à la fin ?", options: ["Inquiet", "Soulagé", "Triste", "En colère"], correct: 1, why: "« Paul est très soulagé »." }
+    ]
+  },
+  "Le club de lecture": {
+    text: "Chaque mois, Camille participe à un club de lecture avec cinq autres personnes. Ils se retrouvent chez l'une des membres et discutent du livre qu'ils ont lu. Ce mois-ci, ils ont lu un roman policier. Certains ont adoré l'histoire, mais d'autres ont trouvé la fin décevante. Après la discussion, ils boivent du thé et mangent des biscuits ensemble. Camille aime beaucoup ces rencontres parce qu'elle peut partager sa passion pour les livres avec d'autres personnes.",
+    questions: [
+      { prompt: "Combien de personnes sont dans le club de lecture ?", options: ["Quatre", "Cinq", "Six", "Sept"], correct: 2, why: "Camille + cinq autres personnes = six au total." },
+      { prompt: "Quel type de livre ont-ils lu ce mois-ci ?", options: ["Un roman d'amour", "Un roman policier", "Une biographie", "Un livre d'histoire"], correct: 1, why: "« Ils ont lu un roman policier »." },
+      { prompt: "Qu'ont pensé certains membres de la fin ?", options: ["Elle était géniale", "Elle était décevante", "Elle était drôle", "Ils n'ont pas fini"], correct: 1, why: "« D'autres ont trouvé la fin décevante »." },
+      { prompt: "Que boivent-ils après la discussion ?", options: ["Du café", "Du thé", "Du jus", "De l'eau"], correct: 1, why: "« Ils boivent du thé et mangent des biscuits »." },
+      { prompt: "Pourquoi Camille aime-t-elle ces rencontres ?", options: ["Pour voir ses amis", "Pour partager sa passion des livres", "Pour manger des biscuits", "Pour sortir de chez elle"], correct: 1, why: "« Elle peut partager sa passion pour les livres »." }
+    ]
+  },
+  "Les vacances de Noël en famille": {
+    text: "Pendant les vacances de Noël, toute la famille de Nadia se réunit chez ses grands-parents. Ils sont quinze personnes autour de la table le soir du réveillon. Il y a beaucoup de plats délicieux : de la dinde, des légumes et une bûche au chocolat pour le dessert. Après le repas, les enfants ouvrent leurs cadeaux avec joie. Le lendemain, ils font une longue promenade dans la neige. Nadia adore ces moments passés avec sa famille.",
+    questions: [
+      { prompt: "Chez qui se réunit la famille pour Noël ?", options: ["Chez Nadia", "Chez ses grands-parents", "Chez son oncle", "Au restaurant"], correct: 1, why: "« Toute la famille se réunit chez ses grands-parents »." },
+      { prompt: "Combien de personnes sont autour de la table ?", options: ["Dix", "Douze", "Quinze", "Vingt"], correct: 2, why: "« Ils sont quinze personnes autour de la table »." },
+      { prompt: "Quel est le dessert du réveillon ?", options: ["Une tarte", "Une bûche au chocolat", "Une glace", "Un gâteau au fromage"], correct: 1, why: "« Une bûche au chocolat pour le dessert »." },
+      { prompt: "Quand les enfants ouvrent-ils leurs cadeaux ?", options: ["Avant le repas", "Après le repas", "Le matin", "Ils n'ont pas de cadeaux"], correct: 1, why: "« Après le repas, les enfants ouvrent leurs cadeaux »." },
+      { prompt: "Que font-ils le lendemain ?", options: ["Ils regardent un film", "Ils font une promenade dans la neige", "Ils font du ski", "Ils restent à la maison"], correct: 1, why: "« Ils font une longue promenade dans la neige »." }
+    ]
+  },
+  "Une matinée sportive": {
+    text: "Chaque dimanche matin, Antoine se réveille tôt pour faire du sport. D'abord, il court pendant trente minutes dans le parc près de chez lui. Ensuite, il rentre à la maison et fait quelques exercices de musculation. Après sa douche, il prépare un petit-déjeuner équilibré avec des fruits et des céréales. Antoine dit que le sport le matin lui donne de l'énergie pour toute la journée. Ses amis pensent qu'il est très discipliné.",
+    questions: [
+      { prompt: "Quand Antoine fait-il du sport ?", options: ["Le samedi soir", "Le dimanche matin", "Tous les jours", "Le vendredi"], correct: 1, why: "« Chaque dimanche matin, Antoine se réveille tôt »." },
+      { prompt: "Combien de temps court-il ?", options: ["Vingt minutes", "Trente minutes", "Une heure", "Quinze minutes"], correct: 1, why: "« Il court pendant trente minutes »." },
+      { prompt: "Où court-il ?", options: ["Sur un tapis de course", "Dans le parc", "À la salle de sport", "Sur la plage"], correct: 1, why: "« Dans le parc près de chez lui »." },
+      { prompt: "Que fait-il après sa douche ?", options: ["Il dort", "Il prépare le petit-déjeuner", "Il regarde la télé", "Il travaille"], correct: 1, why: "« Il prépare un petit-déjeuner équilibré »." },
+      { prompt: "Que pensent ses amis d'Antoine ?", options: ["Qu'il est paresseux", "Qu'il est discipliné", "Qu'il est fatigué", "Qu'il est stressé"], correct: 1, why: "« Ses amis pensent qu'il est très discipliné »." }
+    ]
+  },
+  "Une soirée au cinéma": {
+    text: "Marie et son mari décident de sortir au cinéma vendredi soir. Ils choisissent un film d'aventure très populaire en ce moment. Avant le film, ils achètent du popcorn et des boissons au comptoir. La salle est presque pleine, alors ils s'assoient au troisième rang. Le film dure environ deux heures et l'histoire est passionnante. Après la séance, ils discutent du film dans un café juste à côté du cinéma. Marie a adoré la fin, mais son mari trouve qu'elle était un peu prévisible. Ils rentrent chez eux vers minuit, fatigués mais contents de leur soirée.",
+    questions: [
+      { prompt: "Quand Marie et son mari vont-ils au cinéma ?", options: ["Jeudi soir", "Vendredi soir", "Samedi après-midi", "Dimanche matin"], correct: 1, why: "« Marie et son mari décident de sortir au cinéma vendredi soir »." },
+      { prompt: "Quel genre de film choisissent-ils ?", options: ["Une comédie", "Un film d'aventure", "Un film d'horreur", "Un documentaire"], correct: 1, why: "« Un film d'aventure très populaire »." },
+      { prompt: "Qu'achètent-ils avant le film ?", options: ["Des bonbons", "Du popcorn et des boissons", "Des sandwichs", "Rien"], correct: 1, why: "« Ils achètent du popcorn et des boissons »." },
+      { prompt: "Où vont-ils après le film ?", options: ["Directement à la maison", "Dans un café à côté", "Au restaurant", "Chez des amis"], correct: 1, why: "« Ils discutent du film dans un café juste à côté »." },
+      { prompt: "Que pense le mari de la fin du film ?", options: ["Il l'adore", "Il la trouve un peu prévisible", "Il ne comprend pas", "Il s'endort"], correct: 1, why: "« Son mari trouve qu'elle était un peu prévisible »." }
+    ]
+  },
+  "Le déjeuner d'affaires": {
+    text: "Monsieur Blanc a un déjeuner d'affaires important avec un nouveau client aujourd'hui. Il réserve une table dans un restaurant élégant du centre-ville. Il arrive quinze minutes en avance pour être sûr de ne pas être en retard. Le client arrive à l'heure et ils commencent par discuter de choses générales avant de parler business. Pendant le repas, ils mangent du poisson et boivent de l'eau, car monsieur Blanc évite l'alcool pendant le travail. À la fin du déjeuner, ils tombent d'accord sur les termes d'un nouveau contrat. Monsieur Blanc est très satisfait de cette rencontre productive.",
+    questions: [
+      { prompt: "Avec qui monsieur Blanc déjeune-t-il ?", options: ["Un collègue", "Un nouveau client", "Son patron", "Sa famille"], correct: 1, why: "« Un déjeuner d'affaires important avec un nouveau client »." },
+      { prompt: "Où réserve-t-il une table ?", options: ["Dans un fast-food", "Dans un restaurant élégant", "Chez lui", "Dans un café"], correct: 1, why: "« Une table dans un restaurant élégant »." },
+      { prompt: "À quelle heure arrive-t-il ?", options: ["En retard", "À l'heure exacte", "Quinze minutes en avance", "Une heure en avance"], correct: 2, why: "« Il arrive quinze minutes en avance »." },
+      { prompt: "Que boivent-ils pendant le repas ?", options: ["Du vin", "De l'eau", "De la bière", "Du café"], correct: 1, why: "« Ils boivent de l'eau »." },
+      { prompt: "Comment se termine le déjeuner ?", options: ["Sans accord", "Ils tombent d'accord sur un contrat", "Le client part fâché", "Ils reportent la décision"], correct: 1, why: "« Ils tombent d'accord sur les termes d'un nouveau contrat »." }
+    ]
+  },
+  "La bibliothèque du quartier": {
+    text: "Chaque mercredi après-midi, Clara va à la bibliothèque de son quartier pour emprunter des livres. Elle aime particulièrement la section des romans policiers. Aujourd'hui, elle a du mal à choisir parmi tant de livres intéressants. Une bibliothécaire gentille lui recommande un nouveau roman qui vient d'arriver. Clara décide de l'emprunter avec deux autres livres. Avant de partir, elle s'installe pour lire quelques pages dans un coin tranquille près de la fenêtre. Elle trouve la bibliothèque très calme et agréable pour lire. Elle prévoit de rapporter les livres dans trois semaines, comme le règlement le demande.",
+    questions: [
+      { prompt: "Quand Clara va-t-elle à la bibliothèque ?", options: ["Le lundi matin", "Le mercredi après-midi", "Le week-end", "Tous les jours"], correct: 1, why: "« Chaque mercredi après-midi »." },
+      { prompt: "Quelle section aime-t-elle particulièrement ?", options: ["Les romans d'amour", "Les romans policiers", "La science-fiction", "L'histoire"], correct: 1, why: "« Elle aime particulièrement la section des romans policiers »." },
+      { prompt: "Qui lui recommande un livre ?", options: ["Son amie", "Une bibliothécaire", "Sa mère", "Un autre client"], correct: 1, why: "« Une bibliothécaire gentille lui recommande un nouveau roman »." },
+      { prompt: "Combien de livres emprunte-t-elle en tout ?", options: ["Un", "Deux", "Trois", "Quatre"], correct: 2, why: "Elle emprunte le nouveau roman avec deux autres livres, donc trois au total." },
+      { prompt: "Dans combien de temps doit-elle rapporter les livres ?", options: ["Une semaine", "Deux semaines", "Trois semaines", "Un mois"], correct: 2, why: "« Elle prévoit de rapporter les livres dans trois semaines »." }
+    ]
+  },
+  "Un accident de vélo": {
+    text: "Hier après-midi, Simon roulait à vélo dans le parc quand il est tombé sur une pierre cachée par des feuilles. Il s'est fait mal au genou et à la main. Une passante a immédiatement couru l'aider et a appelé une ambulance par précaution. Aux urgences, le médecin examine son genou et rassure Simon : ce n'est qu'une petite blessure sans gravité. On lui met un bandage et on lui conseille de se reposer pendant quelques jours. Simon rentre chez lui en boitant légèrement, mais il est surtout reconnaissant envers la passante qui l'a aidé si rapidement. Il promet d'être plus prudent la prochaine fois.",
+    questions: [
+      { prompt: "Où Simon fait-il du vélo ?", options: ["Dans la rue", "Dans le parc", "À la campagne", "Sur une piste cyclable"], correct: 1, why: "« Simon roulait à vélo dans le parc »." },
+      { prompt: "Pourquoi tombe-t-il ?", options: ["Il roulait trop vite", "Une pierre cachée par des feuilles", "Un autre vélo", "Il pleuvait"], correct: 1, why: "« Il est tombé sur une pierre cachée par des feuilles »." },
+      { prompt: "Qui l'aide immédiatement ?", options: ["Un policier", "Une passante", "Son ami", "Personne"], correct: 1, why: "« Une passante a immédiatement couru l'aider »." },
+      { prompt: "Que dit le médecin ?", options: ["C'est très grave", "Ce n'est qu'une petite blessure", "Il faut opérer", "Rien de particulier"], correct: 1, why: "« Ce n'est qu'une petite blessure sans gravité »." },
+      { prompt: "Comment Simon se sent-il envers la passante ?", options: ["Indifférent", "Reconnaissant", "Fâché", "Gêné"], correct: 1, why: "« Il est surtout reconnaissant envers la passante »." }
+    ]
+  },
+  "La fête d'anniversaire de Paul": {
+    text: "Paul fête ses trente ans ce week-end et organise une grande fête chez lui. Il invite tous ses amis et sa famille, environ trente personnes au total. Sa femme prépare la décoration avec des ballons et des guirlandes colorées. Les invités apportent chacun un plat, alors la table est remplie de spécialités différentes. Au milieu de la soirée, tout le monde chante joyeux anniversaire pendant que Paul souffle ses bougies. Plus tard, ils dansent tous ensemble dans le salon jusqu'à minuit passé. Paul dit que c'est la meilleure fête d'anniversaire qu'il ait jamais eue, grâce à toutes les personnes qu'il aime autour de lui.",
+    questions: [
+      { prompt: "Quel âge Paul fête-t-il ?", options: ["Vingt-cinq ans", "Trente ans", "Quarante ans", "Trente-cinq ans"], correct: 1, why: "« Paul fête ses trente ans »." },
+      { prompt: "Combien d'invités y a-t-il environ ?", options: ["Dix", "Vingt", "Trente", "Cinquante"], correct: 2, why: "« Environ trente personnes au total »." },
+      { prompt: "Qui prépare la décoration ?", options: ["Paul", "Sa femme", "Un traiteur", "Ses amis"], correct: 1, why: "« Sa femme prépare la décoration »." },
+      { prompt: "Que font les invités pour le repas ?", options: ["Ils commandent une pizza", "Chacun apporte un plat", "Paul cuisine tout", "Ils vont au restaurant"], correct: 1, why: "« Les invités apportent chacun un plat »." },
+      { prompt: "Jusqu'à quelle heure dansent-ils ?", options: ["Vingt-deux heures", "Minuit passé", "Deux heures du matin", "Ils ne dansent pas"], correct: 1, why: "« Ils dansent jusqu'à minuit passé »." }
+    ]
+  },
+  "Le premier appartement de Louis": {
+    text: "Louis vient de signer le contrat pour son tout premier appartement, loin de chez ses parents. Il est excité mais aussi un peu nerveux à l'idée de vivre seul. L'appartement est petit, avec une seule pièce et une petite cuisine, mais c'est parfait pour commencer. Ses parents l'aident à transporter ses affaires et à installer les meubles le week-end du déménagement. Le premier soir seul, Louis se sent un peu étrange dans le silence, habitué au bruit de sa famille. Cependant, après quelques jours, il apprécie de plus en plus sa liberté et son nouvel espace. Il apprend rapidement à cuisiner et à gérer son budget tout seul.",
+    questions: [
+      { prompt: "Qu'est-ce que Louis vient de signer ?", options: ["Un contrat de travail", "Un contrat d'appartement", "Un contrat de mariage", "Rien"], correct: 1, why: "« Le contrat pour son tout premier appartement »." },
+      { prompt: "Comment se sent-il à l'idée de vivre seul ?", options: ["Complètement calme", "Excité et un peu nerveux", "Triste", "En colère"], correct: 1, why: "« Il est excité mais aussi un peu nerveux »." },
+      { prompt: "Comment est l'appartement ?", options: ["Très grand", "Petit, une pièce et une cuisine", "Avec trois chambres", "Sans cuisine"], correct: 1, why: "« Une seule pièce et une petite cuisine »." },
+      { prompt: "Qui l'aide à déménager ?", options: ["Des amis", "Ses parents", "Un déménageur professionnel", "Personne"], correct: 1, why: "« Ses parents l'aident à transporter ses affaires »." },
+      { prompt: "Que se passe-t-il après quelques jours ?", options: ["Il veut retourner chez ses parents", "Il apprécie de plus en plus sa liberté", "Il déteste vivre seul", "Rien ne change"], correct: 1, why: "« Il apprécie de plus en plus sa liberté »." }
+    ]
+  },
+  "Une visite au zoo": {
+    text: "Pour les vacances scolaires, la maîtresse de Léo organise une sortie au zoo avec toute la classe. Les enfants sont très excités dans le bus. Au zoo, ils voient d'abord les lions, qui dorment tranquillement au soleil. Ensuite, ils visitent la section des singes, qui font beaucoup de bruit et amusent tout le monde. Léo préfère les girafes, car il trouve leur long cou fascinant. À midi, toute la classe pique-nique près d'un grand lac dans le zoo. L'après-midi, ils regardent un spectacle avec des otaries très intelligentes. Léo rentre chez lui fatigué mais avec plein de belles histoires à raconter à ses parents.",
+    questions: [
+      { prompt: "Qui organise la sortie au zoo ?", options: ["Les parents", "La maîtresse", "Le directeur de l'école", "Personne"], correct: 1, why: "« La maîtresse de Léo organise une sortie au zoo »." },
+      { prompt: "Quels animaux voient-ils en premier ?", options: ["Les singes", "Les lions", "Les girafes", "Les otaries"], correct: 1, why: "« Ils voient d'abord les lions »." },
+      { prompt: "Quel animal Léo préfère-t-il ?", options: ["Les lions", "Les singes", "Les girafes", "Les otaries"], correct: 2, why: "« Léo préfère les girafes »." },
+      { prompt: "Où pique-niquent-ils ?", options: ["Près d'un lac", "Dans le bus", "Devant les lions", "Ils ne pique-niquent pas"], correct: 0, why: "« Toute la classe pique-nique près d'un grand lac »." },
+      { prompt: "Que regardent-ils l'après-midi ?", options: ["Un film", "Un spectacle d'otaries", "Un spectacle de lions", "Rien de spécial"], correct: 1, why: "« Ils regardent un spectacle avec des otaries »." }
+    ]
+  },
+  "Le cours de peinture": {
+    text: "Isabelle s'inscrit à un cours de peinture pour débutants dans un atelier près de chez elle. Elle n'a jamais peint auparavant, mais elle veut essayer quelque chose de nouveau. Le professeur, un artiste passionné, explique d'abord les bases : comment mélanger les couleurs et tenir le pinceau correctement. Pendant les deux premières heures, les élèves peignent un simple bol de fruits. Isabelle trouve cela plus difficile qu'elle ne le pensait, mais elle s'amuse beaucoup. À la fin du cours, le professeur commente gentiment chaque tableau et donne des conseils pour s'améliorer. Isabelle décide de continuer ce cours chaque semaine, car elle a découvert une nouvelle passion.",
+    questions: [
+      { prompt: "À quel type de cours Isabelle s'inscrit-elle ?", options: ["Cours de danse", "Cours de peinture", "Cours de musique", "Cours de cuisine"], correct: 1, why: "« Isabelle s'inscrit à un cours de peinture »." },
+      { prompt: "A-t-elle déjà peint avant ?", options: ["Oui, souvent", "Non, jamais", "Un peu à l'école", "Elle ne le dit pas"], correct: 1, why: "« Elle n'a jamais peint auparavant »." },
+      { prompt: "Que leur explique le professeur d'abord ?", options: ["L'histoire de l'art", "Comment mélanger les couleurs et tenir le pinceau", "Comment vendre des tableaux", "Rien"], correct: 1, why: "« Comment mélanger les couleurs et tenir le pinceau correctement »." },
+      { prompt: "Que peignent les élèves pendant le cours ?", options: ["Un paysage", "Un bol de fruits", "Un portrait", "Une maison"], correct: 1, why: "« Les élèves peignent un simple bol de fruits »." },
+      { prompt: "Que décide Isabelle à la fin ?", options: ["D'arrêter la peinture", "De continuer le cours chaque semaine", "De devenir professionnelle", "Elle ne sait pas"], correct: 1, why: "« Elle décide de continuer ce cours chaque semaine »." }
+    ]
+  },
+  "La panne d'électricité": {
+    text: "Un soir d'hiver, toute l'électricité s'éteint soudainement dans le quartier de Nathalie. Elle cherche des bougies dans un tiroir de la cuisine avec son téléphone comme seule lumière. Ses enfants trouvent la situation amusante et pensent que c'est une aventure. Ensemble, ils jouent à des jeux de société à la lumière des bougies. Nathalie prépare un dîner simple avec ce qu'elle trouve dans le réfrigérateur, sans utiliser le four électrique. Après environ deux heures, l'électricité revient enfin, et toute la maison s'illumine à nouveau. Malgré l'inconvénient, Nathalie garde un bon souvenir de cette soirée inhabituelle passée en famille.",
+    questions: [
+      { prompt: "Quand l'électricité s'éteint-elle ?", options: ["Un matin d'été", "Un soir d'hiver", "Un après-midi", "La nuit"], correct: 1, why: "« Un soir d'hiver, toute l'électricité s'éteint »." },
+      { prompt: "Que cherche Nathalie dans la cuisine ?", options: ["De la nourriture", "Des bougies", "Son téléphone", "Une lampe de poche"], correct: 1, why: "« Elle cherche des bougies dans un tiroir »." },
+      { prompt: "Comment les enfants trouvent-ils la situation ?", options: ["Effrayante", "Amusante", "Ennuyeuse", "Ils ne remarquent rien"], correct: 1, why: "« Ses enfants trouvent la situation amusante »." },
+      { prompt: "Que font-ils à la lumière des bougies ?", options: ["Ils dorment", "Ils jouent à des jeux de société", "Ils regardent la télé", "Ils sortent"], correct: 1, why: "« Ils jouent à des jeux de société »." },
+      { prompt: "Combien de temps dure la panne ?", options: ["Une heure", "Deux heures", "Toute la nuit", "Elle ne dit pas"], correct: 1, why: "« Après environ deux heures, l'électricité revient »." }
+    ]
+  },
+  "Les soldes d'hiver": {
+    text: "C'est le premier jour des soldes d'hiver, et Camille décide d'aller faire du shopping en centre-ville. Elle cherche surtout un nouveau manteau chaud pour l'hiver. Dans le premier magasin, il y a énormément de monde, alors elle doit attendre longtemps pour essayer des vêtements. Finalement, elle trouve un joli manteau gris à moitié prix. Dans un autre magasin, elle achète aussi des bottes confortables pour la neige. Après quatre heures de shopping, elle est épuisée mais très contente de ses achats. Elle a économisé beaucoup d'argent grâce aux soldes. Camille rentre chez elle avec plusieurs sacs et un grand sourire de satisfaction.",
+    questions: [
+      { prompt: "Que cherche Camille pendant les soldes ?", options: ["Des chaussures", "Un manteau chaud", "Une robe", "Un sac"], correct: 1, why: "« Elle cherche surtout un nouveau manteau chaud »." },
+      { prompt: "Comment est le premier magasin ?", options: ["Vide", "Plein de monde", "Fermé", "Calme"], correct: 1, why: "« Il y a énormément de monde »." },
+      { prompt: "De quelle couleur est le manteau qu'elle trouve ?", options: ["Noir", "Gris", "Bleu", "Rouge"], correct: 1, why: "« Un joli manteau gris à moitié prix »." },
+      { prompt: "Qu'achète-t-elle aussi dans un autre magasin ?", options: ["Un chapeau", "Des bottes", "Des gants", "Une écharpe"], correct: 1, why: "« Elle achète aussi des bottes confortables »." },
+      { prompt: "Comment se sent Camille après quatre heures de shopping ?", options: ["Fâchée", "Épuisée mais contente", "Déçue", "Indifférente"], correct: 1, why: "« Elle est épuisée mais très contente de ses achats »." }
+    ]
+  }
+};
+
+const readPicker = document.getElementById('readPicker');
+Object.keys(readingPassages).forEach(t=>{
+  const opt = document.createElement('option'); opt.value = t; opt.textContent = t;
+  readPicker.appendChild(opt);
+});
+
+const readTextBox = document.getElementById('readTextBox');
+const readQuestionsBox = document.getElementById('readQuestions');
+
+function renderReading(){
+  const passage = readingPassages[readPicker.value];
+  readTextBox.textContent = passage.text;
+  readQuestionsBox.innerHTML = '';
+  passage.questions.forEach((q, qi)=>{
+    const card = document.createElement('div');
+    card.className = 'listen-question';
+    card.dataset.correct = q.correct;
+    card.dataset.why = q.why;
+    const optionsHtml = q.options.map((opt, oi)=>
+      `<button type="button" class="lq-option" data-index="${oi}">${opt}</button>`
+    ).join('');
+    card.innerHTML = `
+      <div class="lq-prompt">${qi+1}. ${q.prompt}</div>
+      <div class="lq-options">${optionsHtml}</div>
+      <div class="lq-feedback"></div>
+    `;
+    readQuestionsBox.appendChild(card);
+  });
+  readQuestionsBox.querySelectorAll('.lq-option').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const card = btn.closest('.listen-question');
+      card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+  });
+}
+readPicker.addEventListener('change', renderReading);
+
+document.getElementById('readToggleBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('readToggleBtn');
+  const hidden = readQuestionsBox.style.display === 'none';
+  readQuestionsBox.style.display = hidden ? 'block' : 'none';
+  btn.textContent = hidden ? 'hide questions' : 'show questions';
+});
+
+document.getElementById('readCheckBtn').addEventListener('click', ()=>{
+  readQuestionsBox.querySelectorAll('.listen-question').forEach(card=>{
+    const correctIdx = parseInt(card.dataset.correct, 10);
+    const why = card.dataset.why;
+    const selected = card.querySelector('.lq-option.selected');
+    const feedback = card.querySelector('.lq-feedback');
+    card.classList.remove('correct','incorrect');
+    card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('correct-answer','wrong-answer'));
+    if(!selected){
+      card.classList.add('incorrect');
+      card.querySelectorAll('.lq-option')[correctIdx].classList.add('correct-answer');
+      feedback.textContent = why;
+      return;
+    }
+    const selectedIdx = parseInt(selected.dataset.index, 10);
+    if(selectedIdx === correctIdx){
+      card.classList.add('correct');
+      selected.classList.add('correct-answer');
+      feedback.textContent = "✓ Correct! " + why;
+    } else {
+      card.classList.add('incorrect');
+      selected.classList.add('wrong-answer');
+      card.querySelectorAll('.lq-option')[correctIdx].classList.add('correct-answer');
+      feedback.textContent = "✗ Not quite. " + why;
+    }
+  });
+});
+
+document.getElementById('readClearBtn').addEventListener('click', ()=>{
+  readQuestionsBox.querySelectorAll('.listen-question').forEach(card=>{
+    card.classList.remove('correct','incorrect');
+    card.querySelectorAll('.lq-option').forEach(b=> b.classList.remove('selected','correct-answer','wrong-answer'));
+    card.querySelector('.lq-feedback').textContent = '';
+  });
+});
+
+try{ renderReading(); }catch(e){ console.error('Reading practice init error:', e); }
+
 // ---- speaking practice ----
 const speakQuestions = {
   "à la maison": [
