@@ -844,15 +844,17 @@
     <hr class="divider">
 
     <h1 style="color:var(--marker-purple);">Part 4 — Speaking Practice</h1>
-    <p class="subtitle">practice speaking like a real oral exam — pick a mode below</p>
+    <p class="subtitle">practice speaking like a real oral exam — pick a section below</p>
 
     <div class="row">
-      <button class="action btn-check" id="modeABtn">examiner asks you</button>
-      <button class="action btn-erase" id="modeBBtn">you ask the examiner</button>
+      <button class="action btn-check" id="modeABtn">Section 1 — about yourself</button>
+      <button class="action btn-erase" id="modeBBtn">Section 2 — ask the examiner</button>
+      <button class="action btn-erase" id="modeCBtn">Section 3 — convince the examiner</button>
     </div>
 
     <!-- MODE A: examiner asks you -->
     <div id="speakModeA" style="display:none;">
+      <p class="subtitle">the examiner asks about you, or pick a topic for extra practice</p>
       <div class="row">
         <select id="speakTopicPicker"></select>
         <button class="action btn-check" id="startModeABtn">start (10 questions)</button>
@@ -872,6 +874,7 @@
 
     <!-- MODE B: you ask the examiner -->
     <div id="speakModeB" style="display:none;">
+      <p class="subtitle">pick a scenario — you ask the questions, the examiner responds in character</p>
       <div class="row">
         <select id="speakScenarioPicker"></select>
         <button class="action btn-check" id="startModeBBtn">start conversation</button>
@@ -885,6 +888,25 @@
       </div>
       <div class="row">
         <button class="action btn-erase" id="endModeBBtn" style="display:none;">end &amp; get results</button>
+      </div>
+    </div>
+
+    <!-- MODE C: convince the examiner -->
+    <div id="speakModeC" style="display:none;">
+      <p class="subtitle">pick a topic and try to convince the examiner of your position — they'll push back</p>
+      <div class="row">
+        <select id="speakConvincePicker"></select>
+        <button class="action btn-check" id="startModeCBtn">start</button>
+      </div>
+      <div id="speakConvinceIntro" class="subtitle"></div>
+      <div id="speakTranscriptC" class="chat-log"></div>
+      <div id="speakInputRowC" class="row" style="display:none;">
+        <button class="action btn-check" id="micBtnC">🎤 speak</button>
+        <input type="text" id="speakTextC" class="chat-input" placeholder="…or type your argument">
+        <button class="action btn-check" id="submitAnswerC">send</button>
+      </div>
+      <div class="row">
+        <button class="action btn-erase" id="endModeCBtn" style="display:none;">end &amp; get results</button>
       </div>
     </div>
 
@@ -1276,133 +1298,193 @@ const vocab = {
     ["l'addition","the bill"], ["commander","to order"], ["une réclamation","a complaint"],
     ["le pourboire","the tip"], ["un plat","a dish"], ["la carte","the menu"],
     ["une portion","a portion"], ["remplacer un plat","to swap a dish"],
-    ["une entrée","a starter"], ["le service","the service"], ["à emporter","to take away"], ["une note salée","a hefty bill"]
+    ["une entrée","a starter"], ["le service","the service"], ["à emporter","to take away"], ["une note salée","a hefty bill"],
+    ["un serveur","a waiter"], ["une réservation","a reservation"], ["le chef","the chef"], ["épicé","spicy"],
+    ["le menu du jour","today's set menu"], ["à point","medium (cooked)"], ["sans gluten","gluten-free"], ["la cuisson","the cooking/doneness"]
   ],
   "santé": [
     ["la douleur","pain"], ["un rhume","a cold"], ["se sentir","to feel"],
     ["guérir","to heal"], ["un conseil","a piece of advice"], ["éviter","to avoid"],
     ["soigner","to treat"], ["la fièvre","fever"],
-    ["une ordonnance","a prescription"], ["un cachet","a pill"], ["se reposer","to rest"], ["tomber malade","to fall ill"]
+    ["une ordonnance","a prescription"], ["un cachet","a pill"], ["se reposer","to rest"], ["tomber malade","to fall ill"],
+    ["la toux","a cough"], ["vacciner","to vaccinate"], ["l'infirmière","the nurse"], ["la pharmacie","the pharmacy"],
+    ["la tension artérielle","blood pressure"], ["se blesser","to injure oneself"], ["la cicatrice","the scar"], ["une allergie","an allergy"]
   ],
   "médias": [
     ["une chaîne","a channel"], ["les informations","the news"], ["un reportage","a report"],
     ["s'informer","to keep informed"], ["la presse","the press"], ["un titre","a headline"],
     ["diffuser","to broadcast"], ["un abonnement","a subscription"],
-    ["un journaliste","a journalist"], ["une émission","a program/show"], ["la rubrique","the section/column"], ["un scandale","a scandal"]
+    ["un journaliste","a journalist"], ["une émission","a program/show"], ["la rubrique","the section/column"], ["un scandale","a scandal"],
+    ["un article","an article"], ["la publicité","advertising"], ["un influenceur","an influencer"], ["les réseaux sociaux","social media"],
+    ["un podcast","a podcast"], ["la censure","censorship"], ["un éditorial","an editorial"], ["la une","the front page"]
   ],
   "environnement": [
     ["le réchauffement","warming"], ["recycler","to recycle"], ["une ressource","a resource"],
     ["polluer","to pollute"], ["l'énergie","energy"], ["protéger","to protect"],
     ["un déchet","waste"], ["durable","sustainable"],
-    ["le gaspillage","waste/wastefulness"], ["une espèce menacée","an endangered species"], ["la biodiversité","biodiversity"], ["covoiturer","to carpool"]
+    ["le gaspillage","waste/wastefulness"], ["une espèce menacée","an endangered species"], ["la biodiversité","biodiversity"], ["covoiturer","to carpool"],
+    ["la pollution de l'air","air pollution"], ["le compost","compost"], ["l'énergie solaire","solar energy"], ["une forêt","a forest"],
+    ["la déforestation","deforestation"], ["durablement","sustainably"], ["un sac réutilisable","a reusable bag"], ["la faune","wildlife"]
   ],
   "voyages": [
     ["un itinéraire","an itinerary"], ["un retard","a delay"], ["l'hébergement","lodging"],
     ["un souvenir","a souvenir"], ["à l'étranger","abroad"], ["une escale","a layover"],
     ["le décalage horaire","jet lag"], ["raconter","to recount/tell"],
-    ["un vol","a flight"], ["une valise","a suitcase"], ["un guide touristique","a tour guide"], ["dépayser","to give a change of scenery"]
+    ["un vol","a flight"], ["une valise","a suitcase"], ["un guide touristique","a tour guide"], ["dépayser","to give a change of scenery"],
+    ["le passeport","the passport"], ["la douane","customs"], ["faire du tourisme","to go sightseeing"], ["un routard","a backpacker"],
+    ["une auberge de jeunesse","a youth hostel"], ["explorer","to explore"], ["un visa","a visa"], ["s'orienter","to find one's way"]
   ],
   "futur & tech": [
     ["prédire","to predict"], ["un robot","a robot"], ["une invention","an invention"],
     ["l'avenir","the future"], ["évoluer","to evolve"], ["un appareil","a device"],
     ["se développer","to develop"], ["la réalité virtuelle","virtual reality"],
-    ["un algorithme","an algorithm"], ["se connecter","to log in/connect"], ["l'intelligence artificielle","artificial intelligence"], ["un progrès","a step forward"]
+    ["un algorithme","an algorithm"], ["se connecter","to log in/connect"], ["l'intelligence artificielle","artificial intelligence"], ["un progrès","a step forward"],
+    ["un drone","a drone"], ["une application","an app"], ["la 5G","5G"], ["un capteur","a sensor"],
+    ["automatiser","to automate"], ["une puce électronique","a microchip"], ["le clonage","cloning"], ["la biotechnologie","biotechnology"]
   ],
   "logement": [
     ["un loyer","rent"], ["un locataire","a tenant"], ["un propriétaire","an owner/landlord"],
     ["déménager","to move house"], ["un quartier","a neighborhood"], ["meublé","furnished"],
     ["le voisinage","the vicinity"], ["un bail","a lease"],
-    ["un immeuble","a building"], ["le chauffage","heating"], ["emménager","to move in"], ["les charges","utilities/fees"]
+    ["un immeuble","a building"], ["le chauffage","heating"], ["emménager","to move in"], ["les charges","utilities/fees"],
+    ["une caution","a security deposit"], ["un studio","a studio apartment"], ["la colocation","house-sharing"], ["un état des lieux","a move-in inspection"],
+    ["l'ascenseur","the elevator"], ["le syndic","the building manager"], ["insonorisé","soundproofed"], ["rénover","to renovate"]
   ],
   "personnalité & comparaisons": [
     ["pareil","similar"], ["différent","different"], ["autant que","as much as"],
     ["davantage","more"], ["plutôt","rather"], ["avoir tendance à","to tend to"],
     ["sociable","sociable"], ["têtu","stubborn"],
-    ["généreux","generous"], ["timide","shy"], ["avoir en commun","to have in common"], ["se ressembler","to resemble each other"]
+    ["généreux","generous"], ["timide","shy"], ["avoir en commun","to have in common"], ["se ressembler","to resemble each other"],
+    ["optimiste","optimistic"], ["pessimiste","pessimistic"], ["patient","patient"], ["impatient","impatient"],
+    ["ambitieux","ambitious"], ["modeste","modest"], ["curieux","curious"], ["franc","frank/honest"]
   ],
   "enfance": [
     ["grandir","to grow up"], ["un souvenir d'enfance","a childhood memory"], ["autrefois","in the past/formerly"],
     ["une habitude","a habit"], ["gronder","to scold"], ["jouer à","to play (a game)"],
     ["l'école primaire","elementary school"], ["avoir l'habitude de","to be used to"],
-    ["un jouet","a toy"], ["une punition","a punishment"], ["faire semblant","to pretend"], ["un conte","a tale/story"]
+    ["un jouet","a toy"], ["une punition","a punishment"], ["faire semblant","to pretend"], ["un conte","a tale/story"],
+    ["une poupée","a doll"], ["une comptine","a nursery rhyme"], ["la cour de récréation","the playground"], ["grimper aux arbres","to climb trees"],
+    ["un doudou","a stuffed animal/comfort toy"], ["élever","to raise (a child)"], ["espiègle","mischievous"], ["une bêtise","a naughty act"]
   ],
   "vie professionnelle": [
     ["un entretien","an interview"], ["embaucher","to hire"], ["une carrière","a career"],
     ["démissionner","to resign"], ["un collègue","a colleague"], ["un stage","an internship"],
     ["postuler","to apply"], ["un salaire","a salary"],
-    ["un CV","a resume"], ["une promotion","a promotion"], ["licencier","to lay off/fire"], ["le télétravail","remote work"]
+    ["un CV","a resume"], ["une promotion","a promotion"], ["licencier","to lay off/fire"], ["le télétravail","remote work"],
+    ["une réunion","a meeting"], ["un délai","a deadline"], ["la retraite","retirement"], ["un patron","a boss"],
+    ["les congés payés","paid leave"], ["un bureau","an office/desk"], ["gérer une équipe","to manage a team"], ["un projet","a project"]
   ],
   "opinions & débats": [
     ["il est important que","it's important that"], ["je doute que","I doubt that"], ["à mon avis","in my opinion"],
     ["être d'accord","to agree"], ["un point de vue","a point of view"], ["convaincre","to convince"],
     ["s'opposer à","to oppose"], ["un débat","a debate"],
-    ["contredire","to contradict"], ["un argument","an argument"], ["nuancer","to qualify/nuance"], ["soutenir","to support (a view)"]
+    ["contredire","to contradict"], ["un argument","an argument"], ["nuancer","to qualify/nuance"], ["soutenir","to support (a view)"],
+    ["selon moi","in my opinion"], ["je pense que","I think that"], ["au contraire","on the contrary"], ["d'une part... d'autre part","on one hand... on the other"],
+    ["un préjugé","a prejudice"], ["la controverse","controversy"], ["critiquer","to criticize"], ["justifier","to justify"]
   ],
   "vie quotidienne": [
     ["faire les courses","to go grocery shopping"], ["le ménage","housework"], ["se détendre","to relax"],
     ["un emploi du temps","a schedule"], ["une corvée","a chore"], ["se dépêcher","to hurry"],
     ["prendre rendez-vous","to make an appointment"], ["gérer","to manage"],
-    ["se réveiller","to wake up"], ["ranger","to tidy up"], ["un imprévu","an unexpected event"], ["profiter de","to make the most of"]
+    ["se réveiller","to wake up"], ["ranger","to tidy up"], ["un imprévu","an unexpected event"], ["profiter de","to make the most of"],
+    ["faire la lessive","to do laundry"], ["sortir la poubelle","to take out the trash"], ["un jour férié","a public holiday"], ["une habitude quotidienne","a daily habit"],
+    ["recharger son téléphone","to charge one's phone"], ["vérifier ses emails","to check one's emails"], ["faire la vaisselle","to do the dishes"], ["passer l'aspirateur","to vacuum"]
   ],
   "transport": [
     ["un embouteillage","a traffic jam"], ["le métro","the subway"], ["un billet","a ticket"],
     ["garer","to park"], ["la circulation","traffic"], ["un piéton","a pedestrian"],
-    ["monter à bord","to board"], ["à pied","on foot"]
+    ["monter à bord","to board"], ["à pied","on foot"],
+    ["un arrêt de bus","a bus stop"], ["le péage","the toll"], ["une piste cyclable","a bike lane"], ["le covoiturage","carpooling"],
+    ["un rond-point","a roundabout"], ["un feu rouge","a red light"], ["faire le plein","to fill up (gas)"], ["une contravention","a traffic ticket"],
+    ["un chauffeur","a driver"], ["changer de ligne","to change lines (transit)"], ["un trajet","a route/commute"], ["la ceinture de sécurité","the seatbelt"]
   ],
   "argent & finances": [
     ["économiser","to save money"], ["un budget","a budget"], ["emprunter","to borrow"],
     ["un prêt","a loan"], ["dépenser","to spend"], ["rembourser","to pay back"],
-    ["les impôts","taxes"], ["une facture","a bill/invoice"]
+    ["les impôts","taxes"], ["une facture","a bill/invoice"],
+    ["un compte épargne","a savings account"], ["investir","to invest"], ["le taux d'intérêt","the interest rate"], ["les frais","fees"],
+    ["une carte de crédit","a credit card"], ["un virement","a transfer"], ["la monnaie","change/currency"], ["gratuit","free (no cost)"],
+    ["cher","expensive"], ["bon marché","cheap"], ["un reçu","a receipt"], ["négocier","to negotiate"]
   ],
   "sports & loisirs": [
     ["s'entraîner","to train"], ["un match","a game/match"], ["une équipe","a team"],
     ["un adversaire","an opponent"], ["bricoler","to tinker/DIY"], ["un passe-temps","a hobby"],
-    ["la randonnée","hiking"], ["un supporter","a fan"]
+    ["la randonnée","hiking"], ["un supporter","a fan"],
+    ["nager","to swim"], ["faire du yoga","to do yoga"], ["un terrain de foot","a soccer field"], ["gagner","to win"],
+    ["marquer un but","to score a goal"], ["un arbitre","a referee"], ["le vélo","cycling/bike"], ["l'escalade","climbing"],
+    ["la pêche","fishing"], ["jouer aux échecs","to play chess"], ["un abonnement à la salle","a gym membership"], ["s'échauffer","to warm up"]
   ],
   "émotions & sentiments": [
     ["la joie","joy"], ["la tristesse","sadness"], ["en colère","angry"],
     ["soulagé","relieved"], ["inquiet","worried"], ["fier","proud"],
-    ["gêné","embarrassed"], ["déçu","disappointed"]
+    ["gêné","embarrassed"], ["déçu","disappointed"],
+    ["heureux","happy"], ["amoureux","in love"], ["jaloux","jealous"], ["effrayé","scared"],
+    ["surpris","surprised"], ["confus","confused"], ["ému","moved/touched"], ["stressé","stressed"],
+    ["détendu","relaxed"], ["reconnaissant","grateful"], ["nerveux","nervous"], ["épuisé","exhausted"]
   ],
   "expressions idiomatiques": [
     ["avoir le cafard","to feel blue"], ["coûter les yeux de la tête","to cost an arm and a leg"], ["poser un lapin à quelqu'un","to stand someone up"],
     ["avoir le coup de foudre","love at first sight"], ["tomber dans les pommes","to faint"], ["il pleut des cordes","it's raining cats and dogs"],
-    ["avoir la pêche","to feel great"], ["casser les pieds à quelqu'un","to annoy someone"]
+    ["avoir la pêche","to feel great"], ["casser les pieds à quelqu'un","to annoy someone"],
+    ["avoir un chat dans la gorge","to have a frog in one's throat"], ["être dans la lune","to be daydreaming"], ["avoir la tête dans les nuages","to have one's head in the clouds"], ["mettre la charrue avant les bœufs","to put the cart before the horse"],
+    ["avoir un poil dans la main","to be lazy"], ["chercher une aiguille dans une botte de foin","to look for a needle in a haystack"], ["donner sa langue au chat","to give up guessing"], ["avoir le cœur sur la main","to be generous-hearted"],
+    ["prendre ses jambes à son cou","to run away quickly"], ["revenons à nos moutons","let's get back to the subject"], ["avoir d'autres chats à fouetter","to have other things to worry about"], ["ne pas être dans son assiette","to not feel like oneself"]
   ],
   "météo & saisons": [
     ["il fait beau","the weather's nice"], ["un orage","a storm"], ["le brouillard","fog"],
     ["geler","to freeze"], ["un rayon de soleil","a sunbeam"], ["une vague de chaleur","a heatwave"],
-    ["s'améliorer","to improve (weather)"], ["prévoir","to forecast"]
+    ["s'améliorer","to improve (weather)"], ["prévoir","to forecast"],
+    ["le printemps","spring"], ["l'été","summer"], ["l'automne","autumn/fall"], ["l'hiver","winter"],
+    ["il fait du vent","it's windy"], ["un nuage","a cloud"], ["la grêle","hail"], ["un arc-en-ciel","a rainbow"],
+    ["humide","humid"], ["sec","dry"], ["les prévisions météo","the weather forecast"], ["un thermomètre","a thermometer"]
   ],
   "fruits": [
     ["une pomme","an apple"], ["une banane","a banana"], ["une orange","an orange"],
     ["une fraise","a strawberry"], ["un raisin","a grape"], ["un citron","a lemon"],
-    ["une poire","a pear"], ["une pêche","a peach"]
+    ["une poire","a pear"], ["une pêche","a peach"],
+    ["un ananas","a pineapple"], ["une mangue","a mango"], ["un melon","a melon"], ["une pastèque","a watermelon"],
+    ["une cerise","a cherry"], ["un abricot","an apricot"], ["un kiwi","a kiwi"], ["une framboise","a raspberry"],
+    ["une myrtille","a blueberry"], ["un pamplemousse","a grapefruit"], ["une figue","a fig"], ["une noix de coco","a coconut"]
   ],
   "légumes": [
     ["une carotte","a carrot"], ["une pomme de terre","a potato"], ["un oignon","an onion"],
     ["une tomate","a tomato"], ["un poivron","a bell pepper"], ["une courgette","a zucchini"],
-    ["une salade","a lettuce/salad"], ["un champignon","a mushroom"]
+    ["une salade","a lettuce/salad"], ["un champignon","a mushroom"],
+    ["un concombre","a cucumber"], ["un chou","a cabbage"], ["un brocoli","broccoli"], ["un radis","a radish"],
+    ["une aubergine","an eggplant"], ["un petit pois","a pea"], ["un haricot vert","a green bean"], ["un poireau","a leek"],
+    ["de l'ail","garlic"], ["du maïs","corn"], ["un épinard","spinach"], ["un artichaut","an artichoke"]
   ],
   "parties du corps": [
     ["la tête","the head"], ["le bras","the arm"], ["la main","the hand"],
     ["la jambe","the leg"], ["le pied","the foot"], ["le dos","the back"],
-    ["le ventre","the stomach"], ["les yeux","the eyes"]
+    ["le ventre","the stomach"], ["les yeux","the eyes"],
+    ["le nez","the nose"], ["la bouche","the mouth"], ["l'oreille","the ear"], ["le cou","the neck"],
+    ["l'épaule","the shoulder"], ["le genou","the knee"], ["le doigt","the finger"], ["les cheveux","the hair"],
+    ["la peau","the skin"], ["le cœur","the heart"], ["les dents","the teeth"], ["le visage","the face"]
   ],
   "la maison": [
     ["la cuisine","the kitchen"], ["la chambre","the bedroom"], ["la salle de bain","the bathroom"],
     ["le salon","the living room"], ["le jardin","the garden"], ["la fenêtre","the window"],
-    ["la porte","the door"], ["l'escalier","the staircase"]
+    ["la porte","the door"], ["l'escalier","the staircase"],
+    ["le toit","the roof"], ["le sol","the floor"], ["le mur","the wall"], ["le garage","the garage"],
+    ["la cave","the basement/cellar"], ["le grenier","the attic"], ["la salle à manger","the dining room"], ["le balcon","the balcony"],
+    ["la clé","the key"], ["le meuble","the piece of furniture"], ["le miroir","the mirror"], ["la cheminée","the fireplace"]
   ],
   "famille": [
     ["les parents","the parents"], ["le frère","the brother"], ["la sœur","the sister"],
     ["le grand-père","the grandfather"], ["la grand-mère","the grandmother"], ["l'oncle","the uncle"],
-    ["la tante","the aunt"], ["le cousin","the cousin"]
+    ["la tante","the aunt"], ["le cousin","the cousin"],
+    ["le mari","the husband"], ["la femme","the wife"], ["le fils","the son"], ["la fille","the daughter"],
+    ["le neveu","the nephew"], ["la nièce","the niece"], ["le beau-père","the father-in-law/stepfather"], ["la belle-mère","the mother-in-law/stepmother"],
+    ["les jumeaux","the twins"], ["le petit-fils","the grandson"], ["la petite-fille","the granddaughter"], ["célibataire","single"]
   ],
   "routine du matin au soir": [
     ["se réveiller","to wake up"], ["se laver","to wash up"], ["prendre le petit-déjeuner","to have breakfast"],
     ["partir au travail","to leave for work"], ["déjeuner","to have lunch"], ["rentrer à la maison","to come home"],
-    ["dîner","to have dinner"], ["se coucher","to go to bed"]
+    ["dîner","to have dinner"], ["se coucher","to go to bed"],
+    ["se brosser les dents","to brush one's teeth"], ["s'habiller","to get dressed"], ["prendre une douche","to take a shower"], ["éteindre la lumière","to turn off the light"],
+    ["faire son lit","to make one's bed"], ["vérifier son téléphone","to check one's phone"], ["préparer le dîner","to prepare dinner"], ["regarder la télévision","to watch television"],
+    ["lire avant de dormir","to read before sleeping"], ["mettre le réveil","to set the alarm"], ["ranger la cuisine","to tidy the kitchen"], ["sortir le chien","to walk the dog"]
   ]
 };
 
@@ -3142,6 +3224,18 @@ try{ renderReading(); }catch(e){ console.error('Reading practice init error:', e
 
 // ---- speaking practice ----
 const speakQuestions = {
+  "à propos de moi-même (Section 1)": [
+    "Comment vous appelez-vous ?",
+    "Quel âge avez-vous ?",
+    "D'où venez-vous ?",
+    "Où habitez-vous actuellement ?",
+    "Quelle est votre profession ?",
+    "Êtes-vous marié(e) ou célibataire ?",
+    "Avez-vous des frères et sœurs ?",
+    "Qu'est-ce que vous aimez faire pendant votre temps libre ?",
+    "Pourquoi apprenez-vous le français ?",
+    "Quels sont vos projets pour l'avenir ?"
+  ],
   "à la maison": [
     "Est-ce que vous habitez dans une maison ou un appartement ?",
     "Combien de pièces y a-t-il chez vous ?",
@@ -3399,6 +3493,21 @@ const speakScenarios = {
   "annuler un rendez-vous": "You are a French receptionist (any business) handling a cancellation request over the phone. Respond only in French, simple A1-A2 level, 1-2 short sentences, confirm details and offer to reschedule."
 };
 
+const convinceTopics = {
+  "Le télétravail est meilleur que le travail au bureau": "You are a skeptical French debate partner for an A1-A2 level learner. The learner will try to convince you that remote work is better than office work. Respond only in French, simple A1-A2 level, 1-2 short sentences, politely push back with a counterargument or ask them to justify their point, to keep a respectful back-and-forth debate going. Never be hostile — stay encouraging.",
+  "Les animaux domestiques devraient être autorisés au travail": "You are a skeptical French debate partner. The learner will try to convince you that pets should be allowed at work. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Il faut interdire les téléphones portables à l'école": "You are a skeptical French debate partner. The learner will try to convince you that phones should be banned in schools. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Vivre en ville est mieux que vivre à la campagne": "You are a skeptical French debate partner. The learner will try to convince you that living in the city is better than the countryside. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "On devrait manger moins de viande pour protéger l'environnement": "You are a skeptical French debate partner. The learner will try to convince you that eating less meat helps the environment. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Les réseaux sociaux font plus de mal que de bien": "You are a skeptical French debate partner. The learner will try to convince you that social media does more harm than good. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Il est important d'apprendre plusieurs langues étrangères": "You are a skeptical French debate partner. The learner will try to convince you that learning several foreign languages is important. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Le sport est plus important que les études": "You are a skeptical French debate partner. The learner will try to convince you that sport is more important than studying. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Voyager seul est mieux que voyager en groupe": "You are a skeptical French debate partner. The learner will try to convince you that traveling alone is better than traveling in a group. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Les enfants devraient avoir moins de devoirs": "You are a skeptical French debate partner. The learner will try to convince you that children should have less homework. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Il vaut mieux économiser que dépenser son argent tout de suite": "You are a skeptical French debate partner. The learner will try to convince you that saving money is better than spending it right away. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
+  "Les grandes villes sont plus stressantes que les petites villes": "You are a skeptical French debate partner. The learner will try to convince you that big cities are more stressful than small towns. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point."
+};
+
 // populate dropdowns
 const speakTopicPicker = document.getElementById('speakTopicPicker');
 Object.keys(speakQuestions).forEach(t=>{
@@ -3410,17 +3519,30 @@ Object.keys(speakScenarios).forEach(s=>{
   const opt = document.createElement('option'); opt.value = s; opt.textContent = s;
   speakScenarioPicker.appendChild(opt);
 });
+const speakConvincePicker = document.getElementById('speakConvincePicker');
+Object.keys(convinceTopics).forEach(t=>{
+  const opt = document.createElement('option'); opt.value = t; opt.textContent = t;
+  speakConvincePicker.appendChild(opt);
+});
 
 // mode toggle
 const speakModeA = document.getElementById('speakModeA');
 const speakModeB = document.getElementById('speakModeB');
-document.getElementById('modeABtn').addEventListener('click', ()=>{
-  speakModeA.style.display = 'block'; speakModeB.style.display = 'none';
+const speakModeC = document.getElementById('speakModeC');
+function hideAllSpeakModes(){
+  speakModeA.style.display = 'none';
+  speakModeB.style.display = 'none';
+  speakModeC.style.display = 'none';
   document.getElementById('speakResults').style.display = 'none';
+}
+document.getElementById('modeABtn').addEventListener('click', ()=>{
+  hideAllSpeakModes(); speakModeA.style.display = 'block';
 });
 document.getElementById('modeBBtn').addEventListener('click', ()=>{
-  speakModeB.style.display = 'block'; speakModeA.style.display = 'none';
-  document.getElementById('speakResults').style.display = 'none';
+  hideAllSpeakModes(); speakModeB.style.display = 'block';
+});
+document.getElementById('modeCBtn').addEventListener('click', ()=>{
+  hideAllSpeakModes(); speakModeC.style.display = 'block';
 });
 
 // speech recognition (feature-detected; iOS Safari has no support, falls back to typing)
@@ -3501,6 +3623,7 @@ function setupMic(btnId, inputId){
 }
 try{ setupMic('micBtnA','speakTextA'); }catch(e){ console.error('Mic A init error:', e); }
 try{ setupMic('micBtnB','speakTextB'); }catch(e){ console.error('Mic B init error:', e); }
+try{ setupMic('micBtnC','speakTextC'); }catch(e){ console.error('Mic C init error:', e); }
 
 // ---- Mode A: examiner asks you ----
 let modeAQuestions = [], modeAIndex = 0, modeATranscript = [];
@@ -3620,6 +3743,68 @@ document.getElementById('submitAnswerB').addEventListener('click', async ()=>{
 
 endModeBBtn.addEventListener('click', ()=>{
   const transcript = modeBHistory.map(m => (m.role==='user' ? 'Learner: ' : 'Examiner: ') + m.content).join('\n');
+  getSpeakingResults(transcript);
+});
+
+// ---- Mode C: convince the examiner ----
+let modeCHistory = [], modeCTurns = 0;
+const speakTranscriptC = document.getElementById('speakTranscriptC');
+const speakInputRowC = document.getElementById('speakInputRowC');
+const endModeCBtn = document.getElementById('endModeCBtn');
+
+document.getElementById('startModeCBtn').addEventListener('click', ()=>{
+  const topic = speakConvincePicker.value;
+  document.getElementById('speakConvinceIntro').textContent =
+    `Topic: ${topic}. State your position in French and try to convince the examiner.`;
+  modeCHistory = [];
+  modeCTurns = 0;
+  speakTranscriptC.innerHTML = '';
+  speakInputRowC.style.display = 'flex';
+  endModeCBtn.style.display = 'none';
+  document.getElementById('speakResults').style.display = 'none';
+});
+
+document.getElementById('submitAnswerC').addEventListener('click', async ()=>{
+  const input = document.getElementById('speakTextC');
+  const message = input.value.trim();
+  if(!message) return;
+  addBubble(speakTranscriptC, 'you', message);
+  input.value = '';
+  modeCHistory.push({ role: 'user', content: message });
+
+  const topic = speakConvincePicker.value;
+  const sysNote = convinceTopics[topic];
+  try{
+    const response = await fetch("https://soft-forest-cbbb.amanjits200.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-120b",
+        max_tokens: 300,
+        messages: [
+          { role: "user", content: sysNote + "\n\nConversation so far (as the learner's messages, respond to the latest one, pushing back respectfully):\n" +
+            modeCHistory.map(m=>`Learner: ${m.content}`).join('\n')
+          }
+        ]
+      })
+    });
+    const data = await response.json();
+    const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim() || "Pouvez-vous en dire plus ?";
+    addBubble(speakTranscriptC, 'examiner', reply);
+    pronounceFr(reply);
+    modeCHistory.push({ role: 'assistant', content: reply });
+  } catch(err){
+    addBubble(speakTranscriptC, 'examiner', "(connection error — try again)");
+  }
+
+  modeCTurns++;
+  if(modeCTurns >= 6){
+    endModeCBtn.style.display = 'inline-block';
+  }
+});
+
+endModeCBtn.addEventListener('click', ()=>{
+  const transcript = modeCHistory.map(m => (m.role==='user' ? 'Learner: ' : 'Examiner: ') + m.content).join('\n');
   getSpeakingResults(transcript);
 });
 
