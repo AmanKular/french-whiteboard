@@ -716,6 +716,8 @@
       <button class="ref-tab" data-ref="numbers">Numbers</button>
       <button class="ref-tab" data-ref="time">Time</button>
       <button class="ref-tab" data-ref="dailystory">Daily Book Story</button>
+      <button class="ref-tab" data-ref="prepositions">Prepositions</button>
+      <button class="ref-tab" data-ref="translator">Translator</button>
     </div>
     <div id="refContent" class="ref-content"></div>
     <div id="clockTooltip" class="clock-tooltip"></div>
@@ -849,7 +851,7 @@
     <div class="row">
       <button class="action btn-check" id="modeABtn">Section 1 — about yourself</button>
       <button class="action btn-erase" id="modeBBtn">Section 2 — ask the examiner</button>
-      <button class="action btn-erase" id="modeCBtn">Section 3 — convince the examiner</button>
+      <button class="action btn-erase" id="modeCBtn">Section 3 — convince a friend</button>
     </div>
 
     <!-- MODE A: examiner asks you -->
@@ -862,8 +864,8 @@
       <div id="speakProgressA" class="subtitle"></div>
       <div id="speakQuestionBox" class="prompt-box" style="display:none;"></div>
       <div id="speakTranscriptA" class="chat-log"></div>
+      <div id="speakTimerA" class="subtitle" style="font-weight:600;"></div>
       <div id="speakInputRowA" class="row" style="display:none;">
-        <button class="action btn-check" id="micBtnA">🎤 speak</button>
         <input type="text" id="speakTextA" class="chat-input" placeholder="…or type your answer here">
         <button class="action btn-check" id="submitAnswerA">submit</button>
       </div>
@@ -881,8 +883,8 @@
       </div>
       <div id="speakScenarioIntro" class="subtitle"></div>
       <div id="speakTranscriptB" class="chat-log"></div>
+      <div id="speakTimerB" class="subtitle" style="font-weight:600;"></div>
       <div id="speakInputRowB" class="row" style="display:none;">
-        <button class="action btn-check" id="micBtnB">🎤 speak</button>
         <input type="text" id="speakTextB" class="chat-input" placeholder="…or type what you want to say">
         <button class="action btn-check" id="submitAnswerB">send</button>
       </div>
@@ -893,15 +895,15 @@
 
     <!-- MODE C: convince the examiner -->
     <div id="speakModeC" style="display:none;">
-      <p class="subtitle">pick a topic and try to convince the examiner of your position — they'll push back</p>
+      <p class="subtitle">pick a scenario and try to convince your friend — they'll push back a little at first</p>
       <div class="row">
         <select id="speakConvincePicker"></select>
         <button class="action btn-check" id="startModeCBtn">start</button>
       </div>
       <div id="speakConvinceIntro" class="subtitle"></div>
       <div id="speakTranscriptC" class="chat-log"></div>
+      <div id="speakTimerC" class="subtitle" style="font-weight:600;"></div>
       <div id="speakInputRowC" class="row" style="display:none;">
-        <button class="action btn-check" id="micBtnC">🎤 speak</button>
         <input type="text" id="speakTextC" class="chat-input" placeholder="…or type your argument">
         <button class="action btn-check" id="submitAnswerC">send</button>
       </div>
@@ -2511,6 +2513,14 @@ const refData = {
     <p>du (masc.), de la (fem.), de l' (before a vowel), des (plural) — "some/any" (uncountable quantities)</p>
     <h2>Contractions</h2>
     <p>à + le → au · à + les → aux · de + le → du · de + les → des</p>
+    <h2>Masculine (le) or feminine (la)? — common patterns</h2>
+    <p>Often masculine: words ending in -age, -ment, -eau, -isme, -ail (le fromage, le moment, le bureau).<br>
+    Often feminine: words ending in -tion, -sion, -té, -ette, -ure, -ence (la nation, la beauté, la voiture).<br>
+    These are helpful patterns, not strict rules — gender still needs to be learned per word.</p>
+    <h2>Common masculine nouns (le)</h2>
+    <p>le pain (bread), le fromage (cheese), le travail (work), le pays (country), le monde (world), le temps (time/weather), le problème (problem), le film (movie), le magasin (store), le bureau (office/desk), le voyage (trip), le soleil (sun), le ciel (sky), le nom (name), le prix (price), le corps (body), le rêve (dream), le chemin (path), le livre (book), le café (coffee/café)</p>
+    <h2>Common feminine nouns (la)</h2>
+    <p>la vie (life), la maison (house), la voiture (car), la nuit (night), la ville (city), la table (table), la chose (thing), la main (hand), la porte (door), la question (question), la musique (music), la lettre (letter), la lumière (light), la mer (sea), la peur (fear), la route (road), la santé (health), la famille (family), la classe (class), la fleur (flower)</p>
   `,
   connectors: `
     <h2>Time</h2>
@@ -2541,6 +2551,29 @@ const refData = {
     <h2>24-hour (official) time / L'heure officielle</h2>
     <p>Used for schedules, TV, transport — no "et quart / moins le quart," just say the minutes directly.<br>
     15h30 → il est quinze heures trente — it's 3:30 p.m. &nbsp;·&nbsp; 20h45 → il est vingt heures quarante-cinq — it's 8:45 p.m.</p>
+  `,
+  prepositions: `
+    <h2>À — at / in / to</h2>
+    <p>Location: je suis à Paris (I'm in Paris) &nbsp;·&nbsp; Time: à huit heures (at 8 o'clock) &nbsp;·&nbsp; Destination: aller à l'école (to go to school).<br>
+    Contracts with le/les: à + le → au &nbsp;·&nbsp; à + les → aux</p>
+    <h2>De — from / of / about</h2>
+    <p>Origin: je viens de France (I come from France) &nbsp;·&nbsp; Possession: le livre de Marie (Marie's book) &nbsp;·&nbsp; Subject: parler de politique (to talk about politics).<br>
+    Contracts with le/les: de + le → du &nbsp;·&nbsp; de + les → des</p>
+    <h2>Dans — in / inside</h2>
+    <p>A defined, enclosed space: dans la boîte (in the box), dans la voiture (in the car).<br>
+    Future time: dans cinq minutes (in five minutes — from now).</p>
+    <h2>En — by / in (mode, time, material)</h2>
+    <p>Transport: en voiture (by car) &nbsp;·&nbsp; Months &amp; years: en janvier, en 2026 &nbsp;·&nbsp; Material: en bois (made of wood) &nbsp;·&nbsp; Feminine countries: en France, en Italie.</p>
+    <h2>Chez — at/to (someone's) place</h2>
+    <p>chez moi (at my place), chez le médecin (at the doctor's).</p>
+    <h2>Pour — for</h2>
+    <p>Purpose: c'est pour toi (it's for you) &nbsp;·&nbsp; Duration planned: pour trois jours (for three days).</p>
+    <h2>Avec — with</h2>
+    <p>avec mes amis (with my friends).</p>
+    <h2>Par — by / through / per</h2>
+    <p>par la fenêtre (through the window), deux fois par jour (twice a day/per day).</p>
+    <h2>Vers — toward / around (time)</h2>
+    <p>vers la gare (toward the station), vers huit heures (around 8 o'clock).</p>
   `
 };
 
@@ -2569,6 +2602,114 @@ function pronounceFr(text){
   if(typeof selectedVoice !== 'undefined' && selectedVoice) utter.voice = selectedVoice;
   utter.rate = 0.9;
   speechSynthesis.speak(utter);
+}
+
+function buildTranslatorHTML(){
+  return `
+    <h2>Translator</h2>
+    <p style="font-size:12.5px; opacity:0.7; margin-bottom:10px;">Type anything — it translates automatically as you type.</p>
+    <div class="row">
+      <select id="translateDir">
+        <option value="en-fr">English → French</option>
+        <option value="fr-en">French → English</option>
+      </select>
+    </div>
+    <textarea id="translateInput" class="writing-area" style="min-height:80px;" placeholder="Type text here…"></textarea>
+    <div class="row" style="margin-top:8px;">
+      <button class="action btn-erase" id="translateClearBtn">clear</button>
+    </div>
+    <div id="translateResult" class="feedback-box" style="display:none; margin-top:12px;"></div>
+  `;
+}
+
+function wireTranslator(){
+  const input = document.getElementById('translateInput');
+  const dirPicker = document.getElementById('translateDir');
+  const resultBox = document.getElementById('translateResult');
+  let debounceTimer = null;
+  let requestToken = 0;
+
+  async function runTranslate(){
+    const dir = dirPicker.value;
+    const text = input.value.trim();
+    if(!text){
+      resultBox.style.display = 'none';
+      return;
+    }
+    const myToken = ++requestToken;
+    resultBox.style.display = 'block';
+    resultBox.textContent = 'Translating…';
+    const targetLang = dir === 'en-fr' ? 'French' : 'English';
+    const sourceLang = dir === 'en-fr' ? 'English' : 'French';
+    try{
+      const response = await fetch("https://soft-forest-cbbb.amanjits200.workers.dev", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-120b",
+          max_tokens: 400,
+          messages: [
+            { role: "user", content:
+              `Translate the following text from ${sourceLang} to ${targetLang}. ` +
+              `Reply with ONLY the translation, nothing else — no notes, no quotation marks, no explanation.\n\n` +
+              `Text: ${text}`
+            }
+          ]
+        })
+      });
+      const data = await response.json();
+      if(myToken !== requestToken) return; // a newer keystroke superseded this request
+      const translation = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
+      resultBox.textContent = translation || "Couldn't translate — try again.";
+    } catch(err){
+      if(myToken !== requestToken) return;
+      resultBox.textContent = "Translation failed — check your connection and try again.";
+    }
+  }
+
+  input.addEventListener('input', ()=>{
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(runTranslate, 700);
+  });
+  dirPicker.addEventListener('change', ()=>{
+    if(input.value.trim()) runTranslate();
+  });
+  document.getElementById('translateClearBtn').addEventListener('click', ()=>{
+    input.value = '';
+    resultBox.style.display = 'none';
+    resultBox.textContent = '';
+  });
+}
+
+function buildPrepositionsSVG(){
+  const spots = [
+    { x:170, y:40,  fr:"derrière",       en:"behind",    color:"#c0392b" },
+    { x:170, y:270, fr:"devant",         en:"in front of", color:"#c0392b" },
+    { x:300, y:155, fr:"à côté de",      en:"beside",    color:"#1f5fb0" },
+    { x:170, y:95,  fr:"sur",            en:"on top of", color:"#1c7a4d" },
+    { x:170, y:215, fr:"sous",           en:"under",     color:"#1c7a4d" },
+    { x:170, y:155, fr:"dans",           en:"inside/in", color:"#6a3fa0" }
+  ];
+  const dots = spots.map(s=>
+    `<g class="clock-hit" data-tip="${s.fr} — ${s.en}">
+      <circle cx="${s.x}" cy="${s.y}" r="15" fill="transparent"/>
+      <circle cx="${s.x}" cy="${s.y}" r="6" fill="${s.color}"/>
+      <text x="${s.x}" y="${s.y - 12}" text-anchor="middle" font-size="11.5" font-weight="600" fill="${s.color}" font-family="Inter,sans-serif" style="pointer-events:none;">${s.fr}</text>
+    </g>`
+  ).join('');
+  return `
+    <svg viewBox="0 0 340 310" style="width:100%; max-width:340px; display:block; margin:0 auto;">
+      <rect x="110" y="120" width="120" height="70" rx="4" fill="#e8dcc8" stroke="#8a8f98" stroke-width="2.5"/>
+      <text x="170" y="160" text-anchor="middle" font-size="13" font-weight="700" fill="#5b4a33" font-family="Inter,sans-serif">la table</text>
+      ${dots}
+    </svg>
+    <p style="text-align:center; font-size:11.5px; opacity:0.6; margin-top:6px;">Hover any label to see the French phrase and English meaning.</p>
+    <h2>More place prepositions</h2>
+    <p>au-dessus de (above, without touching) vs. sur (on, touching): la lampe est au-dessus de la table (the lamp is above the table, not touching it) / le livre est sur la table (the book is on the table).<br>
+    en dessous de (below, without touching) vs. sous (under, close/touching): l'étagère est en dessous de la fenêtre (the shelf is below the window) / le chat dort sous la table (the cat sleeps under the table).<br>
+    entre (between): le chat est entre les deux boîtes (the cat is between the two boxes).<br>
+    près de (near): j'habite près de la gare (I live near the station).<br>
+    loin de (far from): l'école est loin de chez moi (the school is far from my house).</p>`;
 }
 
 function buildClockSVG(){
@@ -2900,6 +3041,8 @@ function showRef(tab){
   if(tab === 'numbers'){ refContent.innerHTML = buildNumbersHTML(); }
   else if(tab === 'time'){ refContent.innerHTML = buildClockSVG() + refData.time; }
   else if(tab === 'dailystory'){ refContent.innerHTML = buildDailyStoryHTML(); wireDailyStory(); }
+  else if(tab === 'prepositions'){ refContent.innerHTML = refData.prepositions + buildPrepositionsSVG(); }
+  else if(tab === 'translator'){ refContent.innerHTML = buildTranslatorHTML(); wireTranslator(); }
   else { refContent.innerHTML = refData[tab]; }
   document.querySelectorAll('.ref-tab').forEach(t=> t.classList.toggle('active', t.dataset.ref === tab));
   if(tab === 'numbers'){
@@ -2907,7 +3050,7 @@ function showRef(tab){
       item.addEventListener('click', ()=> pronounceFr(item.dataset.fr));
     });
   }
-  if(tab === 'time'){
+  if(tab === 'time' || tab === 'prepositions'){
     const tip = document.getElementById('clockTooltip');
     refContent.querySelectorAll('.clock-hit').forEach(el=>{
       const show = (evt)=>{
@@ -3494,18 +3637,18 @@ const speakScenarios = {
 };
 
 const convinceTopics = {
-  "Le télétravail est meilleur que le travail au bureau": "You are a skeptical French debate partner for an A1-A2 level learner. The learner will try to convince you that remote work is better than office work. Respond only in French, simple A1-A2 level, 1-2 short sentences, politely push back with a counterargument or ask them to justify their point, to keep a respectful back-and-forth debate going. Never be hostile — stay encouraging.",
-  "Les animaux domestiques devraient être autorisés au travail": "You are a skeptical French debate partner. The learner will try to convince you that pets should be allowed at work. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Il faut interdire les téléphones portables à l'école": "You are a skeptical French debate partner. The learner will try to convince you that phones should be banned in schools. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Vivre en ville est mieux que vivre à la campagne": "You are a skeptical French debate partner. The learner will try to convince you that living in the city is better than the countryside. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "On devrait manger moins de viande pour protéger l'environnement": "You are a skeptical French debate partner. The learner will try to convince you that eating less meat helps the environment. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Les réseaux sociaux font plus de mal que de bien": "You are a skeptical French debate partner. The learner will try to convince you that social media does more harm than good. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Il est important d'apprendre plusieurs langues étrangères": "You are a skeptical French debate partner. The learner will try to convince you that learning several foreign languages is important. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Le sport est plus important que les études": "You are a skeptical French debate partner. The learner will try to convince you that sport is more important than studying. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Voyager seul est mieux que voyager en groupe": "You are a skeptical French debate partner. The learner will try to convince you that traveling alone is better than traveling in a group. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Les enfants devraient avoir moins de devoirs": "You are a skeptical French debate partner. The learner will try to convince you that children should have less homework. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Il vaut mieux économiser que dépenser son argent tout de suite": "You are a skeptical French debate partner. The learner will try to convince you that saving money is better than spending it right away. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point.",
-  "Les grandes villes sont plus stressantes que les petites villes": "You are a skeptical French debate partner. The learner will try to convince you that big cities are more stressful than small towns. Respond only in French, simple A1-A2 level, 1-2 short sentences, gently push back or ask them to justify their point."
+  "Convaincre un ami de partir en vacances avec toi": "You are the learner's friend in a casual French conversation. The learner wants to convince you to go on vacation together. Respond only in French, simple A1-A2 level, 1-2 short sentences. Start a bit hesitant (busy, budget, unsure) and let yourself gradually be convinced only if they give good reasons — otherwise raise a new small concern each time, staying warm and friendly, not hostile.",
+  "Convaincre un ami de cuisiner au lieu d'aller au restaurant en vacances": "You are the learner's friend on vacation together. You'd rather eat at a restaurant, but the learner wants to convince you to cook at home instead. Respond only in French, simple A1-A2 level, 1-2 short sentences. Stay friendly, gently push back with a reason (tired, no groceries, want to relax) each time, and only agree if they give a genuinely good argument.",
+  "Convaincre un ami de regarder un film plutôt qu'une série": "You are the learner's friend deciding what to watch together. You'd rather watch a series, but the learner wants to convince you to watch a movie instead. Respond only in French, simple A1-A2 level, 1-2 short sentences, friendly but a little resistant at first.",
+  "Convaincre un ami de faire du sport avec toi ce week-end": "You are the learner's friend who feels lazy about exercising. The learner wants to convince you to work out together this weekend. Respond only in French, simple A1-A2 level, 1-2 short sentences, friendly but reluctant at first, giving small excuses.",
+  "Convaincre un ami d'essayer un nouveau restaurant": "You are the learner's friend who prefers going to the same familiar restaurant. The learner wants to convince you to try a new one. Respond only in French, simple A1-A2 level, 1-2 short sentences, a little hesitant but open to being convinced.",
+  "Convaincre un ami de t'accompagner à un concert": "You are the learner's friend who isn't very interested in concerts. The learner wants to convince you to come along. Respond only in French, simple A1-A2 level, 1-2 short sentences, friendly but unsure at first.",
+  "Convaincre un ami de partager un appartement avec toi": "You are the learner's friend, unsure about moving in together. The learner wants to convince you to share an apartment. Respond only in French, simple A1-A2 level, 1-2 short sentences, raise small practical concerns (rent, chores, space) each time.",
+  "Convaincre un ami d'adopter un chien ensemble": "You are the learner's friend who is hesitant about getting a dog. The learner wants to convince you it's a good idea. Respond only in French, simple A1-A2 level, 1-2 short sentences, friendly but cautious, mentioning responsibilities.",
+  "Convaincre un ami de prendre le train plutôt que la voiture": "You are the learner's friend who prefers driving. The learner wants to convince you to take the train instead for an upcoming trip. Respond only in French, simple A1-A2 level, 1-2 short sentences, a little resistant but reasonable.",
+  "Convaincre un ami d'apprendre le français avec toi": "You are the learner's friend who isn't sure they want to study French. The learner wants to convince you to learn together. Respond only in French, simple A1-A2 level, 1-2 short sentences, friendly but hesitant about the time commitment.",
+  "Convaincre un ami de changer vos plans de dernière minute": "You are the learner's friend who already has plans set for the day. The learner wants to convince you to change them last-minute for something better. Respond only in French, simple A1-A2 level, 1-2 short sentences, a bit reluctant since plans were already made.",
+  "Convaincre un ami de dépenser moins et d'économiser": "You are the learner's friend who likes to spend money freely. The learner wants to convince you to save more instead. Respond only in French, simple A1-A2 level, 1-2 short sentences, friendly but a bit resistant to the idea."
 };
 
 // populate dropdowns
@@ -3547,49 +3690,23 @@ document.getElementById('modeCBtn').addEventListener('click', ()=>{
 
 // speech recognition (feature-detected; iOS Safari has no support, falls back to typing)
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-function setupMic(btnId, inputId){
-  const btn = document.getElementById(btnId);
+function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+function buildAutoRecognizer(inputId, statusEl){
   const input = document.getElementById(inputId);
   if(!SpeechRec){
-    btn.textContent = '🎤 not supported here — type instead';
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-    return;
+    if(statusEl) statusEl.textContent = '🎤 not supported on this device — type your answer instead.';
+    return null;
   }
   if(location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1'){
-    btn.textContent = '🎤 needs https — type instead';
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-    return;
+    if(statusEl) statusEl.textContent = '🎤 needs https — type your answer instead.';
+    return null;
   }
   const rec = new SpeechRec();
   rec.lang = 'fr-FR';
   rec.continuous = true;
   rec.interimResults = true;
-  let listening = false;
   let finalTranscript = '';
-
-  btn.addEventListener('click', ()=>{
-    if(!listening){
-      try{
-        finalTranscript = '';
-        input.value = '';
-        listening = true;
-        btn.textContent = '⏹ stop recording';
-        rec.start();
-      } catch(err){
-        listening = false;
-        btn.textContent = '🎤 could not start — try again';
-        console.error('Mic start error:', err);
-        setTimeout(()=>{ btn.textContent = '🎤 speak'; }, 2000);
-      }
-    } else {
-      listening = false;
-      btn.textContent = '🎤 speak';
-      try{ rec.stop(); }catch(e){}
-    }
-  });
-
   rec.onresult = (e)=>{
     let interim = '';
     for(let i = e.resultIndex; i < e.results.length; i++){
@@ -3599,31 +3716,51 @@ function setupMic(btnId, inputId){
     }
     input.value = (finalTranscript + interim).trim();
   };
-  rec.onend = ()=>{
-    // browser can end the session on its own (long silence/timeout) —
-    // resync the button state either way
-    listening = false;
-    if(btn.textContent === '⏹ stop recording') btn.textContent = '🎤 speak';
-  };
-  rec.onerror = (e)=>{
-    listening = false;
-    const reason = e && e.error ? e.error : 'unknown';
-    let msg = '🎤 speak';
-    if(reason === 'not-allowed' || reason === 'service-not-allowed'){
-      msg = '🎤 mic blocked — check permissions';
-    } else if(reason === 'no-speech'){
-      msg = '🎤 heard nothing — try again';
-    } else if(reason === 'network'){
-      msg = '🎤 network error — try again';
-    }
-    btn.textContent = msg;
-    console.error('Speech recognition error:', reason);
-    setTimeout(()=>{ btn.textContent = '🎤 speak'; }, 2500);
+  rec.onerror = ()=>{};
+  return {
+    start(){ finalTranscript = ''; try{ rec.start(); }catch(e){} },
+    stop(){ try{ rec.stop(); }catch(e){} }
   };
 }
-try{ setupMic('micBtnA','speakTextA'); }catch(e){ console.error('Mic A init error:', e); }
-try{ setupMic('micBtnB','speakTextB'); }catch(e){ console.error('Mic B init error:', e); }
-try{ setupMic('micBtnC','speakTextC'); }catch(e){ console.error('Mic C init error:', e); }
+
+// Runs the 30s prep + 15s recording sequence for one speaking turn.
+// Returns the text captured (typed or recognized) once the recording window ends.
+// If the user clicks the submit button early, that click resolves the turn immediately instead.
+function runSpeakingTurn(timerEl, inputEl, recognizer, submitBtn){
+  return new Promise((resolve)=>{
+    let cancelled = false;
+    const finish = ()=>{
+      if(cancelled) return;
+      cancelled = true;
+      if(recognizer) recognizer.stop();
+      timerEl.textContent = '';
+      submitBtn.removeEventListener('click', earlySubmit);
+      resolve(inputEl.value.trim());
+    };
+    const earlySubmit = ()=> finish();
+    submitBtn.addEventListener('click', earlySubmit);
+
+    (async ()=>{
+      for(let t=30; t>0 && !cancelled; t--){
+        timerEl.textContent = `⏳ Prepare your answer… (${t}s)`;
+        await sleep(1000);
+      }
+      if(cancelled) return;
+      pronounceFr("Commencez à parler maintenant.");
+      timerEl.textContent = '🎤 Recording… speak now!';
+      if(recognizer) recognizer.start();
+      for(let t=15; t>0 && !cancelled; t--){
+        timerEl.textContent = `🎤 Recording… (${t}s left)`;
+        await sleep(1000);
+      }
+      finish();
+    })();
+  });
+}
+
+const recognizerA = buildAutoRecognizer('speakTextA', document.getElementById('speakTimerA'));
+const recognizerB = buildAutoRecognizer('speakTextB', document.getElementById('speakTimerB'));
+const recognizerC = buildAutoRecognizer('speakTextC', document.getElementById('speakTimerC'));
 
 // ---- Mode A: examiner asks you ----
 let modeAQuestions = [], modeAIndex = 0, modeATranscript = [];
@@ -3641,7 +3778,7 @@ function addBubble(container, who, text){
   container.scrollTop = container.scrollHeight;
 }
 
-function askModeAQuestion(){
+async function askModeAQuestion(){
   if(modeAIndex >= modeAQuestions.length){
     speakQuestionBox.style.display = 'none';
     speakInputRowA.style.display = 'none';
@@ -3655,6 +3792,20 @@ function askModeAQuestion(){
   speakQuestionBox.textContent = q;
   addBubble(speakTranscriptA, 'examiner', q);
   pronounceFr(q);
+  await sleep(1200);
+
+  const speakTextA = document.getElementById('speakTextA');
+  const speakTimerA = document.getElementById('speakTimerA');
+  const submitAnswerA = document.getElementById('submitAnswerA');
+  speakTextA.value = '';
+  const answer = await runSpeakingTurn(speakTimerA, speakTextA, recognizerA, submitAnswerA);
+
+  if(answer){
+    addBubble(speakTranscriptA, 'you', answer);
+  }
+  modeATranscript.push({ q, a: answer || '(no answer given)' });
+  modeAIndex++;
+  askModeAQuestion();
 }
 
 document.getElementById('startModeABtn').addEventListener('click', ()=>{
@@ -3666,17 +3817,6 @@ document.getElementById('startModeABtn').addEventListener('click', ()=>{
   speakInputRowA.style.display = 'flex';
   endModeABtn.style.display = 'none';
   document.getElementById('speakResults').style.display = 'none';
-  askModeAQuestion();
-});
-
-document.getElementById('submitAnswerA').addEventListener('click', ()=>{
-  const input = document.getElementById('speakTextA');
-  const answer = input.value.trim();
-  if(!answer) return;
-  addBubble(speakTranscriptA, 'you', answer);
-  modeATranscript.push({ q: modeAQuestions[modeAIndex], a: answer });
-  input.value = '';
-  modeAIndex++;
   askModeAQuestion();
 });
 
@@ -3693,21 +3833,18 @@ const endModeBBtn = document.getElementById('endModeBBtn');
 document.getElementById('startModeBBtn').addEventListener('click', ()=>{
   const scenario = speakScenarioPicker.value;
   document.getElementById('speakScenarioIntro').textContent =
-    `Scenario: ${scenario}. Start the conversation in French — say hello and ask your first question.`;
+    `Scenario: ${scenario}. Prepare to start the conversation in French — say hello and ask your first question.`;
   modeBHistory = [];
   modeBTurns = 0;
   speakTranscriptB.innerHTML = '';
   speakInputRowB.style.display = 'flex';
   endModeBBtn.style.display = 'none';
   document.getElementById('speakResults').style.display = 'none';
+  runModeBTurn();
 });
 
-document.getElementById('submitAnswerB').addEventListener('click', async ()=>{
-  const input = document.getElementById('speakTextB');
-  const message = input.value.trim();
-  if(!message) return;
+async function sendMessageB(message){
   addBubble(speakTranscriptB, 'you', message);
-  input.value = '';
   modeBHistory.push({ role: 'user', content: message });
 
   const scenario = speakScenarioPicker.value;
@@ -3738,8 +3875,24 @@ document.getElementById('submitAnswerB').addEventListener('click', async ()=>{
   modeBTurns++;
   if(modeBTurns >= 10){
     endModeBBtn.style.display = 'inline-block';
+  } else {
+    runModeBTurn();
   }
-});
+}
+
+async function runModeBTurn(){
+  const speakTextB = document.getElementById('speakTextB');
+  const speakTimerB = document.getElementById('speakTimerB');
+  const submitAnswerB = document.getElementById('submitAnswerB');
+  speakTextB.value = '';
+  const message = await runSpeakingTurn(speakTimerB, speakTextB, recognizerB, submitAnswerB);
+  if(message){
+    await sendMessageB(message);
+  } else {
+    speakTimerB.textContent = 'No answer given — try again.';
+    setTimeout(()=>{ if(modeBTurns < 10) runModeBTurn(); }, 1500);
+  }
+}
 
 endModeBBtn.addEventListener('click', ()=>{
   const transcript = modeBHistory.map(m => (m.role==='user' ? 'Learner: ' : 'Examiner: ') + m.content).join('\n');
@@ -3755,21 +3908,18 @@ const endModeCBtn = document.getElementById('endModeCBtn');
 document.getElementById('startModeCBtn').addEventListener('click', ()=>{
   const topic = speakConvincePicker.value;
   document.getElementById('speakConvinceIntro').textContent =
-    `Topic: ${topic}. State your position in French and try to convince the examiner.`;
+    `Scenario: ${topic}. Prepare to state your case in French and try to convince your friend.`;
   modeCHistory = [];
   modeCTurns = 0;
   speakTranscriptC.innerHTML = '';
   speakInputRowC.style.display = 'flex';
   endModeCBtn.style.display = 'none';
   document.getElementById('speakResults').style.display = 'none';
+  runModeCTurn();
 });
 
-document.getElementById('submitAnswerC').addEventListener('click', async ()=>{
-  const input = document.getElementById('speakTextC');
-  const message = input.value.trim();
-  if(!message) return;
+async function sendMessageC(message){
   addBubble(speakTranscriptC, 'you', message);
-  input.value = '';
   modeCHistory.push({ role: 'user', content: message });
 
   const topic = speakConvincePicker.value;
@@ -3800,8 +3950,24 @@ document.getElementById('submitAnswerC').addEventListener('click', async ()=>{
   modeCTurns++;
   if(modeCTurns >= 6){
     endModeCBtn.style.display = 'inline-block';
+  } else {
+    runModeCTurn();
   }
-});
+}
+
+async function runModeCTurn(){
+  const speakTextC = document.getElementById('speakTextC');
+  const speakTimerC = document.getElementById('speakTimerC');
+  const submitAnswerC = document.getElementById('submitAnswerC');
+  speakTextC.value = '';
+  const message = await runSpeakingTurn(speakTimerC, speakTextC, recognizerC, submitAnswerC);
+  if(message){
+    await sendMessageC(message);
+  } else {
+    speakTimerC.textContent = 'No answer given — try again.';
+    setTimeout(()=>{ if(modeCTurns < 6) runModeCTurn(); }, 1500);
+  }
+}
 
 endModeCBtn.addEventListener('click', ()=>{
   const transcript = modeCHistory.map(m => (m.role==='user' ? 'Learner: ' : 'Examiner: ') + m.content).join('\n');
