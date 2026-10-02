@@ -497,11 +497,11 @@
   }
   .ref-modal.open{ display:block; }
   .ref-modal-inner{
-    background: #fbfbfa;
-    max-width: 720px;
+    background: #eef1f6;
+    max-width: 1300px;
     margin: 0 auto;
     border-radius: 10px;
-    padding: 20px;
+    padding: 20px 32px;
     font-family:'Inter',sans-serif;
   }
   .ref-modal-header{
@@ -663,9 +663,13 @@
 
   .num-grid{
     display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
-    gap: 4px 14px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 26px 24px;
     margin-bottom: 16px;
+  }
+  .num-col{ padding-bottom: 6px; }
+  @media (max-width: 720px){
+    .num-grid{ grid-template-columns: repeat(2, 1fr); }
   }
   .num-col{
     display:flex;
@@ -693,7 +697,7 @@
   body.dark .num-item:hover{ background:#2e3f52; }
   .ref-content table{ width:100%; border-collapse:collapse; margin-bottom:10px; }
   .ref-content td, .ref-content th{ padding:4px 6px; border-bottom:1px solid #ddd; font-size:13px; text-align:left; }
-  body.dark .ref-modal-inner{ background:#33363c; }
+  body.dark .ref-modal-inner{ background:#2a3038; }
   body.dark .ref-tab{ background:#3d4047; border-color:#5a5e66; }
   body.dark .ref-content td, body.dark .ref-content th{ border-bottom-color:#52555c; }
   body.dark .ref-book-btn{ background:#3d4047; }
@@ -3167,17 +3171,15 @@ function buildNumbersHTML(){
   let colsK = '';
   for(let start = 0; start <= 90; start += 10){
     let items = '';
-    for(let off = start; off <= start + 9; off++){
+    const end = (start === 90) ? 100 : start + 9; // fold 1100 into the last column
+    for(let off = start; off <= end; off++){
       const w = frenchThousands(off);
       items += `<div class="num-item" data-fr="${w}"><span class="n">${1000+off}</span><span>${w}</span></div>`;
     }
     colsK += `<div class="num-col">${items}</div>`;
   }
-  const w1100 = frenchThousands(100);
-  const last = `<div class="num-item" data-fr="${w1100}" style="display:inline-flex;"><span class="n">1100</span><span>${w1100}</span></div>`;
   return `<h2>Numbers 1–100</h2><div class="num-grid">${cols}</div>
     <h2>Numbers 1000–1100</h2><div class="num-grid">${colsK}</div>
-    <div class="num-special">${last}</div>
     <p style="font-size:12px; opacity:0.6; margin-top:10px;">Click any number to hear it pronounced.</p>`;
 }
 
