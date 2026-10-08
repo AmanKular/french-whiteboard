@@ -624,6 +624,22 @@
     border-radius: 4px;
   }
   .score-bar-val{ width: 34px; text-align:right; font-family:'Inter',sans-serif; opacity:0.7; }
+  .fr-fix{ color: var(--marker-green); font-weight:600; }
+  .play-fr{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px; height:22px;
+    border-radius:50%;
+    border:none;
+    background:#e8f0fc;
+    cursor:pointer;
+    font-size:12px;
+    padding:0;
+    vertical-align:middle;
+  }
+  .play-fr:hover{ background:#d2e4fb; }
+  body.dark .play-fr{ background:#2e3f52; }
   .score-total{
     font-family:'Inter',sans-serif;
     font-size: 15px;
@@ -695,6 +711,41 @@
     margin-top: 6px;
   }
   body.dark .num-item:hover{ background:#2e3f52; }
+  .cat-group{ margin-bottom: 14px; }
+  .cat-label{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size: 12.5px;
+    font-weight:700;
+    color: var(--marker-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+  }
+  .cat-pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 6px 10px;
+  }
+  .cat-pills .num-item{
+    border: 1px solid #d7dbd8;
+    border-radius: 999px;
+    padding: 4px 12px;
+    gap: 8px;
+  }
+  body.dark .cat-pills .num-item{ border-color:#44474e; }
+  .noun-item{ cursor:default; }
+  .word-area{ cursor:pointer; display:flex; gap:8px; }
+  .word-area:hover span:first-child{ color: var(--marker-blue); }
+  .mini-speak{
+    border:none;
+    background:transparent;
+    cursor:pointer;
+    font-size:13px;
+    padding:0 0 0 4px;
+    opacity:0.7;
+  }
+  .mini-speak:hover{ opacity:1; }
   .ref-content table{ width:100%; border-collapse:collapse; margin-bottom:10px; }
   .ref-content td, .ref-content th{ padding:4px 6px; border-bottom:1px solid #ddd; font-size:13px; text-align:left; }
   body.dark .ref-modal-inner{ background:#2a3038; }
@@ -1560,7 +1611,15 @@ const writingPrompts = [
   "Donne des conseils de santé détaillés à un ami qui ne se sent pas bien.",
   "Donne ton opinion sur une actualité récente.",
   "Explique ce que tu ferais pour protéger la planète.",
-  "Raconte ce qu'un ami t'a dit à propos de son dernier voyage."
+  "Raconte ce qu'un ami t'a dit à propos de son dernier voyage.",
+  "Décris ta routine idéale du matin au soir.",
+  "Raconte tes dernières vacances : où es-tu allé(e), et avec qui ?",
+  "Donne ton opinion sur les réseaux sociaux : avantages et inconvénients.",
+  "Décris ton plat préféré et explique comment on le prépare.",
+  "Raconte un souvenir d'école mémorable.",
+  "Explique pourquoi tu apprends le français et quels sont tes objectifs.",
+  "Décris la ville ou le village où tu habites.",
+  "Raconte une fois où tu as dû convaincre quelqu'un de quelque chose."
 ];
 let promptIndex = 0;
 const promptBox = document.getElementById('promptBox');
@@ -1631,7 +1690,8 @@ if(feedbackBtn){
               "- Grammar & conjugation: x/5\n" +
               "- Coherence & cohesion: x/5\n" +
               "Strengths: 1-2 short bullet points.\n" +
-              "Errors to fix: 2-4 bullet points, each showing the mistake and the French correction.\n" +
+              "Errors to fix: 2-4 bullet points, EXACTLY in this format on each line: " +
+              "- <mistake in English> → <French correction>\n" +
               "Model answer (in French): write your own short model paragraph (4-6 sentences) answering the same topic, " +
               "at a strong A2/B1 level, deliberately mixing at least two different tenses so it shows what a well-built " +
               "answer looks like.\n" +
@@ -1651,7 +1711,8 @@ if(feedbackBtn){
       }
       const data = await response.json();
       const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
-      feedbackBox.textContent = reply || "Sorry, couldn't generate feedback. Try again.";
+      feedbackBox.innerHTML = reply ? renderFeedbackWithAudio(reply) : "Sorry, couldn't generate feedback. Try again.";
+      wireFeedbackAudio(feedbackBox);
     } catch(err){
       feedbackBox.textContent = "Scoring failed. Try again in a moment.";
     }
@@ -2488,133 +2549,167 @@ const refData = {
     <p>` + verbList("se lever, se coucher, se réveiller, s'habiller, s'amuser, se laver, se doucher, se maquiller, se raser, se brosser les dents, se peigner, se reposer, se promener, se dépêcher, se souvenir, s'appeler, se sentir, s'ennuyer, se marier, s'inquiéter") + `</p>
     <h2>Irregular verbs</h2>
     <p>` + verbList("aller, avoir, être, faire, prendre, vouloir, pouvoir, devoir, savoir, voir, dire, venir, mettre, sortir, partir, dormir, connaître, écrire, lire, boire, courir, ouvrir") + `</p>
-    <h2>50 masculine nouns (le)</h2>
-    <div class="num-grid">
-      <div class="num-col">
-        <div class="num-item"><span>le pain</span><span class="n">bread</span></div>
-        <div class="num-item"><span>le fromage</span><span class="n">cheese</span></div>
-        <div class="num-item"><span>le travail</span><span class="n">work</span></div>
-        <div class="num-item"><span>le pays</span><span class="n">country</span></div>
-        <div class="num-item"><span>le monde</span><span class="n">world</span></div>
-        <div class="num-item"><span>le temps</span><span class="n">time/weather</span></div>
-        <div class="num-item"><span>le problème</span><span class="n">problem</span></div>
-        <div class="num-item"><span>le film</span><span class="n">movie</span></div>
-        <div class="num-item"><span>le magasin</span><span class="n">store</span></div>
-        <div class="num-item"><span>le bureau</span><span class="n">office/desk</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>le voyage</span><span class="n">trip</span></div>
-        <div class="num-item"><span>le soleil</span><span class="n">sun</span></div>
-        <div class="num-item"><span>le ciel</span><span class="n">sky</span></div>
-        <div class="num-item"><span>le nom</span><span class="n">name</span></div>
-        <div class="num-item"><span>le prix</span><span class="n">price</span></div>
-        <div class="num-item"><span>le corps</span><span class="n">body</span></div>
-        <div class="num-item"><span>le rêve</span><span class="n">dream</span></div>
-        <div class="num-item"><span>le chemin</span><span class="n">path</span></div>
-        <div class="num-item"><span>le livre</span><span class="n">book</span></div>
-        <div class="num-item"><span>le café</span><span class="n">coffee/café</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>le jardin</span><span class="n">garden</span></div>
-        <div class="num-item"><span>le marché</span><span class="n">market</span></div>
-        <div class="num-item"><span>le musée</span><span class="n">museum</span></div>
-        <div class="num-item"><span>le train</span><span class="n">train</span></div>
-        <div class="num-item"><span>le bateau</span><span class="n">boat</span></div>
-        <div class="num-item"><span>le pont</span><span class="n">bridge</span></div>
-        <div class="num-item"><span>le mur</span><span class="n">wall</span></div>
-        <div class="num-item"><span>le toit</span><span class="n">roof</span></div>
-        <div class="num-item"><span>le sac</span><span class="n">bag</span></div>
-        <div class="num-item"><span>le stylo</span><span class="n">pen</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>le papier</span><span class="n">paper</span></div>
-        <div class="num-item"><span>le verre</span><span class="n">glass</span></div>
-        <div class="num-item"><span>le couteau</span><span class="n">knife</span></div>
-        <div class="num-item"><span>le miroir</span><span class="n">mirror</span></div>
-        <div class="num-item"><span>le tableau</span><span class="n">painting/board</span></div>
-        <div class="num-item"><span>le journal</span><span class="n">newspaper</span></div>
-        <div class="num-item"><span>le sport</span><span class="n">sport</span></div>
-        <div class="num-item"><span>le fruit</span><span class="n">fruit</span></div>
-        <div class="num-item"><span>le légume</span><span class="n">vegetable</span></div>
-        <div class="num-item"><span>le poisson</span><span class="n">fish</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>le vin</span><span class="n">wine</span></div>
-        <div class="num-item"><span>le pantalon</span><span class="n">pants</span></div>
-        <div class="num-item"><span>le manteau</span><span class="n">coat</span></div>
-        <div class="num-item"><span>le chapeau</span><span class="n">hat</span></div>
-        <div class="num-item"><span>le genou</span><span class="n">knee</span></div>
-        <div class="num-item"><span>le dos</span><span class="n">back</span></div>
-        <div class="num-item"><span>le cœur</span><span class="n">heart</span></div>
-        <div class="num-item"><span>le nez</span><span class="n">nose</span></div>
-        <div class="num-item"><span>le doigt</span><span class="n">finger</span></div>
-        <div class="num-item"><span>le salaire</span><span class="n">salary</span></div>
-      </div>
-    </div>
-    <h2>50 feminine nouns (la)</h2>
-    <div class="num-grid">
-      <div class="num-col">
-        <div class="num-item"><span>la vie</span><span class="n">life</span></div>
-        <div class="num-item"><span>la maison</span><span class="n">house</span></div>
-        <div class="num-item"><span>la voiture</span><span class="n">car</span></div>
-        <div class="num-item"><span>la nuit</span><span class="n">night</span></div>
-        <div class="num-item"><span>la ville</span><span class="n">city</span></div>
-        <div class="num-item"><span>la table</span><span class="n">table</span></div>
-        <div class="num-item"><span>la chose</span><span class="n">thing</span></div>
-        <div class="num-item"><span>la main</span><span class="n">hand</span></div>
-        <div class="num-item"><span>la porte</span><span class="n">door</span></div>
-        <div class="num-item"><span>la question</span><span class="n">question</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>la musique</span><span class="n">music</span></div>
-        <div class="num-item"><span>la lettre</span><span class="n">letter</span></div>
-        <div class="num-item"><span>la lumière</span><span class="n">light</span></div>
-        <div class="num-item"><span>la mer</span><span class="n">sea</span></div>
-        <div class="num-item"><span>la peur</span><span class="n">fear</span></div>
-        <div class="num-item"><span>la route</span><span class="n">road</span></div>
-        <div class="num-item"><span>la santé</span><span class="n">health</span></div>
-        <div class="num-item"><span>la famille</span><span class="n">family</span></div>
-        <div class="num-item"><span>la classe</span><span class="n">class</span></div>
-        <div class="num-item"><span>la fleur</span><span class="n">flower</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>la chambre</span><span class="n">bedroom</span></div>
-        <div class="num-item"><span>la cuisine</span><span class="n">kitchen</span></div>
-        <div class="num-item"><span>la fenêtre</span><span class="n">window</span></div>
-        <div class="num-item"><span>la rue</span><span class="n">street</span></div>
-        <div class="num-item"><span>la montagne</span><span class="n">mountain</span></div>
-        <div class="num-item"><span>la rivière</span><span class="n">river</span></div>
-        <div class="num-item"><span>la forêt</span><span class="n">forest</span></div>
-        <div class="num-item"><span>la plage</span><span class="n">beach</span></div>
-        <div class="num-item"><span>la neige</span><span class="n">snow</span></div>
-        <div class="num-item"><span>la pluie</span><span class="n">rain</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>la chaise</span><span class="n">chair</span></div>
-        <div class="num-item"><span>la lampe</span><span class="n">lamp</span></div>
-        <div class="num-item"><span>la clé</span><span class="n">key</span></div>
-        <div class="num-item"><span>la valise</span><span class="n">suitcase</span></div>
-        <div class="num-item"><span>la robe</span><span class="n">dress</span></div>
-        <div class="num-item"><span>la chemise</span><span class="n">shirt</span></div>
-        <div class="num-item"><span>la chaussure</span><span class="n">shoe</span></div>
-        <div class="num-item"><span>la tête</span><span class="n">head</span></div>
-        <div class="num-item"><span>la bouche</span><span class="n">mouth</span></div>
-        <div class="num-item"><span>la jambe</span><span class="n">leg</span></div>
-      </div>
-      <div class="num-col">
-        <div class="num-item"><span>la voix</span><span class="n">voice</span></div>
-        <div class="num-item"><span>la force</span><span class="n">strength</span></div>
-        <div class="num-item"><span>la joie</span><span class="n">joy</span></div>
-        <div class="num-item"><span>la chance</span><span class="n">luck</span></div>
-        <div class="num-item"><span>la guerre</span><span class="n">war</span></div>
-        <div class="num-item"><span>la paix</span><span class="n">peace</span></div>
-        <div class="num-item"><span>la loi</span><span class="n">law</span></div>
-        <div class="num-item"><span>la lecture</span><span class="n">reading</span></div>
-        <div class="num-item"><span>la culture</span><span class="n">culture</span></div>
-        <div class="num-item"><span>la banque</span><span class="n">bank</span></div>
-      </div>
-    </div>
-    <p style="font-size:12px; opacity:0.6; margin-top:10px;">Hover over any verb to see its English translation.</p>
+    <h2>50 masculine nouns (le) — by category</h2>
+    <div class="cat-group"><span class="cat-label">Food & drink</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le pain" data-ex="J'achète du pain tous les matins."><span class="word-area"><span>le pain</span><span class="n">bread</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le fromage" data-ex="Le fromage français est délicieux."><span class="word-area"><span>le fromage</span><span class="n">cheese</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le fruit" data-ex="Je mange un fruit après le déjeuner."><span class="word-area"><span>le fruit</span><span class="n">fruit</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le légume" data-ex="Ce légume est très frais."><span class="word-area"><span>le légume</span><span class="n">vegetable</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le poisson" data-ex="Le poisson est bon pour la santé."><span class="word-area"><span>le poisson</span><span class="n">fish</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le vin" data-ex="Il boit un verre de vin."><span class="word-area"><span>le vin</span><span class="n">wine</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le café" data-ex="Je bois un café le matin."><span class="word-area"><span>le café</span><span class="n">coffee/café</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Body</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le corps" data-ex="Le sport est bon pour le corps."><span class="word-area"><span>le corps</span><span class="n">body</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le genou" data-ex="Il s'est fait mal au genou."><span class="word-area"><span>le genou</span><span class="n">knee</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le dos" data-ex="J'ai mal au dos aujourd'hui."><span class="word-area"><span>le dos</span><span class="n">back</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le cœur" data-ex="Son cœur bat très vite."><span class="word-area"><span>le cœur</span><span class="n">heart</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le nez" data-ex="Elle a un petit nez."><span class="word-area"><span>le nez</span><span class="n">nose</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le doigt" data-ex="Je me suis coupé le doigt."><span class="word-area"><span>le doigt</span><span class="n">finger</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">House & objects</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le bureau" data-ex="Il travaille dans un grand bureau."><span class="word-area"><span>le bureau</span><span class="n">office/desk</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le mur" data-ex="Le tableau est accroché au mur."><span class="word-area"><span>le mur</span><span class="n">wall</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le toit" data-ex="Le toit de la maison est rouge."><span class="word-area"><span>le toit</span><span class="n">roof</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le miroir" data-ex="Elle se regarde dans le miroir."><span class="word-area"><span>le miroir</span><span class="n">mirror</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le tableau" data-ex="Ce tableau est très célèbre."><span class="word-area"><span>le tableau</span><span class="n">painting/board</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le sac" data-ex="J'ai oublié mon sac à la maison."><span class="word-area"><span>le sac</span><span class="n">bag</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le stylo" data-ex="Peux-tu me prêter un stylo ?"><span class="word-area"><span>le stylo</span><span class="n">pen</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le papier" data-ex="Écris ton nom sur le papier."><span class="word-area"><span>le papier</span><span class="n">paper</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le verre" data-ex="Il remplit le verre d'eau."><span class="word-area"><span>le verre</span><span class="n">glass</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le couteau" data-ex="Le couteau est très coupant."><span class="word-area"><span>le couteau</span><span class="n">knife</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Clothing</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le pantalon" data-ex="Ce pantalon est trop grand."><span class="word-area"><span>le pantalon</span><span class="n">pants</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le manteau" data-ex="Mets ton manteau, il fait froid."><span class="word-area"><span>le manteau</span><span class="n">coat</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le chapeau" data-ex="Elle porte un joli chapeau."><span class="word-area"><span>le chapeau</span><span class="n">hat</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Nature</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le monde" data-ex="Il a voyagé dans le monde entier."><span class="word-area"><span>le monde</span><span class="n">world</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le ciel" data-ex="Le ciel est bleu aujourd'hui."><span class="word-area"><span>le ciel</span><span class="n">sky</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le soleil" data-ex="Le soleil brille ce matin."><span class="word-area"><span>le soleil</span><span class="n">sun</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le jardin" data-ex="Les enfants jouent dans le jardin."><span class="word-area"><span>le jardin</span><span class="n">garden</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le pont" data-ex="Nous traversons le pont à pied."><span class="word-area"><span>le pont</span><span class="n">bridge</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Places</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le pays" data-ex="La France est un beau pays."><span class="word-area"><span>le pays</span><span class="n">country</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le magasin" data-ex="Le magasin ferme à vingt heures."><span class="word-area"><span>le magasin</span><span class="n">store</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le marché" data-ex="On va au marché le samedi."><span class="word-area"><span>le marché</span><span class="n">market</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le musée" data-ex="Le musée est ouvert le dimanche."><span class="word-area"><span>le musée</span><span class="n">museum</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Travel</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le voyage" data-ex="Notre voyage était incroyable."><span class="word-area"><span>le voyage</span><span class="n">trip</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le train" data-ex="Le train part dans dix minutes."><span class="word-area"><span>le train</span><span class="n">train</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le bateau" data-ex="Ils partent en bateau demain."><span class="word-area"><span>le bateau</span><span class="n">boat</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le chemin" data-ex="Ce chemin mène à la plage."><span class="word-area"><span>le chemin</span><span class="n">path</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Abstract & life</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le travail" data-ex="J'aime beaucoup mon travail."><span class="word-area"><span>le travail</span><span class="n">work</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le temps" data-ex="Je n'ai pas le temps aujourd'hui."><span class="word-area"><span>le temps</span><span class="n">time/weather</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le problème" data-ex="Il y a un petit problème."><span class="word-area"><span>le problème</span><span class="n">problem</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le nom" data-ex="Quel est ton nom complet ?"><span class="word-area"><span>le nom</span><span class="n">name</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le prix" data-ex="Le prix de ce livre est élevé."><span class="word-area"><span>le prix</span><span class="n">price</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le rêve" data-ex="J'ai fait un rêve étrange."><span class="word-area"><span>le rêve</span><span class="n">dream</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le salaire" data-ex="Son salaire a augmenté cette année."><span class="word-area"><span>le salaire</span><span class="n">salary</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Media & culture</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="le film" data-ex="Ce film m'a beaucoup plu."><span class="word-area"><span>le film</span><span class="n">movie</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le livre" data-ex="Je lis un livre intéressant."><span class="word-area"><span>le livre</span><span class="n">book</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le journal" data-ex="Il lit le journal chaque matin."><span class="word-area"><span>le journal</span><span class="n">newspaper</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="le sport" data-ex="Le sport me rend heureux."><span class="word-area"><span>le sport</span><span class="n">sport</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <h2>50 feminine nouns (la) — by category</h2>
+    <div class="cat-group"><span class="cat-label">Body</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la tête" data-ex="J'ai mal à la tête."><span class="word-area"><span>la tête</span><span class="n">head</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la bouche" data-ex="Ouvre la bouche, s'il te plaît."><span class="word-area"><span>la bouche</span><span class="n">mouth</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la main" data-ex="Donne-moi la main."><span class="word-area"><span>la main</span><span class="n">hand</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la jambe" data-ex="Elle s'est cassé la jambe."><span class="word-area"><span>la jambe</span><span class="n">leg</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">House & home</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la maison" data-ex="Notre maison est très spacieuse."><span class="word-area"><span>la maison</span><span class="n">house</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la table" data-ex="Le repas est sur la table."><span class="word-area"><span>la table</span><span class="n">table</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la chaise" data-ex="Assieds-toi sur cette chaise."><span class="word-area"><span>la chaise</span><span class="n">chair</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la lampe" data-ex="Allume la lampe, il fait sombre."><span class="word-area"><span>la lampe</span><span class="n">lamp</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la clé" data-ex="J'ai perdu la clé de la maison."><span class="word-area"><span>la clé</span><span class="n">key</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la fenêtre" data-ex="Ouvre la fenêtre, il fait chaud."><span class="word-area"><span>la fenêtre</span><span class="n">window</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la porte" data-ex="Ferme la porte derrière toi."><span class="word-area"><span>la porte</span><span class="n">door</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la chambre" data-ex="Sa chambre est très propre."><span class="word-area"><span>la chambre</span><span class="n">bedroom</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la cuisine" data-ex="Elle cuisine dans la cuisine."><span class="word-area"><span>la cuisine</span><span class="n">kitchen</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Clothing</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la robe" data-ex="Cette robe te va très bien."><span class="word-area"><span>la robe</span><span class="n">dress</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la chemise" data-ex="Il porte une chemise blanche."><span class="word-area"><span>la chemise</span><span class="n">shirt</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la chaussure" data-ex="Cette chaussure est trop petite."><span class="word-area"><span>la chaussure</span><span class="n">shoe</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Nature</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la mer" data-ex="Nous nageons dans la mer."><span class="word-area"><span>la mer</span><span class="n">sea</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la montagne" data-ex="Ils font de la randonnée en montagne."><span class="word-area"><span>la montagne</span><span class="n">mountain</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la rivière" data-ex="La rivière traverse le village."><span class="word-area"><span>la rivière</span><span class="n">river</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la forêt" data-ex="Nous nous promenons dans la forêt."><span class="word-area"><span>la forêt</span><span class="n">forest</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la plage" data-ex="La plage est pleine de monde."><span class="word-area"><span>la plage</span><span class="n">beach</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la neige" data-ex="Il y a beaucoup de neige en hiver."><span class="word-area"><span>la neige</span><span class="n">snow</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la pluie" data-ex="La pluie tombe toute la journée."><span class="word-area"><span>la pluie</span><span class="n">rain</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la fleur" data-ex="Elle m'a offert une belle fleur."><span class="word-area"><span>la fleur</span><span class="n">flower</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Places</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la ville" data-ex="Paris est une grande ville."><span class="word-area"><span>la ville</span><span class="n">city</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la rue" data-ex="Cette rue est très calme."><span class="word-area"><span>la rue</span><span class="n">street</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la banque" data-ex="Je vais à la banque cet après-midi."><span class="word-area"><span>la banque</span><span class="n">bank</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la route" data-ex="La route est fermée aujourd'hui."><span class="word-area"><span>la route</span><span class="n">road</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Travel</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la voiture" data-ex="Notre voiture est en panne."><span class="word-area"><span>la voiture</span><span class="n">car</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la valise" data-ex="Je prépare ma valise pour le voyage."><span class="word-area"><span>la valise</span><span class="n">suitcase</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Abstract & life</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la vie" data-ex="La vie est pleine de surprises."><span class="word-area"><span>la vie</span><span class="n">life</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la nuit" data-ex="Il fait froid la nuit."><span class="word-area"><span>la nuit</span><span class="n">night</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la chose" data-ex="C'est une chose importante pour moi."><span class="word-area"><span>la chose</span><span class="n">thing</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la question" data-ex="Peux-tu répéter la question ?"><span class="word-area"><span>la question</span><span class="n">question</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la peur" data-ex="Elle a peur des araignées."><span class="word-area"><span>la peur</span><span class="n">fear</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la santé" data-ex="La santé est très importante."><span class="word-area"><span>la santé</span><span class="n">health</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la famille" data-ex="Ma famille habite près d'ici."><span class="word-area"><span>la famille</span><span class="n">family</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la classe" data-ex="Toute la classe était présente."><span class="word-area"><span>la classe</span><span class="n">class</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la voix" data-ex="Elle a une belle voix."><span class="word-area"><span>la voix</span><span class="n">voice</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la force" data-ex="Il faut de la force pour porter ça."><span class="word-area"><span>la force</span><span class="n">strength</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la joie" data-ex="Quelle joie de te revoir !"><span class="word-area"><span>la joie</span><span class="n">joy</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la chance" data-ex="Bonne chance pour ton examen."><span class="word-area"><span>la chance</span><span class="n">luck</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Media & culture</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la musique" data-ex="J'adore écouter de la musique."><span class="word-area"><span>la musique</span><span class="n">music</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la lettre" data-ex="J'ai reçu une lettre de ma mère."><span class="word-area"><span>la lettre</span><span class="n">letter</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la lecture" data-ex="La lecture est mon passe-temps préféré."><span class="word-area"><span>la lecture</span><span class="n">reading</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la culture" data-ex="Il s'intéresse à la culture française."><span class="word-area"><span>la culture</span><span class="n">culture</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Society</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la guerre" data-ex="La guerre a duré plusieurs années."><span class="word-area"><span>la guerre</span><span class="n">war</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la paix" data-ex="Nous voulons la paix dans le monde."><span class="word-area"><span>la paix</span><span class="n">peace</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    <div class="num-item noun-item" data-fr="la loi" data-ex="Il faut respecter la loi."><span class="word-area"><span>la loi</span><span class="n">law</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div class="cat-group"><span class="cat-label">Light</span>
+    <div class="cat-pills">
+    <div class="num-item noun-item" data-fr="la lumière" data-ex="Éteins la lumière avant de partir."><span class="word-area"><span>la lumière</span><span class="n">light</span></span><button type="button" class="mini-speak">&#128266;</button></div>
+    </div></div>
+    <div id="nounExampleBox" class="test-summary" style="display:none;"></div>
+    <p style="font-size:12px; opacity:0.6; margin-top:10px;">Click a word to see an example sentence. Click &#128266; to hear it pronounced.</p>
   `,
   formulas: `
     <h2>Passé composé</h2>
@@ -2734,6 +2829,32 @@ function pronounceFr(text){
     utter.onend = ()=> resolve();
     utter.onerror = ()=> resolve();
     speechSynthesis.speak(utter);
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Turns "- mistake → correction" lines into a line with a clickable 🔊 next to the French correction.
+function renderFeedbackWithAudio(text){
+  const lines = text.split('\n');
+  const html = lines.map(line=>{
+    const m = line.match(/^(\s*[-•]?\s*)(.+?)\s*→\s*(.+)$/);
+    if(m){
+      const prefix = escapeHtml(m[1]);
+      const mistake = escapeHtml(m[2]);
+      const correction = escapeHtml(m[3]).trim();
+      return `${prefix}${mistake} → <span class="fr-fix">${correction}</span> <button type="button" class="play-fr" data-text="${correction}">🔊</button>`;
+    }
+    return escapeHtml(line);
+  }).join('\n');
+  return html;
+}
+
+function wireFeedbackAudio(container){
+  container.querySelectorAll('.play-fr').forEach(btn=>{
+    btn.addEventListener('click', ()=> pronounceFr(btn.dataset.text));
   });
 }
 
@@ -3064,6 +3185,86 @@ const dailyStories = [
       { prompt: "Que dit la maman à la fin de la journée ?", options: ["Qu'elle est fatiguée", "Que c'est la plus belle fête des mères de sa vie", "Qu'elle veut rentrer", "Rien de spécial"], correct: 1, why: "Elle dit que c'est la plus belle fête des mères de sa vie." },
       { prompt: "Comment se sent Inès à la fin ?", options: ["Fatiguée", "Très heureuse", "Déçue", "Indifférente"], correct: 1, why: "Elle est très heureuse." }
     ]
+  },
+  {
+    title: "Le marathon de Sophie",
+    text: "Sophie s'entraîne depuis six mois pour courir son premier marathon. Chaque matin, elle court cinq kilomètres avant d'aller au travail. Le jour de la course arrive enfin, et elle est très nerveuse. Au départ, il y a des milliers de coureurs autour d'elle. Après vingt kilomètres, ses jambes commencent à être fatiguées, mais elle continue. Ses amis l'encouragent le long du parcours avec des pancartes. Finalement, après quatre heures de course, elle franchit la ligne d'arrivée. Elle pleure de joie et de fatigue en même temps. C'est l'un des plus grands accomplissements de sa vie.",
+    questions: [
+      { prompt: "Depuis combien de temps Sophie s'entraîne-t-elle ?", options: ["Trois mois", "Six mois", "Un an", "Deux ans"], correct: 1, why: "Elle s'entraîne depuis six mois." },
+      { prompt: "Que fait-elle chaque matin ?", options: ["Elle nage", "Elle court cinq kilomètres", "Elle fait du vélo", "Elle marche"], correct: 1, why: "Elle court cinq kilomètres avant le travail." },
+      { prompt: "Comment se sent-elle le jour de la course ?", options: ["Calme", "Très nerveuse", "Fatiguée", "Indifférente"], correct: 1, why: "Elle est très nerveuse." },
+      { prompt: "Combien de coureurs y a-t-il au départ ?", options: ["Une centaine", "Des milliers", "Dix", "Elle ne sait pas"], correct: 1, why: "Il y a des milliers de coureurs." },
+      { prompt: "Après combien de kilomètres ses jambes sont-elles fatiguées ?", options: ["Dix kilomètres", "Vingt kilomètres", "Trente kilomètres", "Au début"], correct: 1, why: "Après vingt kilomètres." },
+      { prompt: "Qui l'encourage pendant la course ?", options: ["Sa famille", "Ses amis", "Des inconnus", "Personne"], correct: 1, why: "Ses amis l'encouragent." },
+      { prompt: "Avec quoi l'encouragent-ils ?", options: ["Des cris", "Des pancartes", "De la musique", "Des cadeaux"], correct: 1, why: "Avec des pancartes." },
+      { prompt: "Combien de temps dure la course pour elle ?", options: ["Deux heures", "Trois heures", "Quatre heures", "Cinq heures"], correct: 2, why: "Elle finit après quatre heures." },
+      { prompt: "Comment réagit-elle en franchissant la ligne d'arrivée ?", options: ["Elle rit", "Elle pleure de joie", "Elle s'évanouit", "Elle ne ressent rien"], correct: 1, why: "Elle pleure de joie et de fatigue." },
+      { prompt: "Comment décrit-elle cet accomplissement ?", options: ["Sans importance", "L'un des plus grands de sa vie", "Décevant", "Ordinaire"], correct: 1, why: "C'est l'un des plus grands accomplissements de sa vie." }
+    ]
+  },
+  {
+    title: "Un déménagement surprise",
+    text: "Marc reçoit un appel de son entreprise lui annonçant qu'il doit déménager dans une autre ville pour un nouveau poste. Il a seulement deux semaines pour tout organiser. D'abord, il cherche un appartement en ligne dans sa nouvelle ville. Ensuite, il doit dire au revoir à ses amis proches, ce qui est très émouvant. Le jour du déménagement, ses collègues l'aident à charger le camion. Pendant le trajet de six heures, il réfléchit à ce nouveau chapitre de sa vie. En arrivant, son nouvel appartement est plus petit, mais bien situé près du centre-ville. Après quelques jours, Marc commence déjà à se sentir chez lui.",
+    questions: [
+      { prompt: "Pourquoi Marc doit-il déménager ?", options: ["Pour sa famille", "Pour un nouveau poste", "Pour ses études", "Il ne sait pas"], correct: 1, why: "Pour un nouveau poste." },
+      { prompt: "Combien de temps a-t-il pour s'organiser ?", options: ["Une semaine", "Deux semaines", "Un mois", "Trois mois"], correct: 1, why: "Il a deux semaines." },
+      { prompt: "Que cherche-t-il d'abord ?", options: ["Un travail", "Un appartement en ligne", "Une voiture", "Des amis"], correct: 1, why: "Il cherche un appartement en ligne." },
+      { prompt: "Comment se sent-il en disant au revoir à ses amis ?", options: ["Indifférent", "Très ému", "Content", "En colère"], correct: 1, why: "C'est très émouvant pour lui." },
+      { prompt: "Qui l'aide à charger le camion ?", options: ["Sa famille", "Ses collègues", "Des déménageurs", "Personne"], correct: 1, why: "Ses collègues l'aident." },
+      { prompt: "Combien de temps dure le trajet ?", options: ["Deux heures", "Quatre heures", "Six heures", "Huit heures"], correct: 2, why: "Le trajet dure six heures." },
+      { prompt: "À quoi pense-t-il pendant le trajet ?", options: ["À son travail", "À ce nouveau chapitre de sa vie", "À rien", "À son ancien appartement"], correct: 1, why: "Il réfléchit à ce nouveau chapitre de sa vie." },
+      { prompt: "Comment est son nouvel appartement ?", options: ["Plus grand", "Plus petit mais bien situé", "Identique", "Très loin du centre"], correct: 1, why: "Plus petit, mais bien situé près du centre-ville." },
+      { prompt: "Où est situé le nouvel appartement ?", options: ["Loin du centre-ville", "Près du centre-ville", "À la campagne", "Près de la mer"], correct: 1, why: "Près du centre-ville." },
+      { prompt: "Comment se sent Marc après quelques jours ?", options: ["Toujours perdu", "Il commence à se sentir chez lui", "Il veut repartir", "Fatigué"], correct: 1, why: "Il commence déjà à se sentir chez lui." }
+    ]
+  },
+  {
+    title: "La leçon de cuisine en ligne",
+    text: "Pendant le confinement, Julie décide d'apprendre à cuisiner grâce à des vidéos en ligne. Elle choisit de commencer par une recette simple : une quiche aux légumes. Elle suit attentivement chaque étape de la vidéo, mais elle oublie d'acheter de la crème fraîche. Elle utilise du yaourt à la place, en espérant que ça fonctionne. Pendant la cuisson, toute la maison sent délicieusement bon. Quand elle sort la quiche du four, elle est fière du résultat. Elle la partage avec sa colocataire, qui adore le plat. Depuis ce jour, Julie regarde une nouvelle vidéo de cuisine chaque semaine.",
+    questions: [
+      { prompt: "Pourquoi Julie apprend-elle à cuisiner ?", options: ["Pour un concours", "Pendant le confinement", "Pour son travail", "Pour un ami"], correct: 1, why: "Pendant le confinement." },
+      { prompt: "Quelle recette choisit-elle ?", options: ["Une tarte aux pommes", "Une quiche aux légumes", "Un gâteau au chocolat", "Une pizza"], correct: 1, why: "Une quiche aux légumes." },
+      { prompt: "Qu'oublie-t-elle d'acheter ?", options: ["Des légumes", "De la crème fraîche", "Des œufs", "Du fromage"], correct: 1, why: "Elle oublie la crème fraîche." },
+      { prompt: "Qu'utilise-t-elle à la place ?", options: ["Du lait", "Du yaourt", "De l'huile", "Rien"], correct: 1, why: "Elle utilise du yaourt." },
+      { prompt: "Que sent-on dans la maison pendant la cuisson ?", options: ["Rien de spécial", "Une odeur délicieuse", "Une odeur de brûlé", "Une odeur bizarre"], correct: 1, why: "Toute la maison sent délicieusement bon." },
+      { prompt: "Comment se sent-elle en sortant la quiche du four ?", options: ["Déçue", "Fière", "Inquiète", "Indifférente"], correct: 1, why: "Elle est fière du résultat." },
+      { prompt: "Avec qui partage-t-elle le plat ?", options: ["Sa famille", "Sa colocataire", "Des voisins", "Personne"], correct: 1, why: "Elle le partage avec sa colocataire." },
+      { prompt: "Que pense sa colocataire du plat ?", options: ["Elle n'aime pas", "Elle adore", "Elle est indifférente", "Elle ne goûte pas"], correct: 1, why: "Sa colocataire adore le plat." },
+      { prompt: "Que fait Julie depuis ce jour ?", options: ["Elle arrête de cuisiner", "Elle regarde une nouvelle vidéo chaque semaine", "Elle mange seulement des quiches", "Rien de nouveau"], correct: 1, why: "Elle regarde une nouvelle vidéo chaque semaine." },
+      { prompt: "Où Julie a-t-elle appris à cuisiner ?", options: ["À l'école de cuisine", "Grâce à des vidéos en ligne", "Avec sa mère", "Dans un livre"], correct: 1, why: "Grâce à des vidéos en ligne." }
+    ]
+  },
+  {
+    title: "Le jour de l'examen de conduite",
+    text: "Thomas a son examen de conduite aujourd'hui, après plusieurs mois de leçons. Il arrive au centre d'examen avec vingt minutes d'avance pour se calmer. L'examinateur monte dans la voiture et lui demande de démarrer calmement. Pendant l'examen, Thomas doit faire un créneau, ce qui le rend très nerveux. Heureusement, il réussit du premier coup. Il doit aussi s'arrêter à un feu rouge et céder le passage à un piéton. Après trente minutes, l'examinateur lui annonce qu'il a réussi son examen. Thomas est tellement content qu'il appelle immédiatement ses parents pour leur annoncer la bonne nouvelle.",
+    questions: [
+      { prompt: "Après combien de temps de leçons Thomas passe-t-il l'examen ?", options: ["Quelques semaines", "Plusieurs mois", "Un an", "Il ne sait pas"], correct: 1, why: "Après plusieurs mois de leçons." },
+      { prompt: "Avec combien d'avance arrive-t-il ?", options: ["Dix minutes", "Vingt minutes", "Une heure", "Il est en retard"], correct: 1, why: "Il arrive vingt minutes en avance." },
+      { prompt: "Pourquoi arrive-t-il en avance ?", options: ["Pour réviser", "Pour se calmer", "Par habitude", "Il ne sait pas"], correct: 1, why: "Pour se calmer." },
+      { prompt: "Que lui demande l'examinateur d'abord ?", options: ["De s'arrêter", "De démarrer calmement", "De faire un créneau", "Rien"], correct: 1, why: "De démarrer calmement." },
+      { prompt: "Quelle manœuvre le rend nerveux ?", options: ["Le démarrage", "Le créneau", "L'arrêt", "Le virage"], correct: 1, why: "Faire un créneau le rend très nerveux." },
+      { prompt: "Réussit-il cette manœuvre du premier coup ?", options: ["Oui", "Non", "Il ne la fait pas", "Il échoue"], correct: 0, why: "Il réussit du premier coup." },
+      { prompt: "Que doit-il faire à un feu rouge ?", options: ["Accélérer", "S'arrêter", "Klaxonner", "Rien"], correct: 1, why: "Il doit s'arrêter." },
+      { prompt: "À qui cède-t-il le passage ?", options: ["Une voiture", "Un piéton", "Un vélo", "Personne"], correct: 1, why: "À un piéton." },
+      { prompt: "Combien de temps dure l'examen ?", options: ["Quinze minutes", "Trente minutes", "Une heure", "Il ne sait pas"], correct: 1, why: "L'examen dure trente minutes." },
+      { prompt: "Que fait Thomas après avoir réussi ?", options: ["Il rentre seul chez lui", "Il appelle ses parents", "Il fête ça avec des amis", "Rien de spécial"], correct: 1, why: "Il appelle immédiatement ses parents." }
+    ]
+  },
+  {
+    title: "Les retrouvailles",
+    text: "Claire n'a pas vu sa meilleure amie d'enfance depuis dix ans, car elle habite maintenant à l'étranger. Aujourd'hui, son amie revient enfin visiter sa ville natale. Claire l'attend à l'aéroport avec beaucoup d'émotion. Quand elle voit son amie sortir, elles courent l'une vers l'autre et se serrent très fort dans leurs bras. Elles pleurent et rient en même temps. Pendant le trajet en voiture, elles parlent sans arrêt, essayant de rattraper dix années de leur vie. Le soir, elles dînent ensemble dans leur restaurant préféré d'autrefois, qui existe toujours. Claire réalise que leur amitié n'a pas changé, malgré la distance et le temps.",
+    questions: [
+      { prompt: "Depuis combien de temps Claire n'a-t-elle pas vu son amie ?", options: ["Cinq ans", "Dix ans", "Quinze ans", "Vingt ans"], correct: 1, why: "Depuis dix ans." },
+      { prompt: "Où habite maintenant son amie ?", options: ["Dans la même ville", "À l'étranger", "Dans un autre quartier", "Elle ne sait pas"], correct: 1, why: "Elle habite à l'étranger." },
+      { prompt: "Où Claire attend-elle son amie ?", options: ["À la gare", "À l'aéroport", "Chez elle", "Au restaurant"], correct: 1, why: "Elle l'attend à l'aéroport." },
+      { prompt: "Comment réagissent-elles en se voyant ?", options: ["Calmement", "Elles courent et se serrent dans les bras", "Elles se saluent de loin", "Elles ne se reconnaissent pas"], correct: 1, why: "Elles courent l'une vers l'autre et se serrent fort." },
+      { prompt: "Que font-elles en se retrouvant, en même temps ?", options: ["Elles rient seulement", "Elles pleurent et rient", "Elles restent silencieuses", "Elles se disputent"], correct: 1, why: "Elles pleurent et rient en même temps." },
+      { prompt: "De quoi parlent-elles pendant le trajet ?", options: ["De rien", "Elles essaient de rattraper dix ans", "Du temps qu'il fait", "De politique"], correct: 1, why: "Elles essaient de rattraper dix années de leur vie." },
+      { prompt: "Où dînent-elles le soir ?", options: ["Chez Claire", "Dans leur restaurant préféré d'autrefois", "Dans un nouveau restaurant", "Elles ne dînent pas ensemble"], correct: 1, why: "Dans leur restaurant préféré d'autrefois." },
+      { prompt: "Ce restaurant existe-t-il toujours ?", options: ["Oui", "Non", "Il a fermé", "Elle ne sait pas"], correct: 0, why: "Le restaurant existe toujours." },
+      { prompt: "Que réalise Claire à la fin ?", options: ["Que leur amitié a changé", "Que leur amitié n'a pas changé", "Qu'elles ne sont plus amies", "Rien de spécial"], correct: 1, why: "Que leur amitié n'a pas changé." },
+      { prompt: "Qu'est-ce qui n'a pas affecté leur amitié ?", options: ["Rien", "La distance et le temps", "Leur caractère", "Leurs familles"], correct: 1, why: "La distance et le temps n'ont rien changé." }
+    ]
   }
 ];
 
@@ -3194,6 +3395,27 @@ function showRef(tab){
   if(tab === 'numbers'){
     refContent.querySelectorAll('.num-item').forEach(item=>{
       item.addEventListener('click', ()=> pronounceFr(item.dataset.fr));
+    });
+  }
+  if(tab === 'verbs'){
+    const exBox = document.getElementById('nounExampleBox');
+    refContent.querySelectorAll('.noun-item').forEach(item=>{
+      const wordArea = item.querySelector('.word-area');
+      const speakBtn = item.querySelector('.mini-speak');
+      if(wordArea){
+        wordArea.addEventListener('click', ()=>{
+          if(exBox){
+            exBox.style.display = 'block';
+            exBox.innerHTML = `<strong>${item.dataset.fr}</strong> — ${item.dataset.ex}`;
+          }
+        });
+      }
+      if(speakBtn){
+        speakBtn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          pronounceFr(item.dataset.fr);
+        });
+      }
     });
   }
   if(tab === 'time' || tab === 'prepositions'){
@@ -3783,6 +4005,8 @@ const speakScenarios = {
 };
 
 const convinceTopics = {
+  "Sujet 1 : vacances sportives contre vacances reposantes": "You are the learner's friend organizing a vacation together. You want restful vacations with cultural visits, but the learner wants to convince you to do a sporty/active vacation instead. Respond only in French, simple A1-A2 level, 1-2 short sentences. Stay a bit hesitant (prefer relaxing, museums, culture) and only agree gradually if they give good reasons.",
+  "Sujet 2 : cuisiner contre aller au restaurant en vacances": "You are the learner's friend on vacation together. You prefer going to a restaurant every day, but the learner prefers cooking and wants to convince you. Respond only in French, simple A1-A2 level, 1-2 short sentences. Stay a bit resistant (enjoy restaurants, don't want to cook) and only agree gradually if they give good reasons.",
   "Convaincre un ami de partir en vacances avec toi": "You are the learner's friend in a casual French conversation. The learner wants to convince you to go on vacation together. Respond only in French, simple A1-A2 level, 1-2 short sentences. Start a bit hesitant (busy, budget, unsure) and let yourself gradually be convinced only if they give good reasons — otherwise raise a new small concern each time, staying warm and friendly, not hostile.",
   "Convaincre un ami de cuisiner au lieu d'aller au restaurant en vacances": "You are the learner's friend on vacation together. You'd rather eat at a restaurant, but the learner wants to convince you to cook at home instead. Respond only in French, simple A1-A2 level, 1-2 short sentences. Stay friendly, gently push back with a reason (tired, no groceries, want to relax) each time, and only agree if they give a genuinely good argument.",
   "Convaincre un ami de regarder un film plutôt qu'une série": "You are the learner's friend deciding what to watch together. You'd rather watch a series, but the learner wants to convince you to watch a movie instead. Respond only in French, simple A1-A2 level, 1-2 short sentences, friendly but a little resistant at first.",
@@ -3897,7 +4121,7 @@ function runSpeakingTurn(timerEl, inputEl, recognizer, submitBtn){
       if(cancelled) return;
       timerEl.textContent = '🎤 Recording… speak now!';
       if(recognizer) recognizer.start();
-      for(let t=15; t>0 && !cancelled; t--){
+      for(let t=60; t>0 && !cancelled; t--){
         timerEl.textContent = `🎤 Recording… (${t}s left)`;
         await sleep(1000);
       }
@@ -4147,7 +4371,8 @@ async function getSpeakingResults(transcriptText){
             "Grammar & accuracy: x/5\n" +
             "Interaction & fluency: x/5\n" +
             "Strengths: 1-2 short bullet points.\n" +
-            "Mistakes to fix: 2-4 bullet points, each showing the mistake and the French correction.\n" +
+            "Mistakes to fix: 2-4 bullet points, EXACTLY in this format on each line: " +
+            "- <mistake in English> → <French correction>\n" +
             "One tip for next time.\n" +
             "Keep it concise (under 200 words total).\n\n" +
             "Transcript:\n" + transcriptText
@@ -4158,6 +4383,7 @@ async function getSpeakingResults(transcriptText){
     const data = await response.json();
     const reply = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || "").trim();
     box.innerHTML = renderScoreCard(reply);
+    wireFeedbackAudio(box);
   } catch(err){
     box.innerHTML = "Scoring failed. Check your connection and try again.";
   }
@@ -4183,7 +4409,7 @@ function renderScoreCard(text){
   const header = totalMatch
     ? `<div class="score-total">Score: ${totalMatch[1]}/20 &nbsp; (${totalMatch[2].trim()})</div>`
     : '';
-  return header + bars + `<div style="margin-top:10px; white-space:pre-wrap;">${restText}</div>`;
+  return header + bars + `<div style="margin-top:10px; white-space:pre-wrap;">${renderFeedbackWithAudio(restText)}</div>`;
 }
 </script>
 </body>
