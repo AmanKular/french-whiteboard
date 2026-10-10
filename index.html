@@ -752,10 +752,26 @@
   body.dark .ref-tab{ background:#3d4047; border-color:#5a5e66; }
   body.dark .ref-content td, body.dark .ref-content th{ border-bottom-color:#52555c; }
   body.dark .ref-book-btn{ background:#3d4047; }
+  .ref-translate-btn{
+    position: fixed;
+    top: 16px;
+    right: 66px;
+    z-index: 100;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  body.dark .ref-translate-btn{ background:#3d4047; }
 </style>
 </head>
 <body>
 <button id="refBookBtn" class="ref-book-btn" title="Grammar & vocab reference">📖</button>
+<button id="refTranslateBtn" class="ref-translate-btn" title="Translator (English ⇄ French)">🌐</button>
 
 <div id="refModal" class="ref-modal">
   <div class="ref-modal-inner">
@@ -776,6 +792,16 @@
     </div>
     <div id="refContent" class="ref-content"></div>
     <div id="clockTooltip" class="clock-tooltip"></div>
+  </div>
+</div>
+
+<div id="translatorModal" class="ref-modal">
+  <div class="ref-modal-inner" style="max-width:640px;">
+    <div class="ref-modal-header">
+      <h1 style="margin:0;">Translator</h1>
+      <button id="translatorCloseBtn" class="action btn-erase">close ✕</button>
+    </div>
+    <div id="translatorModalContent" class="ref-content"></div>
   </div>
 </div>
 
@@ -2858,28 +2884,31 @@ function wireFeedbackAudio(container){
   });
 }
 
-function buildTranslatorHTML(){
+function buildTranslatorHTML(prefix, showTitle){
+  prefix = prefix || 'tr';
+  const title = (showTitle === false) ? '' : '<h2>Translator</h2>';
   return `
-    <h2>Translator</h2>
+    ${title}
     <p style="font-size:12.5px; opacity:0.7; margin-bottom:10px;">Type anything — it translates automatically as you type.</p>
     <div class="row">
-      <select id="translateDir">
+      <select id="${prefix}Dir">
+        <option value="fr-en" selected>French → English</option>
         <option value="en-fr">English → French</option>
-        <option value="fr-en">French → English</option>
       </select>
     </div>
-    <textarea id="translateInput" class="writing-area" style="min-height:80px;" placeholder="Type text here…"></textarea>
+    <textarea id="${prefix}Input" class="writing-area" style="min-height:80px;" placeholder="Type text here…"></textarea>
     <div class="row" style="margin-top:8px;">
-      <button class="action btn-erase" id="translateClearBtn">clear</button>
+      <button class="action btn-erase" id="${prefix}ClearBtn">clear</button>
     </div>
-    <div id="translateResult" class="feedback-box" style="display:none; margin-top:12px;"></div>
+    <div id="${prefix}Result" class="feedback-box" style="display:none; margin-top:12px;"></div>
   `;
 }
 
-function wireTranslator(){
-  const input = document.getElementById('translateInput');
-  const dirPicker = document.getElementById('translateDir');
-  const resultBox = document.getElementById('translateResult');
+function wireTranslator(prefix){
+  prefix = prefix || 'tr';
+  const input = document.getElementById(prefix + 'Input');
+  const dirPicker = document.getElementById(prefix + 'Dir');
+  const resultBox = document.getElementById(prefix + 'Result');
   let debounceTimer = null;
   let requestToken = 0;
 
@@ -2928,7 +2957,7 @@ function wireTranslator(){
   dirPicker.addEventListener('change', ()=>{
     if(input.value.trim()) runTranslate();
   });
-  document.getElementById('translateClearBtn').addEventListener('click', ()=>{
+  document.getElementById(prefix + 'ClearBtn').addEventListener('click', ()=>{
     input.value = '';
     resultBox.style.display = 'none';
     resultBox.textContent = '';
@@ -3389,7 +3418,7 @@ function showRef(tab){
   else if(tab === 'time'){ refContent.innerHTML = buildClockSVG() + refData.time; }
   else if(tab === 'dailystory'){ refContent.innerHTML = buildDailyStoryHTML(); wireDailyStory(); }
   else if(tab === 'prepositions'){ refContent.innerHTML = refData.prepositions + buildPrepositionsSVG(); }
-  else if(tab === 'translator'){ refContent.innerHTML = buildTranslatorHTML(); wireTranslator(); }
+  else if(tab === 'translator'){ refContent.innerHTML = buildTranslatorHTML('bk'); wireTranslator('bk'); }
   else { refContent.innerHTML = refData[tab]; }
   document.querySelectorAll('.ref-tab').forEach(t=> t.classList.toggle('active', t.dataset.ref === tab));
   if(tab === 'numbers'){
@@ -3437,6 +3466,15 @@ function showRef(tab){
   }
 }
 
+const translatorModal = document.getElementById('translatorModal');
+document.getElementById('refTranslateBtn').addEventListener('click', ()=>{
+  document.getElementById('translatorModalContent').innerHTML = buildTranslatorHTML('tm', false);
+  wireTranslator('tm');
+  translatorModal.classList.add('open');
+  setTimeout(()=>{ const i = document.getElementById('tmInput'); if(i) i.focus(); }, 50);
+});
+document.getElementById('translatorCloseBtn').addEventListener('click', ()=> translatorModal.classList.remove('open'));
+translatorModal.addEventListener('click', (e)=>{ if(e.target === translatorModal) translatorModal.classList.remove('open'); });
 document.getElementById('refBookBtn').addEventListener('click', ()=>{
   refModal.classList.add('open');
   showRef('verbs');
