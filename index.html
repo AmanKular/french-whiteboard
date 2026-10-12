@@ -2844,17 +2844,63 @@ const numberWords = [
   "quatre-vingt-onze","quatre-vingt-douze","quatre-vingt-treize","quatre-vingt-quatorze","quatre-vingt-quinze","quatre-vingt-seize","quatre-vingt-dix-sept","quatre-vingt-dix-huit","quatre-vingt-dix-neuf","cent"
 ];
 
+const _liveUtterances = [];
 function pronounceFr(text){
   if(!window.speechSynthesis) return Promise.resolve();
   return new Promise((resolve)=>{
-    speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'fr-FR';
-    if(typeof selectedVoice !== 'undefined' && selectedVoice) utter.voice = selectedVoice;
-    utter.rate = 0.9;
-    utter.onend = ()=> resolve();
-    utter.onerror = ()=> resolve();
-    speechSynthesis.speak(utter);
+    let done = false;
+    let safety = null;
+    const finish = ()=>{ if(done) return; done = true; clearTimeout(safety); resolve(); };
+    // If the speech engine is blocked or never reports "end", don't freeze the exam flow.
+    safety = setTimeout(finish, Math.max(2500, text.length * 120 + 1500));
+    try{
+      speechSynthesis.cancel();
+      if(speechSynthesis.paused) speechSynthesis.resume();
+    }catch(e){}
+    setTimeout(()=>{
+      try{
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'fr-FR';
+        if(typeof selectedVoice !== 'undefined' && selectedVoice) utter.voice = selectedVoice;
+        utter.rate = 0.9;
+        utter.onend = finish;
+        utter.onerror = finish;
+        // keep a reference: some browsers garbage-collect the utterance and never fire "end"
+        _liveUtterances.push(utter);
+        if(_liveUtterances.length > 10) _liveUtterances.shift();
+        speechSynthesis.speak(utter);
+      }catch(e){ finish(); }
+    }, 80);
+  });
+}
+
+// Must be called from a click handler: "unlocks" speech so it can talk later without a click.
+function unlockSpeech(){
+  try{
+    if(!window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    u.lang = 'fr-FR';
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// Short "ding" so there is always an audible start cue, even if the voice is silent.
+function playBeep(){
+  return new Promise((resolve)=>{
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC){ resolve(); return; }
+      const ctx = new AC();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.value = 0.15;
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start();
+      setTimeout(()=>{ try{ osc.stop(); ctx.close(); }catch(e){} resolve(); }, 250);
+    }catch(e){ resolve(); }
   });
 }
 
@@ -4115,6 +4161,10 @@ function buildAutoRecognizer(inputId, statusEl){
   rec.continuous = true;
   rec.interimResults = true;
   let finalTranscript = '';
+  let active = false;
+  const api = { lastError: '' };
+  const fatal = ['not-allowed', 'service-not-allowed', 'network', 'language-not-supported'];
+
   rec.onresult = (e)=>{
     let interim = '';
     for(let i = e.resultIndex; i < e.results.length; i++){
@@ -4124,11 +4174,34 @@ function buildAutoRecognizer(inputId, statusEl){
     }
     input.value = (finalTranscript + interim).trim();
   };
-  rec.onerror = ()=>{};
-  return {
-    start(){ finalTranscript = ''; try{ rec.start(); }catch(e){} },
-    stop(){ try{ rec.stop(); }catch(e){} }
+  rec.onerror = (e)=>{
+    api.lastError = (e && e.error) || 'error';
+    if(fatal.indexOf(api.lastError) !== -1) active = false;
   };
+  // the browser ends a session after a pause in speech — restart it while the window is still open
+  rec.onend = ()=>{
+    if(active) setTimeout(()=>{ if(active){ try{ rec.start(); }catch(err){} } }, 250);
+  };
+  api.start = ()=>{
+    finalTranscript = '';
+    api.lastError = '';
+    active = true;
+    try{ rec.start(); }catch(e){}
+  };
+  api.stop = ()=>{
+    active = false;
+    try{ rec.stop(); }catch(e){}
+  };
+  return api;
+}
+
+function micProblemText(recognizer){
+  if(!recognizer || !recognizer.lastError) return '';
+  const e = recognizer.lastError;
+  if(e === 'not-allowed' || e === 'service-not-allowed') return ' ⚠ microphone blocked — allow it in the address bar';
+  if(e === 'network') return ' ⚠ speech service unreachable';
+  if(e === 'audio-capture') return ' ⚠ no microphone found';
+  return '';
 }
 
 // Runs the 30s prep + 15s recording sequence for one speaking turn.
@@ -4157,10 +4230,12 @@ function runSpeakingTurn(timerEl, inputEl, recognizer, submitBtn){
       timerEl.textContent = '🗣️ Commencez à parler maintenant…';
       await pronounceFr("Commencez à parler maintenant.");
       if(cancelled) return;
+      await playBeep();
+      if(cancelled) return;
       timerEl.textContent = '🎤 Recording… speak now!';
       if(recognizer) recognizer.start();
       for(let t=60; t>0 && !cancelled; t--){
-        timerEl.textContent = `🎤 Recording… (${t}s left)`;
+        timerEl.textContent = `🎤 Recording… (${t}s left)` + micProblemText(recognizer);
         await sleep(1000);
       }
       finish();
@@ -4219,6 +4294,7 @@ async function askModeAQuestion(){
 }
 
 document.getElementById('startModeABtn').addEventListener('click', ()=>{
+  unlockSpeech();
   const topic = speakTopicPicker.value;
   modeAQuestions = [...speakQuestions[topic]];
   modeAIndex = 0;
@@ -4241,6 +4317,7 @@ const speakInputRowB = document.getElementById('speakInputRowB');
 const endModeBBtn = document.getElementById('endModeBBtn');
 
 document.getElementById('startModeBBtn').addEventListener('click', ()=>{
+  unlockSpeech();
   const scenario = speakScenarioPicker.value;
   document.getElementById('speakScenarioIntro').textContent =
     `Scenario: ${scenario}. Prepare to start the conversation in French — say hello and ask your first question.`;
@@ -4316,6 +4393,7 @@ const speakInputRowC = document.getElementById('speakInputRowC');
 const endModeCBtn = document.getElementById('endModeCBtn');
 
 document.getElementById('startModeCBtn').addEventListener('click', ()=>{
+  unlockSpeech();
   const topic = speakConvincePicker.value;
   document.getElementById('speakConvinceIntro').textContent =
     `Scenario: ${topic}. Prepare to state your case in French and try to convince your friend.`;
