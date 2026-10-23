@@ -767,6 +767,43 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   }
   body.dark .ref-translate-btn{ background:#3d4047; }
+
+  /* ---- fun reference book ---- */
+  .fun-box{ background: rgba(255,200,40,0.20); border:1.5px dashed #e0a800; border-radius:12px; padding:10px 14px; margin-bottom:14px; font-size:13.5px; line-height:1.5; }
+  .rcard{ --cc:#1f5fb0; --cc-rgb:31,95,176; border-left:5px solid var(--cc); background: rgba(var(--cc-rgb),0.09); border-radius:12px; padding:10px 14px 12px; margin-bottom:14px; }
+  .rcard.c-green{ --cc:#1c7a4d; --cc-rgb:28,122,77; }
+  .rcard.c-orange{ --cc:#d9731a; --cc-rgb:217,115,26; }
+  .rcard.c-purple{ --cc:#7a45c7; --cc-rgb:122,69,199; }
+  .rcard.c-pink{ --cc:#d6468c; --cc-rgb:214,70,140; }
+  .rcard.c-red{ --cc:#c0392b; --cc-rgb:192,57,43; }
+  .rcard.c-teal{ --cc:#12908e; --cc-rgb:18,144,142; }
+  .ref-content .rcard .rtitle{ font-weight:700; font-size:15.5px; color: var(--cc); margin:0 0 6px; }
+  .rsub{ font-weight:500; font-size:12px; opacity:.75; margin-left:6px; color: var(--ink); }
+  .rtip{ font-size:13.5px; margin:6px 0; line-height:1.55; }
+  .rchips{ display:flex; flex-wrap:wrap; gap:7px 8px; margin-top:6px; }
+  .rcard .rv{ background: rgba(var(--cc-rgb),0.16); border:none; border-radius:999px; padding:4px 11px; font-size:13px; cursor:pointer; transition: transform .1s ease, background .15s ease; }
+  .rcard .rv:hover{ background: rgba(var(--cc-rgb),0.32); transform: translateY(-2px); }
+  .rhint{ font-size:12px; opacity:.6; margin:2px 0 14px; }
+  .formula{ margin:8px 0; font-size:14px; }
+  .op{ color: var(--cc); margin:0 2px; }
+  .fchip{ display:inline-block; background: rgba(var(--cc-rgb),0.16); border:1.5px solid rgba(var(--cc-rgb),0.5); border-radius:9px; padding:3px 10px; margin:2px 3px 2px 0; font-weight:600; font-size:13px; }
+  .ex{ display:flex; align-items:center; gap:8px; margin:6px 0; flex-wrap:wrap; }
+  .exfr{ font-weight:700; }
+  .exen{ opacity:.65; font-size:12.5px; font-style:italic; }
+  .say{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; border:none; background: rgba(var(--cc-rgb),0.2); cursor:pointer; font-size:12px; padding:0; transition: transform .1s ease; }
+  .say:hover{ transform: scale(1.15); background: rgba(var(--cc-rgb),0.35); }
+  .wchip{ display:inline-block; border-radius:999px; padding:4px 12px; margin:3px 5px 3px 0; cursor:pointer; font-size:13px; border:1.5px solid; transition: transform .1s ease; }
+  .wchip:hover{ transform: translateY(-2px); }
+  .wchip small{ opacity:.6; margin-left:6px; }
+  .wchip.m{ background: rgba(31,95,176,.12); border-color: rgba(31,95,176,.45); }
+  .wchip.f{ background: rgba(214,70,140,.12); border-color: rgba(214,70,140,.45); }
+  .wchip.cc{ background: rgba(var(--cc-rgb),0.14); border-color: rgba(var(--cc-rgb),0.5); }
+  .ref-content h2.h-masc{ color:#1f5fb0; }
+  .ref-content h2.h-fem{ color:#d6468c; }
+  .noun-item[data-fr^="le "]{ background: rgba(31,95,176,.10); border-color: rgba(31,95,176,.40); }
+  .noun-item[data-fr^="la "]{ background: rgba(214,70,140,.10); border-color: rgba(214,70,140,.40); }
+  .ref-tab{ transition: transform .1s ease; }
+  .ref-tab:hover{ transform: translateY(-2px); }
 </style>
 </head>
 <body>
@@ -780,15 +817,15 @@
       <button id="refCloseBtn" class="action btn-erase">close ✕</button>
     </div>
     <div class="ref-tabs">
-      <button class="ref-tab active" data-ref="verbs">Verbs</button>
-      <button class="ref-tab" data-ref="formulas">Tense formulas</button>
-      <button class="ref-tab" data-ref="articles">Articles</button>
-      <button class="ref-tab" data-ref="connectors">Connectors</button>
-      <button class="ref-tab" data-ref="numbers">Numbers</button>
-      <button class="ref-tab" data-ref="time">Time</button>
-      <button class="ref-tab" data-ref="dailystory">Daily Book Story</button>
-      <button class="ref-tab" data-ref="prepositions">Prepositions</button>
-      <button class="ref-tab" data-ref="translator">Translator</button>
+      <button class="ref-tab active" data-ref="verbs">🏃 Verbs</button>
+      <button class="ref-tab" data-ref="formulas">🧩 Tense formulas</button>
+      <button class="ref-tab" data-ref="articles">🔤 Articles</button>
+      <button class="ref-tab" data-ref="connectors">🔗 Connectors</button>
+      <button class="ref-tab" data-ref="numbers">🔢 Numbers</button>
+      <button class="ref-tab" data-ref="time">🕐 Time</button>
+      <button class="ref-tab" data-ref="dailystory">📚 Daily Book Story</button>
+      <button class="ref-tab" data-ref="prepositions">📍 Prepositions</button>
+      <button class="ref-tab" data-ref="translator">🌐 Translator</button>
     </div>
     <div id="refContent" class="ref-content"></div>
     <div id="clockTooltip" class="clock-tooltip"></div>
@@ -2565,17 +2602,23 @@ function verbList(str){
 
 const refData = {
   verbs: `
-    <h2>Regular -ER verbs</h2>
-    <p>` + verbList("parler, manger, commencer, préférer, payer, essayer, acheter, appeler, aimer, habiter, regarder, écouter, chercher, trouver, donner, demander, expliquer, jouer, travailler, penser") + `</p>
-    <h2>Regular -IR verbs</h2>
-    <p>` + verbList("finir, choisir, réussir, remplir, réfléchir, grandir, vieillir, maigrir, grossir, rougir, agir, punir, guérir, obéir, désobéir, applaudir, avertir, établir, nourrir, bâtir") + `</p>
-    <h2>Regular -RE verbs</h2>
-    <p>` + verbList("attendre, répondre, vendre, perdre, descendre, entendre, rendre, défendre, dépendre, mordre, tondre, confondre, correspondre, fondre, pendre, prétendre, suspendre, tordre, interrompre, rompre") + `</p>
-    <h2>Reflexive (pronominal) verbs</h2>
-    <p>` + verbList("se lever, se coucher, se réveiller, s'habiller, s'amuser, se laver, se doucher, se maquiller, se raser, se brosser les dents, se peigner, se reposer, se promener, se dépêcher, se souvenir, s'appeler, se sentir, s'ennuyer, se marier, s'inquiéter") + `</p>
-    <h2>Irregular verbs</h2>
-    <p>` + verbList("aller, avoir, être, faire, prendre, vouloir, pouvoir, devoir, savoir, voir, dire, venir, mettre, sortir, partir, dormir, connaître, écrire, lire, boire, courir, ouvrir") + `</p>
-    <h2>50 masculine nouns (le) — by category</h2>
+    <div class="rcard c-green"><div class="rtitle">🟢 Regular -ER verbs <span class="rsub">the friendly majority</span></div>
+    <div class="rtip">Most French verbs end in <b>-er</b>. Learn this pattern once and it works for hundreds of verbs: <b>je parle · tu parles · il parle · nous parlons · vous parlez · ils parlent</b></div>
+    <div class="rchips">` + verbList("parler, manger, commencer, préférer, payer, essayer, acheter, appeler, aimer, habiter, regarder, écouter, chercher, trouver, donner, demander, expliquer, jouer, travailler, penser") + `</div></div>
+    <div class="rcard c-orange"><div class="rtitle">🟠 Regular -IR verbs <span class="rsub">they grow an extra “-iss-”</span></div>
+    <div class="rtip">Pattern: <b>je finis · tu finis · il finit · nous finissons · vous finissez · ils finissent</b></div>
+    <div class="rchips">` + verbList("finir, choisir, réussir, remplir, réfléchir, grandir, vieillir, maigrir, grossir, rougir, agir, punir, guérir, obéir, désobéir, applaudir, avertir, établir, nourrir, bâtir") + `</div></div>
+    <div class="rcard c-purple"><div class="rtitle">🟣 Regular -RE verbs <span class="rsub">the “il” form has no ending</span></div>
+    <div class="rtip">Pattern: <b>je vends · tu vends · il vend · nous vendons · vous vendez · ils vendent</b></div>
+    <div class="rchips">` + verbList("attendre, répondre, vendre, perdre, descendre, entendre, rendre, défendre, dépendre, mordre, tondre, confondre, correspondre, fondre, pendre, prétendre, suspendre, tordre, interrompre, rompre") + `</div></div>
+    <div class="rcard c-pink"><div class="rtitle">🌸 Reflexive verbs <span class="rsub">they come with a little helper word</span></div>
+    <div class="rtip">Add <b>me / te / se / nous / vous / se</b> before the verb: <b>je me lève · tu te lèves · il se lève</b>. In the past they use <i>être</i>: <b>je me suis levé</b>.</div>
+    <div class="rchips">` + verbList("se lever, se coucher, se réveiller, s'habiller, s'amuser, se laver, se doucher, se maquiller, se raser, se brosser les dents, se peigner, se reposer, se promener, se dépêcher, se souvenir, s'appeler, se sentir, s'ennuyer, se marier, s'inquiéter") + `</div></div>
+    <div class="rcard c-red"><div class="rtitle">🔴 Irregular verbs <span class="rsub">memorize these — you will use them every day</span></div>
+    <div class="rtip">These break the patterns, but they are also the most-used verbs in French. Learn them one by one!</div>
+    <div class="rchips">` + verbList("aller, avoir, être, faire, prendre, vouloir, pouvoir, devoir, savoir, voir, dire, venir, mettre, sortir, partir, dormir, connaître, écrire, lire, boire, courir, ouvrir") + `</div></div>
+    <div class="rhint">Hover a verb for its English meaning · click it to hear it.</div>
+    <h2 class="h-masc">🔵 50 masculine nouns (le) — by category</h2>
     <div class="cat-group"><span class="cat-label">Food & drink</span>
     <div class="cat-pills">
     <div class="num-item noun-item" data-fr="le pain" data-ex="J'achète du pain tous les matins."><span class="word-area"><span>le pain</span><span class="n">bread</span></span><button type="button" class="mini-speak">&#128266;</button></div>
@@ -2653,7 +2696,7 @@ const refData = {
     <div class="num-item noun-item" data-fr="le journal" data-ex="Il lit le journal chaque matin."><span class="word-area"><span>le journal</span><span class="n">newspaper</span></span><button type="button" class="mini-speak">&#128266;</button></div>
     <div class="num-item noun-item" data-fr="le sport" data-ex="Le sport me rend heureux."><span class="word-area"><span>le sport</span><span class="n">sport</span></span><button type="button" class="mini-speak">&#128266;</button></div>
     </div></div>
-    <h2>50 feminine nouns (la) — by category</h2>
+    <h2 class="h-fem">🌸 50 feminine nouns (la) — by category</h2>
     <div class="cat-group"><span class="cat-label">Body</span>
     <div class="cat-pills">
     <div class="num-item noun-item" data-fr="la tête" data-ex="J'ai mal à la tête."><span class="word-area"><span>la tête</span><span class="n">head</span></span><button type="button" class="mini-speak">&#128266;</button></div>
@@ -2738,53 +2781,13 @@ const refData = {
     <p style="font-size:12px; opacity:0.6; margin-top:10px;">Click a word to see an example sentence. Click &#128266; to hear it pronounced.</p>
   `,
   formulas: `
-    <h2>Passé composé</h2>
-    <p>avoir/être (présent) + past participle.<br>
-    -er verbs → -é (parlé) · -ir verbs → -i (fini) · -re verbs → -u (attendu).<br>
-    Verbs of movement/state (aller, venir, arriver, partir, entrer, sortir, monter, descendre, naître, mourir, rester, retourner, tomber) and all reflexive verbs use être instead of avoir.</p>
-    <h2>Imparfait</h2>
-    <p>Take the "nous" form of the présent, drop "-ons", add: -ais, -ais, -ait, -ions, -iez, -aient.<br>
-    Exception: être uses the stem ét- (j'étais, tu étais...).</p>
-    <h2>Futur simple</h2>
-    <p>Infinitive (drop the final -e on -re verbs) + endings: -ai, -as, -a, -ons, -ez, -ont.<br>
-    Irregular stems: aller→ir-, avoir→aur-, être→ser-, faire→fer-, pouvoir→pourr-, devoir→devr-, savoir→saur-, voir→verr-, venir→viendr-, vouloir→voudr-.</p>
-    <h2>Conditionnel présent</h2>
-    <p>Same stem as futur simple + imparfait endings: -ais, -ais, -ait, -ions, -iez, -aient.</p>
-    <h2>Subjonctif présent</h2>
-    <p>Take the "ils" form of the présent, drop "-ent", add: -e, -es, -e, -ions, -iez, -ent (nous/vous often match the imparfait forms).<br>
-    Irregular subjunctives: être (que je sois), avoir (que j'aie), aller (que j'aille), faire (que je fasse), pouvoir (que je puisse), savoir (que je sache), vouloir (que je veuille).<br>
-    Common triggers: il faut que, vouloir que, il est important/possible/nécessaire que, douter que, avoir peur que, être content/triste que.</p>
-  `,
+<div class="rcard c-blue"><div class="rtitle">🧩 Passé composé <span class="rsub">things that happened</span></div><div class="rtip">Build it from a helper verb plus a past participle.</div><div class="formula"><span class="fchip">avoir / être (présent)</span> <b class="op">+</b> <span class="fchip">participe passé</span></div><div class="rtip">Participle endings: <span class="fchip">-er → -é (parlé)</span><span class="fchip">-ir → -i (fini)</span><span class="fchip">-re → -u (attendu)</span></div><div class="ex"><button type="button" class="say" data-say="Hier, j'ai mangé une pizza.">🔊</button><span class="exfr">Hier, j'ai mangé une pizza.</span><span class="exen">Yesterday I ate a pizza.</span></div><div class="rtip"><b>Être verbs</b> (movement &amp; change) and all reflexive verbs use <i>être</i>. Memory trick: <b>DR &amp; MRS VANDERTRAMP</b> — Devenir, Revenir, Monter, Rester, Sortir, Venir, Aller, Naître, Descendre, Entrer, Rentrer, Tomber, Retourner, Arriver, Mourir, Partir. With être, the participle agrees with the subject: il est parti → elle est partie.</div><div class="ex"><button type="button" class="say" data-say="Elle est partie à huit heures.">🔊</button><span class="exfr">Elle est partie à huit heures.</span><span class="exen">She left at eight o'clock.</span></div></div><div class="rcard c-orange"><div class="rtitle">🎞️ Imparfait <span class="rsub">how things used to be</span></div><div class="rtip">Take the <b>nous</b> form of the présent, drop <b>-ons</b>, add the endings.</div><div class="formula"><span class="fchip">nous-form − ons</span> <b class="op">+</b> <span class="fchip">-ais · -ais · -ait · -ions · -iez · -aient</span></div><div class="rtip">Only exception: <b>être</b> uses the stem <b>ét-</b> (j’étais, tu étais…).</div><div class="ex"><button type="button" class="say" data-say="Quand j'étais petit, je jouais dans le jardin.">🔊</button><span class="exfr">Quand j'étais petit, je jouais dans le jardin.</span><span class="exen">When I was little, I used to play in the garden.</span></div></div><div class="rcard c-purple"><div class="rtitle">🔮 Futur simple <span class="rsub">what will happen</span></div><div class="rtip">Start from the infinitive (drop the final -e of -re verbs) and add the endings.</div><div class="formula"><span class="fchip">infinitif</span> <b class="op">+</b> <span class="fchip">-ai · -as · -a · -ons · -ez · -ont</span></div><div class="rtip">Irregular stems: <span class="fchip">aller → ir-</span><span class="fchip">avoir → aur-</span><span class="fchip">être → ser-</span><span class="fchip">faire → fer-</span><span class="fchip">pouvoir → pourr-</span><span class="fchip">devoir → devr-</span><span class="fchip">savoir → saur-</span><span class="fchip">voir → verr-</span><span class="fchip">venir → viendr-</span><span class="fchip">vouloir → voudr-</span></div><div class="ex"><button type="button" class="say" data-say="Demain, nous irons à la plage.">🔊</button><span class="exfr">Demain, nous irons à la plage.</span><span class="exen">Tomorrow we will go to the beach.</span></div></div><div class="rcard c-teal"><div class="rtitle">🙏 Conditionnel présent <span class="rsub">polite wishes &amp; “what if”</span></div><div class="rtip">Same stem as the futur simple, but with the <b>imparfait</b> endings.</div><div class="formula"><span class="fchip">futur stem</span> <b class="op">+</b> <span class="fchip">-ais · -ais · -ait · -ions · -iez · -aient</span></div><div class="ex"><button type="button" class="say" data-say="Je voudrais un café, s'il vous plaît.">🔊</button><span class="exfr">Je voudrais un café, s'il vous plaît.</span><span class="exen">I would like a coffee, please.</span></div><div class="ex"><button type="button" class="say" data-say="Si j'avais le temps, je voyagerais.">🔊</button><span class="exfr">Si j'avais le temps, je voyagerais.</span><span class="exen">If I had time, I would travel.</span></div></div><div class="rcard c-pink"><div class="rtitle">💭 Subjonctif présent <span class="rsub">wishes, doubts &amp; feelings</span></div><div class="rtip">Take the <b>ils</b> form of the présent, drop <b>-ent</b>, add the endings (nous/vous often look like the imparfait).</div><div class="formula"><span class="fchip">ils-form − ent</span> <b class="op">+</b> <span class="fchip">-e · -es · -e · -ions · -iez · -ent</span></div><div class="rtip">Irregular: <span class="fchip">être → que je sois</span><span class="fchip">avoir → que j’aie</span><span class="fchip">aller → que j’aille</span><span class="fchip">faire → que je fasse</span><span class="fchip">pouvoir → que je puisse</span><span class="fchip">savoir → que je sache</span><span class="fchip">vouloir → que je veuille</span></div><div class="rtip">Triggers: <span class="fchip">il faut que</span><span class="fchip">vouloir que</span><span class="fchip">il est important que</span><span class="fchip">douter que</span><span class="fchip">avoir peur que</span><span class="fchip">être content que</span></div><div class="ex"><button type="button" class="say" data-say="Il faut que tu viennes.">🔊</button><span class="exfr">Il faut que tu viennes.</span><span class="exen">You have to come.</span></div><div class="ex"><button type="button" class="say" data-say="Je veux que tu sois à l'heure.">🔊</button><span class="exfr">Je veux que tu sois à l'heure.</span><span class="exen">I want you to be on time.</span></div></div>  `,
   articles: `
-    <h2>Definite articles</h2>
-    <p>le (masc.), la (fem.), l' (before a vowel), les (plural) — "the"</p>
-    <h2>Indefinite articles</h2>
-    <p>un (masc.), une (fem.), des (plural) — "a/an/some"</p>
-    <h2>Partitive articles</h2>
-    <p>du (masc.), de la (fem.), de l' (before a vowel), des (plural) — "some/any" (uncountable quantities)</p>
-    <h2>Contractions</h2>
-    <p>à + le → au · à + les → aux · de + le → du · de + les → des</p>
-    <h2>Masculine (le) or feminine (la)? — common patterns</h2>
-    <p>Often masculine: words ending in -age, -ment, -eau, -isme, -ail (le fromage, le moment, le bureau).<br>
-    Often feminine: words ending in -tion, -sion, -té, -ette, -ure, -ence (la nation, la beauté, la voiture).<br>
-    These are helpful patterns, not strict rules — gender still needs to be learned per word.</p>
-    <h2>Common masculine nouns (le)</h2>
-    <p>le pain (bread), le fromage (cheese), le travail (work), le pays (country), le monde (world), le temps (time/weather), le problème (problem), le film (movie), le magasin (store), le bureau (office/desk), le voyage (trip), le soleil (sun), le ciel (sky), le nom (name), le prix (price), le corps (body), le rêve (dream), le chemin (path), le livre (book), le café (coffee/café)</p>
-    <h2>Common feminine nouns (la)</h2>
-    <p>la vie (life), la maison (house), la voiture (car), la nuit (night), la ville (city), la table (table), la chose (thing), la main (hand), la porte (door), la question (question), la musique (music), la lettre (letter), la lumière (light), la mer (sea), la peur (fear), la route (road), la santé (health), la famille (family), la classe (class), la fleur (flower)</p>
+<div class="rcard c-blue"><div class="rtitle">🔵 Definite articles <span class="rsub">“the”</span></div><div class="formula"><span class="fchip">le (masc.)</span> <span class="fchip">la (fem.)</span> <span class="fchip">l' (before a vowel)</span> <span class="fchip">les (plural)</span></div><div class="ex"><button type="button" class="say" data-say="Le livre est sur la table.">🔊</button><span class="exfr">Le livre est sur la table.</span><span class="exen">The book is on the table.</span></div><div class="ex"><button type="button" class="say" data-say="J'aime l'école.">🔊</button><span class="exfr">J'aime l'école.</span><span class="exen">I like school.</span></div></div><div class="rcard c-green"><div class="rtitle">🟢 Indefinite articles <span class="rsub">“a / an / some”</span></div><div class="formula"><span class="fchip">un (masc.)</span> <span class="fchip">une (fem.)</span> <span class="fchip">des (plural)</span></div><div class="ex"><button type="button" class="say" data-say="J'ai un chien et une maison.">🔊</button><span class="exfr">J'ai un chien et une maison.</span><span class="exen">I have a dog and a house.</span></div></div><div class="rcard c-orange"><div class="rtitle">🟡 Partitive articles <span class="rsub">“some / any” (things you can’t count)</span></div><div class="formula"><span class="fchip">du (masc.)</span> <span class="fchip">de la (fem.)</span> <span class="fchip">de l' (vowel)</span> <span class="fchip">des (plural)</span></div><div class="ex"><button type="button" class="say" data-say="Je mange du pain et de la soupe.">🔊</button><span class="exfr">Je mange du pain et de la soupe.</span><span class="exen">I eat bread and soup.</span></div><div class="ex"><button type="button" class="say" data-say="Je bois de l'eau.">🔊</button><span class="exfr">Je bois de l'eau.</span><span class="exen">I drink water.</span></div></div><div class="rcard c-purple"><div class="rtitle">🔀 Contractions <span class="rsub">articles that fuse together</span></div><div class="formula"><span class="fchip">à + le → au</span> <span class="fchip">à + les → aux</span> <span class="fchip">de + le → du</span> <span class="fchip">de + les → des</span></div><div class="ex"><button type="button" class="say" data-say="Je vais au marché.">🔊</button><span class="exfr">Je vais au marché.</span><span class="exen">I'm going to the market.</span></div><div class="ex"><button type="button" class="say" data-say="Je viens du cinéma.">🔊</button><span class="exfr">Je viens du cinéma.</span><span class="exen">I'm coming from the cinema.</span></div></div><div class="rcard c-teal"><div class="rtitle">🎯 Guess the gender <span class="rsub">helpful endings (not strict rules!)</span></div><div class="rtip">Often <b style="color:#1f5fb0">masculine</b>: <span class="fchip">-age</span><span class="fchip">-ment</span><span class="fchip">-eau</span><span class="fchip">-isme</span><span class="fchip">-ail</span></div><div class="rtip">Often <b style="color:#d6468c">feminine</b>: <span class="fchip">-tion</span><span class="fchip">-sion</span><span class="fchip">-té</span><span class="fchip">-ette</span><span class="fchip">-ure</span><span class="fchip">-ence</span></div><div class="rtip">Watch out! <b>la plage</b>, <b>la page</b>, <b>la cage</b> are feminine even though they end in -age.</div></div><div class="rcard c-blue"><div class="rtitle">🔵 20 common masculine nouns <span class="rsub">tap to hear</span></div><div><span class="wchip m" data-say="le pain">le pain<small>bread</small></span><span class="wchip m" data-say="le fromage">le fromage<small>cheese</small></span><span class="wchip m" data-say="le travail">le travail<small>work</small></span><span class="wchip m" data-say="le pays">le pays<small>country</small></span><span class="wchip m" data-say="le monde">le monde<small>world</small></span><span class="wchip m" data-say="le temps">le temps<small>time/weather</small></span><span class="wchip m" data-say="le problème">le problème<small>problem</small></span><span class="wchip m" data-say="le film">le film<small>movie</small></span><span class="wchip m" data-say="le magasin">le magasin<small>store</small></span><span class="wchip m" data-say="le bureau">le bureau<small>office/desk</small></span><span class="wchip m" data-say="le voyage">le voyage<small>trip</small></span><span class="wchip m" data-say="le soleil">le soleil<small>sun</small></span><span class="wchip m" data-say="le ciel">le ciel<small>sky</small></span><span class="wchip m" data-say="le nom">le nom<small>name</small></span><span class="wchip m" data-say="le prix">le prix<small>price</small></span><span class="wchip m" data-say="le corps">le corps<small>body</small></span><span class="wchip m" data-say="le rêve">le rêve<small>dream</small></span><span class="wchip m" data-say="le chemin">le chemin<small>path</small></span><span class="wchip m" data-say="le livre">le livre<small>book</small></span><span class="wchip m" data-say="le café">le café<small>coffee/café</small></span></div></div>
+<div class="rcard c-pink"><div class="rtitle">🌸 20 common feminine nouns <span class="rsub">tap to hear</span></div><div><span class="wchip f" data-say="la vie">la vie<small>life</small></span><span class="wchip f" data-say="la maison">la maison<small>house</small></span><span class="wchip f" data-say="la voiture">la voiture<small>car</small></span><span class="wchip f" data-say="la nuit">la nuit<small>night</small></span><span class="wchip f" data-say="la ville">la ville<small>city</small></span><span class="wchip f" data-say="la table">la table<small>table</small></span><span class="wchip f" data-say="la chose">la chose<small>thing</small></span><span class="wchip f" data-say="la main">la main<small>hand</small></span><span class="wchip f" data-say="la porte">la porte<small>door</small></span><span class="wchip f" data-say="la question">la question<small>question</small></span><span class="wchip f" data-say="la musique">la musique<small>music</small></span><span class="wchip f" data-say="la lettre">la lettre<small>letter</small></span><span class="wchip f" data-say="la lumière">la lumière<small>light</small></span><span class="wchip f" data-say="la mer">la mer<small>sea</small></span><span class="wchip f" data-say="la peur">la peur<small>fear</small></span><span class="wchip f" data-say="la route">la route<small>road</small></span><span class="wchip f" data-say="la santé">la santé<small>health</small></span><span class="wchip f" data-say="la famille">la famille<small>family</small></span><span class="wchip f" data-say="la classe">la classe<small>class</small></span><span class="wchip f" data-say="la fleur">la fleur<small>flower</small></span></div></div>
   `,
   connectors: `
-    <h2>Time</h2>
-    <p>d'abord (first), ensuite/puis (then/next), enfin (finally), pendant que (while), quand (when), dès que (as soon as)</p>
-    <h2>Cause</h2>
-    <p>parce que (because), car (because/for), puisque (since)</p>
-    <h2>Consequence</h2>
-    <p>donc (so), alors (so/then), c'est pourquoi (that's why)</p>
-    <h2>Opposition</h2>
-    <p>mais (but), cependant/pourtant (however), par contre (on the other hand)</p>
-    <h2>Addition</h2>
-    <p>et (and), aussi (also), de plus (moreover)</p>
-  `,
+<div class="rcard c-blue"><div class="rtitle">⏱️ Time <span class="rsub">put things in order</span></div><div class="rchips"><span class="wchip cc" data-say="d'abord">d'abord<small>first</small></span><span class="wchip cc" data-say="ensuite">ensuite<small>then</small></span><span class="wchip cc" data-say="puis">puis<small>next</small></span><span class="wchip cc" data-say="enfin">enfin<small>finally</small></span><span class="wchip cc" data-say="pendant que">pendant que<small>while</small></span><span class="wchip cc" data-say="quand">quand<small>when</small></span><span class="wchip cc" data-say="dès que">dès que<small>as soon as</small></span></div><div class="ex"><button type="button" class="say" data-say="D'abord je mange, ensuite je travaille.">🔊</button><span class="exfr">D'abord je mange, ensuite je travaille.</span><span class="exen">First I eat, then I work.</span></div></div><div class="rcard c-orange"><div class="rtitle">❓ Cause <span class="rsub">give a reason</span></div><div class="rchips"><span class="wchip cc" data-say="parce que">parce que<small>because</small></span><span class="wchip cc" data-say="car">car<small>because / for</small></span><span class="wchip cc" data-say="puisque">puisque<small>since</small></span></div><div class="ex"><button type="button" class="say" data-say="Je reste à la maison parce que je suis fatigué.">🔊</button><span class="exfr">Je reste à la maison parce que je suis fatigué.</span><span class="exen">I'm staying home because I'm tired.</span></div></div><div class="rcard c-green"><div class="rtitle">➡️ Consequence <span class="rsub">show the result</span></div><div class="rchips"><span class="wchip cc" data-say="donc">donc<small>so</small></span><span class="wchip cc" data-say="alors">alors<small>so / then</small></span><span class="wchip cc" data-say="c'est pourquoi">c'est pourquoi<small>that's why</small></span></div><div class="ex"><button type="button" class="say" data-say="Il pleut, donc je prends un parapluie.">🔊</button><span class="exfr">Il pleut, donc je prends un parapluie.</span><span class="exen">It's raining, so I take an umbrella.</span></div></div><div class="rcard c-red"><div class="rtitle">⚔️ Opposition <span class="rsub">show a contrast</span></div><div class="rchips"><span class="wchip cc" data-say="mais">mais<small>but</small></span><span class="wchip cc" data-say="cependant">cependant<small>however</small></span><span class="wchip cc" data-say="pourtant">pourtant<small>yet</small></span><span class="wchip cc" data-say="par contre">par contre<small>on the other hand</small></span></div><div class="ex"><button type="button" class="say" data-say="Il est petit, mais il est fort.">🔊</button><span class="exfr">Il est petit, mais il est fort.</span><span class="exen">He is small, but he is strong.</span></div></div><div class="rcard c-purple"><div class="rtitle">➕ Addition <span class="rsub">add more</span></div><div class="rchips"><span class="wchip cc" data-say="et">et<small>and</small></span><span class="wchip cc" data-say="aussi">aussi<small>also</small></span><span class="wchip cc" data-say="de plus">de plus<small>moreover</small></span></div><div class="ex"><button type="button" class="say" data-say="J'aime le thé et aussi le café.">🔊</button><span class="exfr">J'aime le thé et aussi le café.</span><span class="exen">I like tea and also coffee.</span></div></div>  `,
   time: `
     <h2>Asking the time / Demander l'heure</h2>
     <p>Quelle heure est-il ? — What time is it? &nbsp;·&nbsp; Vous avez l'heure ? — Do you have the time? (casual)</p>
@@ -3459,6 +3462,57 @@ function buildNumbersHTML(){
     <p style="font-size:12px; opacity:0.6; margin-top:10px;">Click any number to hear it pronounced.</p>`;
 }
 
+
+const funFacts = {
+  verbs: "💡 <b>Did you know?</b> <i>Être</i> (to be) and <i>avoir</i> (to have) are the most-used verbs in French — and they are also the “helpers” that build the past tense (j’ai mangé, je suis allé).",
+  formulas: "💡 <b>Tip:</b> think of every tense as a recipe — pick the base, add the ending, then taste it with an example. Tap any 🔊 to hear the sentence!",
+  articles: "💡 <b>Did you know?</b> Gender is mostly arbitrary: the sun is masculine in French (<i>le soleil</i>) and the moon is feminine (<i>la lune</i>) — the opposite of German!",
+  connectors: "💡 <b>Tip:</b> connectors are the glue of a good text. Using just three different ones in your writing instantly makes you sound more fluent. Tap a chip to hear it.",
+  numbers: "💡 <b>French quirk:</b> 70 is <i>soixante-dix</i> (sixty-ten) and 80 is <i>quatre-vingts</i> (four-twenties)! Belgians and most Swiss say <i>septante</i> and <i>nonante</i> instead.",
+  time: "💡 <b>Did you know?</b> In daily talk people say <i>et quart</i> or <i>moins le quart</i>, but timetables use 24-hour time: <i>dix-huit heures trente</i>. Hover the clock numbers!",
+  prepositions: "💡 <b>Did you know?</b> <i>Chez</i> has no one-word English translation — it means “at/to the home or place of” someone: <i>chez moi</i>, <i>chez le médecin</i>."
+};
+
+const catEmoji = {
+  "Food & drink":"🍞","Body":"🧍","House & objects":"🏠","House & home":"🏠","Clothing":"👕","Nature":"🌳",
+  "Places":"📍","Travel":"✈️","Abstract & life":"💭","Media & culture":"🎬","Society":"⚖️","Light":"💡"
+};
+
+// wraps every <h2> + the paragraphs after it into a coloured card
+function decorateCards(root){
+  const colors = ['c-blue','c-green','c-orange','c-purple','c-pink','c-teal','c-red'];
+  let i = 0;
+  Array.from(root.children).forEach(el=>{
+    if(el.tagName === 'H2' && el.parentElement === root){
+      const card = document.createElement('div');
+      card.className = 'rcard ' + colors[i++ % colors.length];
+      root.insertBefore(card, el);
+      card.appendChild(el);
+      el.className = 'rtitle';
+      let nxt = card.nextSibling;
+      while(nxt && nxt.tagName === 'P'){ const cur = nxt; nxt = nxt.nextSibling; card.appendChild(cur); }
+    }
+  });
+}
+
+function decorateRef(tab){
+  if(funFacts[tab]) refContent.insertAdjacentHTML('afterbegin', '<div class="fun-box">' + funFacts[tab] + '</div>');
+  if(tab === 'time' || tab === 'prepositions') decorateCards(refContent);
+  if(tab === 'verbs'){
+    refContent.querySelectorAll('.cat-label').forEach(l=>{
+      const t = l.textContent.trim();
+      if(catEmoji[t] && !l.dataset.done){ l.textContent = catEmoji[t] + ' ' + t; l.dataset.done = '1'; }
+    });
+  }
+  // tap-to-hear on example buttons, word chips and verb chips
+  refContent.querySelectorAll('.say, .wchip').forEach(el=>{
+    el.addEventListener('click', ()=> pronounceFr(el.dataset.say));
+  });
+  refContent.querySelectorAll('.rv').forEach(el=>{
+    el.addEventListener('click', ()=> pronounceFr(el.textContent));
+  });
+}
+
 function showRef(tab){
   if(tab === 'numbers'){ refContent.innerHTML = buildNumbersHTML(); }
   else if(tab === 'time'){ refContent.innerHTML = buildClockSVG() + refData.time; }
@@ -3467,6 +3521,7 @@ function showRef(tab){
   else if(tab === 'translator'){ refContent.innerHTML = buildTranslatorHTML('bk'); wireTranslator('bk'); }
   else { refContent.innerHTML = refData[tab]; }
   document.querySelectorAll('.ref-tab').forEach(t=> t.classList.toggle('active', t.dataset.ref === tab));
+  decorateRef(tab);
   if(tab === 'numbers'){
     refContent.querySelectorAll('.num-item').forEach(item=>{
       item.addEventListener('click', ()=> pronounceFr(item.dataset.fr));
